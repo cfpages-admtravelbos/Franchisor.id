@@ -25,6 +25,7 @@ Public Franchisor pages must only render records whose Franchisor publication ro
 - Shared data rules: `docs/data/SHARED_DATA_CONTRACT.md`
 - Current repository map: `CODEBASE.md`
 - Documentation index: `docs/README.md`
+- Production deployment and launch gates: `docs/operations/MANUAL_SETUP_CHECKLIST.md`
 - Historical implementation reference: sibling repository `../Franchisee.id`
 
 The Franchisee.id repository currently owns the shared D1 migration history. Do not create an independent or conflicting D1 migration chain here. Until migration ownership is moved to a dedicated shared package or infrastructure repository, shared schema changes must be designed and applied through Franchisee.id, then documented here.
@@ -65,6 +66,8 @@ For Franchisor-origin writes, use `source_site_id = 'site_franchisor_id'` where 
 ## Working agreements
 
 - Preserve existing legacy URLs until a redirect/canonical migration is documented and verified.
+- Keep Cloudflare Pages production configuration in the dashboard. This repository deliberately omits `pages_build_output_dir`; the D1/R2 entries in `wrangler.toml` are for local tooling.
+- Keep `pnpm run assets:check` at the end of the production build so broken or case-mismatched local asset routes fail before deployment.
 - Treat the current WordPress-export HTML as legacy input, not as the future data model.
 - Before modifying shared behavior, inspect the corresponding implementation and current docs in `../Franchisee.id`.
 - Update `CODEBASE.md` when architecture or important paths change.
@@ -73,4 +76,3 @@ For Franchisor-origin writes, use `source_site_id = 'site_franchisor_id'` where 
 - End substantial sessions with a timestamped `.context/session-YYYYMMDD-HHmm.md` snapshot.
 - Keep future ideas in `SUGGESTION.md`; do not silently expand the requested scope.
 - Verify changes in proportion to risk and report any checks that could not be run.
-

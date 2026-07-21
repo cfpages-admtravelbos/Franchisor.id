@@ -4,6 +4,16 @@ All notable repository file changes are recorded here.
 
 ## 2026-07-22
 
+### Documentation freshness reconciliation
+
+- Reconciled all 21 pre-existing repository Markdown files with the completed Franchisor runtime port, current D1/Clerk/R2/Astro architecture, dashboard-managed Cloudflare deployment model, and 2026-07-22 verification evidence.
+- Updated root guidance and status in `AGENTS.md`, `README.md`, `CODEBASE.md`, `SUGGESTION.md`, and this changelog.
+- Updated architecture/data/operations references in `docs/README.md`, `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md`, `docs/architecture/FRANCHISOR_BUILD_PLAN.md`, `docs/architecture/OCR_PROVIDER_STRATEGY.md`, `docs/architecture/R2_D1_MIGRATION_RUNBOOK.md`, `docs/data/FRANCHISE_FIELD_DICTIONARY.md`, `docs/data/SHARED_DATA_CONTRACT.md`, `docs/forms/AUTO_SAVE.md`, `docs/forms/CLAIM_TRANSITION_MATRIX.md`, and `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
+- Marked `docs/PORT_MANIFEST.md` and the two earlier `.context/` records as historical evidence so they cannot override current-state documentation.
+- Rebuilt `css/form-franchise/CSS_USAGE_MAP.md`, `js/symbols_inventory.md`, and `js/technical_comparison.md` around the active form-01–10 runtime, D1-backed submission path, Astro production build, Franchisor theme, and clearly isolated legacy generators.
+- Removed stale references to nonexistent local documents, an unconfigured OCR schedule, an unverified installed secret, and the obsolete static/Sheets migration state.
+- Added `.context/session-20260722-0602.md` as the documentation-refresh handoff and validation record.
+
 ### Adapted application runtime
 
 - Ported the Astro/Cloudflare application runtime from Franchisee.id and adapted site ownership to `site_franchisor_id`, public URLs to `franchisor.id`, and operator-facing identity/copy where site-specific.

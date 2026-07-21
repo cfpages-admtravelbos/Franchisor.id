@@ -125,7 +125,7 @@ D1 mutations do not automatically rebuild Cloudflare Pages. Franchisee.id implem
 - it prefers a Pages Deploy Hook and can use a direct `dist` deploy fallback;
 - success or retryable failure is written back to D1.
 
-Franchisor.id needs a separate workflow, Pages project, secrets, and deploy hook, all scoped to `SITE_ID=site_franchisor_id`. It must not consume or acknowledge another site's queue rows.
+Franchisor.id now contains its separate `d1-static-publish.yaml` workflow scoped to `SITE_ID=site_franchisor_id`. The Pages project, secrets, and deploy hook still require provider-side setup and a live test. The poller must not consume or acknowledge another site's queue rows.
 
 Generated output should not be used as an editable source or committed merely to trigger a deployment.
 
@@ -137,7 +137,7 @@ Free listings are primarily published on Franchisee.id. Premium activation creat
 
 Franchisor.id should turn eligible shared data into an operator-authority experience: richer brand proof, business support, owner controls, lead handling, and appropriate calls to action. It should avoid thin duplicated SEO pages and should set canonicals intentionally.
 
-## Product flows Franchisor should reuse
+## Product flows reused by Franchisor
 
 Franchisee.id already documents and implements a progressive franchisor onboarding model. The canonical concepts include:
 
@@ -151,7 +151,7 @@ Franchisee.id already documents and implements a progressive franchisor onboardi
 - claim/ownership state, verification, and publication readiness;
 - Indonesian defaults with optional international-brand country fields.
 
-Franchisor.id should reuse the same field meanings and validation rules. It may present a different sequence or operator-focused interface, but it must not invent incompatible columns or redefine financial terms.
+The ported Franchisor runtime reuses these field meanings and validation rules while presenting an operator-focused interface. Future changes must not invent incompatible columns or redefine financial terms.
 
 ## Repository and migration ownership
 
@@ -169,7 +169,7 @@ Longer term, shared schemas, identifiers, D1 migrations, and reusable server lib
 
 ## Legacy Franchisor site
 
-The current repository is a static WordPress export. It contains useful design assets, content, routes, and search history, but no live connection to the network.
+The repository is now a hybrid application. Astro routes, Pages Functions, Clerk integration code, D1 snapshot generation, and shared R2 support coexist with the retained WordPress export. The export remains useful legacy input for design assets, content, routes, and search history; it is not the live network data source.
 
 Migration principles:
 
@@ -177,7 +177,7 @@ Migration principles:
 - inventory and match legacy brands against canonical D1 identities before importing anything;
 - choose whether `/usaha/{slug}` redirects to or remains distinct from `/peluang-usaha/{slug}`;
 - generate one authoritative sitemap from the new build;
-- retire static login and registration pages when functional routes replace them;
+- keep the implemented functional login/registration routes authoritative and remove only obsolete legacy copies after production verification;
 - copy legacy content into the build only when it does not overwrite new routes;
 - assign intentional canonical URLs and redirects before removing old files.
 
@@ -192,4 +192,3 @@ The sites form one working network when:
 - audit history identifies the actor and source site;
 - legacy URLs resolve or redirect intentionally;
 - each site can deploy and fail independently without corrupting shared state.
-

@@ -22,8 +22,9 @@ Implemented on 2026-07-22:
 - Explicit runtime Clerk configuration with optional shared-tenant satellite support and no embedded key fallback.
 - GitHub workflows for Franchisor-scoped static publication and manual-only Premium email dispatch.
 - Deployment and provider setup instructions in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
+- A production asset crawler that validates every deployed HTML file and reachable CSS dependency.
 
-The existing home page still describes Franchisor.id as a directory of franchise and business opportunities. New application surfaces are operator/franchisor-facing while retaining public discovery. The shared database currently has zero published `site_franchisor_id` rows, so the generated directory is correctly empty until explicit publication rows are created.
+The existing home page still describes Franchisor.id as a directory of franchise and business opportunities. New application surfaces are operator/franchisor-facing while retaining public discovery. The shared database had zero published `site_franchisor_id` rows when verified on 2026-07-22, so that build's generated directory was correctly empty. Re-query D1 before relying on this count later.
 
 ## Target architecture
 
@@ -70,9 +71,9 @@ Franchisor.id/
 ├── wrangler.toml
 ├── src/
 │   ├── components/
-│   ├── layouts/
 │   ├── lib/
-│   └── pages/
+│   ├── pages/
+│   └── shared/
 ├── functions/             # Cloudflare Pages Functions
 ├── scripts/
 ├── css/franchisor-theme.css
@@ -114,6 +115,7 @@ The runtime was copied as an implementation baseline and then adapted. Shared ne
 - Production build: `pnpm run build`
 - Asset routing: the production build finishes with `scripts/check-built-assets.mjs`, which rejects missing/case-mismatched local dependencies before `dist` can be deployed.
 - Feature checks are exposed as the `*:check` scripts in `package.json`.
+- Last verified on 2026-07-22: Astro check returned 0 errors and 5 non-blocking hints; all 15 feature-contract checks passed; the build generated 12 Astro pages and validated 4,887 deployed files.
 - Do not start the development server unless the user explicitly asks.
 
 The build requires Cloudflare credentials to fetch the remote D1 snapshot. Production bindings and secrets are documented in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
@@ -122,7 +124,7 @@ The build requires Cloudflare credentials to fetch the remote D1 snapshot. Produ
 
 - Existing `/usaha/*` brand pages may collide with a proposed shared `/peluang-usaha/{slug}/` convention.
 - Old sitemap and canonical entries must not advertise both old and new URLs as primary.
-- Legacy form and login pages are static and must not be mistaken for working network authentication.
+- Functional `/login/`, `/daftar/`, `/profil/`, `/dashboard/`, and related application routes exist in code, but production auth/write behavior remains unverified until Cloudflare and Clerk are configured.
 - Re-importing the 34 legacy brand pages as new brands could duplicate canonical D1 records.
 - Copying Franchisee migrations into this repo would create split-brain schema ownership.
 - Shared identity does not mean cross-domain cookies; each origin needs explicit Clerk configuration.

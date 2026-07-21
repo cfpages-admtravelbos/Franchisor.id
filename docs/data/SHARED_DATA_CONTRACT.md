@@ -12,7 +12,7 @@ export const SITE_DOMAIN = "franchisor.id";
 export const SITE_ROLE = "franchisor";
 ```
 
-Do not scatter these literals throughout the future codebase. Put them in one validated site configuration module and import them everywhere.
+These literals are centralized in the implemented site configuration. Do not reintroduce scattered or conflicting copies.
 
 ## Core entity relationship
 
@@ -88,7 +88,7 @@ The Premium helper in Franchisee.id currently formats a Franchisor opportunity U
 https://franchisor.id/peluang-usaha/{slug}/
 ```
 
-The legacy repository instead contains brand pages under `/usaha/`. Before implementing the generator, choose and document one canonical convention and a redirect map. Do not publish both URL families as independent pages containing substantially the same content.
+The implemented generator uses `/peluang-usaha/{slug}/`. Retained legacy brand pages still exist under `/usaha/`; do not advertise both URL families as new canonical pages. Complete the route match and redirect/canonical decision before broad Franchisor publication or destructive legacy cleanup.
 
 Cross-domain pages should have distinct audience value. `is_primary` and `canonical_url` must be used intentionally; do not automatically point every page at Franchisee.id or self-canonicalize duplicates without an SEO decision.
 
@@ -141,4 +141,3 @@ Writers enqueue site-specific rebuild requests. A Franchisor publisher must:
 6. Roll out readers before writers when compatibility requires it.
 
 Do not add a Franchisor-only table to the shared database without considering naming, ownership, access, retention, audit, and effects on every network consumer.
-

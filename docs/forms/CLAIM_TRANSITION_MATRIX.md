@@ -2,10 +2,12 @@
 
 > Franchisor adaptation: use `site_franchisor_id` for request attribution and site-local behavior while preserving network-wide ownership and audit rules.
 
-Last updated: 2026-07-17 00:28 (Asia/Jakarta)
+Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Scope
 This matrix covers franchise listing claims written by `/form-submit` and reviewed in `/dashboard`.
+
+The transition contract is implemented and covered by local feature checks. Production Clerk/D1 authorization and end-to-end claim review still require the live launch smoke test in `../operations/MANUAL_SETUP_CHECKLIST.md`.
 
 | Scenario | Expected behavior | Current owner |
 | --- | --- | --- |

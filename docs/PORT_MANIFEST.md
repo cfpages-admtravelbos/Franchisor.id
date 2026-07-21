@@ -2,6 +2,8 @@
 
 Last updated: 2026-07-22
 
+> Historical scope record: this manifest describes the 2026-07-22 port and its file-level adaptations. Use `CODEBASE.md`, `docs/README.md`, and current code for present behavior; later documentation-only refreshes are recorded in `CHANGELOG.md` rather than expanding this port inventory.
+
 This is the file-level record for the 2026-07-22 Franchisee-to-Franchisor application adaptation. `added` means a path was introduced relative to the original Franchisor repository; `modified` means an existing legacy path was replaced or updated.
 
 ## Post-port deployment hardening

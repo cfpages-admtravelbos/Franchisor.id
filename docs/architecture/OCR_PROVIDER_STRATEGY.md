@@ -2,7 +2,7 @@
 
 > Franchisor adaptation: this is a shared operational contract. Provider credentials must be configured separately for the Franchisor Pages project and must never be committed.
 
-Last updated: 2026-07-11 (Asia/Jakarta)
+Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Decision
 
@@ -10,11 +10,11 @@ Use local selectable-text extraction first. Send only image-only/scanned brochur
 
 Provider credential metadata is still managed from D1 because the admin explicitly requested dashboard-managed configuration, but credential values must be encrypted before storage with a root key held outside D1. The root key is the Cloudflare Pages secret `OCR_KEY`. The dashboard must never return stored credential values, must use blank password fields to preserve existing values, and must audit only configuration metadata. Without `OCR_KEY`, new credential saves and provider enablement must fail closed so plaintext is not written to D1.
 
-For the next step of making one dashboard click drain up to 100 OCR jobs with delay/rate limiting, use the persisted batch-run plan in `docs/architecture/OCR_BATCH_SCHEDULING.md`. That document ranks scheduler/cron providers and recommends a server-side `ocr_batch_runs` model instead of one long dashboard request.
+The implemented dashboard deliberately uses bounded runs: one asset for dry-run and up to five queued jobs per manual batch. The protected `/ocr-worker` can process a bounded request, but this repository does not currently contain an OCR scheduling workflow. Add scheduling only through a separate reviewed change with an explicit quota/cost owner.
 
 ## Ranked provider shortlist
 
-Free limits change frequently. Verify the provider console before enabling production rotation. “Recurring” means the cited allowance resets; “trial” means it is not durable capacity.
+The provider allowance notes below were inherited from upstream research last reviewed on 2026-07-11. Limits and models are time-sensitive: verify each official provider page and the actual account console before enabling production rotation. “Recurring” means the cited allowance resets; “trial” means it is not durable capacity.
 
 | Rank | Provider | Official free allowance | Reset/type | Brochure fit | Integration notes |
 | ---: | --- | --- | --- | --- | --- |
@@ -59,23 +59,23 @@ Failed health checks should set `last_error`, `last_checked_at`, and one of `coo
 ## D1 and dashboard implementation plan
 
 - [x] Research and rank ten providers with official source links and free-limit caveats.
-- [x] Add committed D1 storage for provider metadata, masked credential state, priority, enablement, quota, reset period, trial expiry, and health status. Migration `0020_ocr_provider_configs.sql` was applied remotely on 2026-07-07 and seeded ten disabled providers with no credentials.
+- [x] Consume the shared D1 storage for provider metadata, masked credential state, priority, enablement, quota, reset period, trial expiry, and health status. The migration is `0020_ocr_provider_configs.sql` in the migration-owning Franchisee.id repository; Franchisor.id intentionally does not copy that migration chain.
 - [x] Add admin-only read/update helpers that never return stored key/secret values.
 - [x] Encrypt saved credential values with AES-GCM envelopes using Cloudflare Pages secret `OCR_KEY` as the external root secret. Existing plaintext values, if any, are re-encrypted on the next save instead of being returned to the browser.
 - [x] Add a dedicated `/dashboard` OCR tab with provider selector, provider-specific password credential fields, only the endpoint/account/region/model fields required by the selected provider, read-only quota/free-limit metadata, priority, enable toggle, and explicit credential-clear controls only when a stored credential exists.
 - [x] Add Zod validation, audit events without secret values, regression checks, documentation maps, changelog, and session context.
 - [x] Add provider adapters, quota counters, OCR job queue, content-hash cache, and bounded failover. OCR execution remains admin-triggered from `/dashboard`; provider credentials/configuration alone does not send brochure data externally.
-- [x] Store OCR job state in committed migration `0021_ocr_job_queue.sql`: `ocr_jobs`, `ocr_attempts`, `ocr_content_cache`, and `ocr_provider_usage_events`.
+- [x] Consume OCR job state introduced by upstream migration `0021_ocr_job_queue.sql`: `ocr_jobs`, `ocr_attempts`, `ocr_content_cache`, and `ocr_provider_usage_events`.
 - [x] Add `/dashboard-data` actions `enqueue_ocr_jobs` and `run_ocr_jobs`. Enqueue only creates local D1 jobs for active proposal image assets; `run_ocr_jobs` is the explicit action that fetches the image and sends it to enabled providers.
 - [x] Add `/dashboard-data` action `run_ocr_dry_run` and a `/dashboard` button for a one-asset production dry-run before broad backfills. The action requires `OCR_KEY` and at least one enabled provider, prepares at most one candidate job, and runs only that job.
 - [x] Normalize successful OCR output into `franchise_asset_knowledge` plus pending `proposal_extraction` suggestions, preserving the human review requirement before canonical listing fields change.
 - [x] Clarify dashboard execution semantics: Dry run is a real OCR call for one asset, while “Jalankan batch berikutnya” processes a bounded batch of up to five jobs per click to avoid request timeout and uncontrolled provider quota usage.
 - [x] Add copyable provider error status in `/dashboard` so an admin can paste provider health/error context into troubleshooting without exposing stored credentials.
-- [x] Add protected `/ocr-worker` and optional GitHub Actions cron for larger queued backfills. The route requires `OCR_SECRET`, processes at most ten jobs per request, defaults to five jobs, enforces a daily counted-usage cap, logs summaries to `operation_events`, and reuses the same queue/cache/failover runner as the dashboard.
+- [x] Add protected `/ocr-worker` support for an external scheduler or deliberate request. The route requires `OCR_SECRET`, processes at most ten jobs per request, defaults to five jobs, enforces a daily counted-usage cap, logs summaries to `operation_events`, and reuses the dashboard runner. No OCR cron/workflow is configured in this repository.
 - [x] Change manual batch selection to franchise-context-first ordering: queued proposal pages for one franchise are processed by page order before the runner moves to another franchise, while content-hash cache still prevents duplicate OCR for images that were already processed.
 - [x] Surface page/source context in `/dashboard` OCR results so each OCR text preview clearly shows which franchise and proposal page it came from.
-- [x] Add migration `0022_ocr_provider_rate_limits.sql` with local provider request-window metadata and `cooldown_until`; manual dashboard batches and the protected worker now skip providers during cooldown and expose rate/cooldown metadata in the OCR provider panel.
-- [x] Calibrate provider limits with migration `0029_ocr_provider_actual_limits.sql` and shared metadata in `src/lib/ocr-provider-metadata.js`. The dashboard now shows detailed provider limit notes, source links, per-provider remaining quota, and the combined known capacity of active providers. OCR.Space is configured as 500 requests/day, not the old internal 100-job worker cap; the local E553 guard is 180 requests/hour.
+- [x] Consume upstream migration `0022_ocr_provider_rate_limits.sql` for request-window metadata and `cooldown_until`; manual dashboard batches and the protected worker skip providers during cooldown.
+- [x] Consume upstream migration `0029_ocr_provider_actual_limits.sql` and shared metadata in `src/lib/ocr-provider-metadata.js`. Reverify provider limits before use rather than treating the stored research values as permanent guarantees.
 
 ## Dashboard credential field rules
 
@@ -100,23 +100,6 @@ The provider field/requirement contract lives in `src/lib/ocr-provider-metadata.
 
 Set the Cloudflare Pages secret `OCR_KEY` before saving or enabling OCR providers. Use a long random value and rotate it only with a planned re-encryption pass, because existing encrypted D1 envelopes depend on this root key.
 
-Set the shared worker trigger secret as `OCR_SECRET` in both Cloudflare Pages and GitHub Actions before using the OCR worker. The current project has this secret installed without exposing its value.
+Set `OCR_SECRET` and the matching external caller configuration only if the protected worker will be used. No installed secret or external schedule is assumed by this document. `OCR_WORKER_DAILY_CAP` can impose a lower global daily ceiling than provider quotas.
 
-Manual workflow runs are allowed without the enable variable so one-off testing stays easy. Scheduled cron runs remain inert until repository variable `OCR_WORKER_ENABLED=true` is set, because cron can spend OCR quota without an admin watching it. Optional controls:
-
-- `OCR_WORKER_SITE_URL`: GitHub repository variable; defaults to `https://franchisor.id`.
-- `OCR_WORKER_DAILY_CAP`: optional Cloudflare Pages environment safety cap. When unset, the worker uses the combined remaining quota of active providers with known free limits; each provider is still checked individually before any job is assigned to it. Set this only when you intentionally want a lower global daily ceiling than the provider quotas allow.
-
-The scheduled worker does not enqueue new work by itself. Admins still enqueue proposal assets from `/dashboard`; the worker only drains pending `ocr_jobs` in small quota-aware batches.
-
-To enable scheduled runs from PowerShell:
-
-```powershell
-gh variable set OCR_WORKER_ENABLED --body true -R cfpages-syamsulalam-net/Franchisor.id
-```
-
-To disable scheduled runs:
-
-```powershell
-gh variable set OCR_WORKER_ENABLED --body false -R cfpages-syamsulalam-net/Franchisor.id
-```
+Admins enqueue proposal assets from `/dashboard`; the worker only drains pending `ocr_jobs`. Follow `docs/operations/MANUAL_SETUP_CHECKLIST.md` for Cloudflare web-UI secret configuration. Do not enable unattended scheduling until a reviewed workflow or scheduler exists and a production dry-run succeeds.

@@ -14,6 +14,8 @@ pnpm run build
 
 The build reads only published `site_franchisor_id` rows from the shared D1 database. An empty generated directory is valid when no Franchisor publication rows exist.
 
+The last verified build on 2026-07-22 generated 12 Astro pages, preserved the legacy site, and validated 4,887 deployed files for missing or case-mismatched HTML/CSS asset references. Provider-side production setup and live smoke tests are still pending; see the manual checklist before treating the site as launched.
+
 ## Documentation
 
 - `AGENTS.md` — repository rules and shared-network invariants.
@@ -21,5 +23,6 @@ The build reads only published `site_franchisor_id` rows from the shared D1 data
 - `docs/operations/MANUAL_SETUP_CHECKLIST.md` — required Cloudflare, Clerk, GitHub, DNS, and optional integration setup.
 - `docs/architecture/FRANCHISOR_BUILD_PLAN.md` — implementation status and remaining phases.
 - `docs/data/SHARED_DATA_CONTRACT.md` — shared D1/R2 contract.
+- `docs/README.md` — complete documentation index and freshness rules.
 
 Do not add an independent D1 migration chain here. The sibling Franchisee.id repository currently owns the shared migrations.

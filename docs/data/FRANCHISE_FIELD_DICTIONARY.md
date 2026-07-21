@@ -1,9 +1,11 @@
 # Franchise Field Dictionary
 
-Last updated: 2026-07-17 00:28 (Asia/Jakarta)
+Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Purpose
 This document is the review-facing source of truth for franchise listing fields that often appear under different brochure wording. Keep runtime labels and OCR evidence keywords aligned with `src/lib/franchise-field-dictionary.js`.
+
+Franchisor.id consumes the shared deployed schema and runtime field contract. Schema migrations remain owned by `../Franchisee.id`; changes here alone do not change D1.
 
 ## Canonical Rules
 

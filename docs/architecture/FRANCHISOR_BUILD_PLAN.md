@@ -14,12 +14,14 @@ This plan deliberately separates shared platform behavior from Franchisor presen
 | --- | --- |
 | 0 — guardrails/inventory | Documentation and non-overwriting legacy bridge complete; final SEO redirect inventory remains open. |
 | 1 — scaffold/bridge | Complete locally. |
-| 2 — D1 publication pipeline | Complete locally; remote query correctly found zero published Franchisor rows. |
+| 2 — D1 publication pipeline | Complete locally; the 2026-07-22 remote query correctly found zero published Franchisor rows. |
 | 3 — independent publishing | Code/workflow complete; Cloudflare Pages project, bindings, deploy hook, and live test pending. |
 | 4 — identity/operator account | Code complete; Clerk satellite, DNS, variables, webhook, and live auth test pending. |
 | 5 — onboarding/brand management | Ported and adapted; live authorization/write-flow verification pending. |
 | 6 — Premium/leads | Ported and adapted; provider configuration and live lifecycle verification pending. |
 | 7 — legacy retirement/SEO | Not started; legacy content is intentionally preserved. |
+
+The bullets inside phases marked complete or ported describe delivered scope and acceptance criteria; they are not an instruction to recreate that code. Only the stated pending/manual items remain open.
 
 ## Phase 0 — guardrails and inventory
 
@@ -56,7 +58,7 @@ Acceptance:
 
 ## Phase 2 — read-only D1 publication pipeline
 
-Status: complete locally. The verified remote result is zero `site_franchisor_id` publications, so no generated brand pages are expected yet.
+Status: complete locally. The 2026-07-22 remote result was zero `site_franchisor_id` publications, so no generated brand pages were expected in that build. Re-query before relying on the count.
 
 - Adapt the Franchisee D1 generator pattern into a Franchisor-specific module.
 - Query only published `site_franchisor_id` rows and active canonical franchises.
@@ -97,7 +99,7 @@ Status: auth/profile runtime is present and the client supports explicit Clerk s
 - Implement server-side identity sync and D1 role checks.
 - Build a Franchisor profile surface from shared `franchisor_profiles` data.
 - Reuse ownership and claim rules rather than trusting email or client metadata alone.
-- Replace legacy static login/registration routes only after the real routes work.
+- Keep the implemented functional login/registration routes authoritative; retire obsolete legacy copies only after live Clerk verification.
 
 Acceptance:
 
@@ -176,4 +178,4 @@ When Codex is next opened in this repository for launch work:
 - Which dashboard capabilities belong directly in Franchisor.id versus a future shared network console.
 - When shared schema, schemas, and reusable server code should move out of Franchisee.id into a dedicated package/repository.
 
-These decisions should not block the Phase 1 scaffold, but they must be settled before broad page generation or destructive legacy cleanup.
+Phase 1 is complete. These decisions do not block provider launch testing, but they must be settled before broad brand publication or destructive legacy cleanup.

@@ -2,7 +2,7 @@
 
 > Migration ownership notice: Franchisor.id consumes the shared D1/R2 contract, but shared schema migrations remain owned and applied from `../Franchisee.id` until a dedicated network infrastructure repository exists.
 
-Last updated: 2026-07-17 00:28 (Asia/Jakarta)
+Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Purpose
 Use this checklist for one-time migrations that move large text/media payloads out of D1 and into R2 while D1 keeps only metadata, previews, structured fields, and object keys.
@@ -31,7 +31,7 @@ Use this checklist for one-time migrations that move large text/media payloads o
    - clear large D1 payload columns,
    - keep previews and structured extraction fields,
    - keep object keys and audit metadata.
-7. Update docs, `CODEBASE.md`, `TECHNICAL_INVENTORY.md`, `CHANGELOG.md`, and session context.
+7. Update the focused contract/runbook, `CODEBASE.md`, `js/symbols_inventory.md` when JavaScript ownership changes, `CHANGELOG.md`, and session context.
 
 ## OCR Text Status
 The historical OCR text backfill completed on 2026-07-16. New OCR text should be written to R2 directly through `_ocr-text-store.js`; D1 should not become the primary long-text store again.

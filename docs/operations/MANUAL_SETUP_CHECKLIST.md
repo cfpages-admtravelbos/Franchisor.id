@@ -4,6 +4,8 @@ Last updated: 2026-07-22
 
 The code is built and locally verified. The steps below require access to Cloudflare, Clerk, GitHub, and any optional providers, so they must be completed manually before the production application features can work.
 
+Verification baseline from 2026-07-22: Astro check had 0 errors and 5 non-blocking hints, all 15 feature-contract checks passed, Astro generated 12 pages, and `assets:check` validated 4,887 deployed files. Re-run the build for the commit being deployed; these counts are evidence for that snapshot, not a substitute for the deployment log.
+
 Never paste secret keys into this repository, Markdown, a public issue, or a client-side variable. Use encrypted Cloudflare or GitHub secrets.
 
 ## 1. Deploy Astro through the Cloudflare web UI (no terminal deployment)
@@ -167,7 +169,7 @@ Configure only the features you intend to enable:
 | Feature | Variables/secrets | Required external action |
 | --- | --- | --- |
 | Premium email | `RESEND_API_KEY`, `PREMIUM_EMAIL_FROM`, `PREMIUM_EMAIL_REPLY_TO`, `PREMIUM_EMAIL_WORKER_SECRET` | Verify the sending domain/address in Resend. |
-| OCR worker | `OCR_KEY` or `OCR_SECRET`, `OCR_WORKER_URL`, `OCR_WORKER_DAILY_CAP` | Use a random secret of at least 32 bytes and configure the same secret on the worker. |
+| OCR | `OCR_KEY` for encrypted provider credentials; `OCR_SECRET`, `OCR_WORKER_URL`, and `OCR_WORKER_DAILY_CAP` only when using the protected worker/external scheduler | Use stable random secrets of at least 32 bytes. No OCR schedule is configured in this repository. |
 | Google Contacts | `GOOGLE_CONTACTS_CLIENT_ID`, `GOOGLE_CONTACTS_CLIENT_SECRET`, `GOOGLE_CONTACTS_REDIRECT_URI`, `GOOGLE_CONTACTS_TOKEN_KEY` | Add `https://franchisor.id/google-contacts-callback` as an authorized redirect URI in Google Cloud. |
 | Legacy Sheets fallback | `G_CLIENT_EMAIL`, `G_PRIVATE_KEY`, `G_SHEET_ID` | Enable only while a documented legacy consumer remains. |
 
@@ -183,4 +185,4 @@ After deployment, verify without exposing secret values:
 6. Trigger one Franchisor-scoped publication rebuild and confirm only the Franchisor Pages project deploys.
 7. Confirm legacy public pages still resolve and use the intended canonical host.
 
-The shared database currently contains zero published rows for `site_franchisor_id`. Therefore an empty generated Franchisor directory is expected. Do not mass-copy Franchisee publication rows. Publish through the normal Premium/admin workflow so each `franchise_site_publications` row is explicit and auditable.
+The shared database contained zero published rows for `site_franchisor_id` when checked on 2026-07-22. Therefore that snapshot's empty generated Franchisor directory was expected. Re-check current D1 state during launch; do not mass-copy Franchisee publication rows. Publish through the normal Premium/admin workflow so each `franchise_site_publications` row is explicit and auditable.

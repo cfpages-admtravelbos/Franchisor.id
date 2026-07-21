@@ -4,7 +4,7 @@ Ideas here are not automatically approved work.
 
 ## Network platform extraction
 
-After Franchisor has a working read-only D1 build, consider extracting stable shared items into a versioned network package or infrastructure repository:
+Franchisor now has a working read-only D1 build and is the second implemented consumer. Consider extraction only after the first live Franchisor deployment proves the shared interfaces under real auth, publication, and rebuild traffic:
 
 - D1 migrations and schema documentation;
 - site identifiers and domain mapping;
@@ -13,7 +13,7 @@ After Franchisor has a working read-only D1 build, consider extracting stable sh
 - rebuild queue protocol;
 - canonical field normalization.
 
-This would remove the current dependency on Franchisee.id as the migration owner and reduce contract drift. Do not attempt the extraction before the second consumer proves which code is genuinely shared.
+This would remove the current dependency on Franchisee.id as the migration owner and reduce contract drift. The local port proves reuse; the live launch should determine which interfaces are stable enough to version.
 
 ## Legacy route matcher
 
@@ -29,4 +29,3 @@ Add a small fixture-based contract suite that both sites run to verify:
 - Premium site mapping;
 - rebuild queue isolation;
 - canonical URL rules.
-
