@@ -1,0 +1,144 @@
+# Shared data contract
+
+Last updated: 2026-07-22
+
+This document is the minimum contract Franchisor.id must obey when reading or writing Franchise Network data. It summarizes the deployed design; the authoritative migration SQL currently lives in `../Franchisee.id/migrations/`.
+
+## Site identity
+
+```ts
+export const SITE_ID = "site_franchisor_id";
+export const SITE_DOMAIN = "franchisor.id";
+export const SITE_ROLE = "franchisor";
+```
+
+Do not scatter these literals throughout the future codebase. Put them in one validated site configuration module and import them everywhere.
+
+## Core entity relationship
+
+```text
+network_sites (1) ----< franchise_site_publications >---- (1) franchises
+                              site-scoped projection             |
+                                                               +---- franchisor_profiles
+                                                               +---- franchise_packages
+                                                               +---- franchise_assets
+                                                               +---- franchise_locations
+                                                               +---- leads
+```
+
+The publication table has unique constraints for `(franchise_id, site_id)` and `(site_id, slug)`. Therefore one canonical brand has at most one publication per site, and a slug cannot identify two brands on the same site.
+
+## Required public-read rules
+
+- Bind queries to `site_franchisor_id`; never accept an arbitrary public `site_id` parameter for this site's normal pages.
+- Require `publication_status = 'published'`.
+- Exclude canonical states that are archived or suspended.
+- Use the publication slug and canonical URL for Franchisor URLs.
+- Treat missing optional fields as absent data, not as zero or fabricated claims.
+- Validate database rows before rendering.
+- Escape untrusted rich text or pass it through an approved sanitizer.
+- Avoid exposing private contact data unless the field is explicitly public.
+
+## Required write rules
+
+- Authenticate the caller and authorize the action in D1.
+- Validate request payloads with Zod-compatible schemas.
+- Normalize phone numbers, URLs, country codes, money, percentages, and ranges consistently with the shared field dictionary.
+- Prefer parameterized D1 statements and grouped/batched writes where atomic consistency is needed.
+- Use `source_site_id = 'site_franchisor_id'` for records created from this site where the schema supports attribution.
+- Never insert a new canonical franchise until existing brands have been checked by stable ID, normalized name, source identifiers, and relevant contact/company evidence.
+- Append `audit_events` for material changes.
+- Enqueue rebuilds for all site projections affected by the change.
+- Return actionable errors without database internals or credentials.
+
+## Publication state
+
+At minimum, site code must preserve these publication concepts:
+
+- `franchise_id`
+- `site_id`
+- `slug`
+- `canonical_url`
+- `publication_status`
+- `is_primary`
+- first-published and update timestamps
+
+Publication eligibility, publication status, and deploy completion are different states:
+
+```text
+subscription/entitlement eligible
+              |
+              v
+publication row created or updated
+              |
+              v
+publication_status = published
+              |
+              v
+site rebuild queued -> built -> deployed
+```
+
+UI and APIs should not describe a page as live until the site publication and deployment state support that claim.
+
+## Canonical URLs and SEO
+
+The Premium helper in Franchisee.id currently formats a Franchisor opportunity URL as:
+
+```text
+https://franchisor.id/peluang-usaha/{slug}/
+```
+
+The legacy repository instead contains brand pages under `/usaha/`. Before implementing the generator, choose and document one canonical convention and a redirect map. Do not publish both URL families as independent pages containing substantially the same content.
+
+Cross-domain pages should have distinct audience value. `is_primary` and `canonical_url` must be used intentionally; do not automatically point every page at Franchisee.id or self-canonicalize duplicates without an SEO decision.
+
+## Identity and roles
+
+Expected network roles include:
+
+- `franchisee`
+- `franchisor`
+- `admin`
+- `staff`
+
+Roles may be network- or site-scoped. D1 is authoritative. A valid Clerk session alone does not grant an administrative or brand-owner action.
+
+Resource authorization should check both role and ownership/assignment. For example, a `franchisor` may edit a franchise only when its profile or an approved claim connects that user to the franchise.
+
+## Premium Network contract
+
+The currently named Premium sites are:
+
+```ts
+[
+  "site_franchisee_id",
+  "site_franchise_id",
+  "site_franchisor_id",
+  "site_waralaba_id",
+]
+```
+
+Premium activation can create missing publication rows for those sites. It must not create duplicate canonical franchises. Cancellation or expiry must follow the documented lifecycle rules and retain auditability rather than deleting business history.
+
+## Rebuild queue contract
+
+Writers enqueue site-specific rebuild requests. A Franchisor publisher must:
+
+- query only `site_id = 'site_franchisor_id'`;
+- deduplicate equivalent pending requests;
+- update the matching site publish state;
+- mark success only after its deployment trigger or fallback completes;
+- leave retryable failures visible for another attempt;
+- never acknowledge Franchisee.id or another domain's requests.
+
+## Schema change protocol
+
+1. Inspect the current migration head and deployed D1 schema in Franchisee.id.
+2. Write a forward-only migration in the owner repository.
+3. Add validation/backfill and compatibility checks.
+4. Apply and verify it through the established Cloudflare account context.
+5. Update shared contracts and consumers in both repositories.
+6. Roll out readers before writers when compatibility requires it.
+
+Do not add a Franchisor-only table to the shared database without considering naming, ownership, access, retention, audit, and effects on every network consumer.
+

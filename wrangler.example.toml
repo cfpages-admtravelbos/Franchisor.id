@@ -1,0 +1,19 @@
+name = "franchisor-id"
+compatibility_date = "2026-06-16"
+
+# For dashboard-managed Git deployments, set dist in the Pages web UI and do
+# not add pages_build_output_dir here. That keeps dashboard bindings editable.
+
+# Example only. Copy to wrangler.toml and replace database_id with the
+# real Cloudflare D1 UUID for the shared franchise_db.
+# The Cloudflare Pages project must still have a build command, preferably:
+# pnpm run build
+
+[[d1_databases]]
+binding = "franchise_db"
+database_name = "franchise_db"
+database_id = "<cloudflare-d1-franchise_db-uuid>"
+
+[[r2_buckets]]
+binding = "FRANCHISE_ASSETS"
+bucket_name = "franchise-assets"

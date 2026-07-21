@@ -1,0 +1,7 @@
+/* Aggregator: split modules for maintainability (order matters) */
+@import url("/css/form-franchise/01-utilities.css");
+@import url("/css/form-franchise/02-layout-tabs-steps.css");
+@import url("/css/form-franchise/03-form-core.css");
+@import url("/css/form-franchise/04-alerts-status.css");
+@import url("/css/form-franchise/05-packages-responsive.css");
+@import url("/css/form-franchise/06-claim-autocomplete.css");

@@ -1,0 +1,70 @@
+{
+  "name": "franchisor.id",
+  "version": "1.0.0",
+  "description": "Franchisor/operator-facing site for the shared Franchise Network.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "import:csv:dry": "tsx scripts/import-csv-to-d1.ts --dry-run",
+    "import:csv:sql": "tsx scripts/import-csv-to-d1.ts --out .context/d1-import-franchise-data.sql",
+    "import:csv:remote": "tsx scripts/import-csv-to-d1.ts --out .context/d1-import-franchise-data.sql --apply-remote --account franchise-network",
+    "build:d1:franchises:dry": "tsx scripts/build-d1-franchise-pages.ts --dry-run",
+    "build:d1:franchises": "tsx scripts/build-d1-franchise-pages.ts",
+    "build:d1:franchises:bridge": "tsx scripts/build-d1-franchise-pages.ts --write-bridge-pages",
+    "astro:sync": "pnpm run build:d1:franchises",
+    "build": "pnpm run build:astro",
+    "build:astro": "pnpm run astro:sync && astro build && pnpm run copy:legacy-static && pnpm run assets:check",
+    "astro:check": "astro check",
+    "copy:legacy-static": "node scripts/copy-legacy-static.mjs",
+    "assets:check": "node scripts/check-built-assets.mjs",
+    "publish:d1:poll": "node scripts/d1-static-publish-poller.mjs",
+    "migrate:proposal-r2": "node scripts/migrate-blogspot-proposals-to-r2.mjs",
+    "locations:sync": "tsx scripts/sync-franchise-locations.ts",
+    "country:check": "node scripts/check-country-metadata.mjs",
+    "auth:check": "node scripts/check-auth-client.mjs",
+    "functions:methods:check": "tsx scripts/check-pages-functions-methods.ts",
+    "profile:check": "node scripts/check-profile-client.mjs",
+    "contact:check": "node scripts/check-contact-parser.mjs",
+    "proposal:check": "tsx scripts/check-proposal-knowledge.ts",
+    "google-contacts:check": "tsx scripts/check-google-contacts.ts",
+    "premium:lifecycle:check": "tsx scripts/check-premium-lifecycle.ts",
+    "state-transitions:check": "tsx scripts/check-state-transitions.ts",
+    "proposal-download:check": "tsx scripts/check-proposal-download.ts",
+    "detail-assets:check": "tsx scripts/check-franchise-detail-assets.ts",
+    "directory:check": "tsx scripts/check-franchise-directory.ts",
+    "ocr:check": "tsx scripts/check-ocr-provider-config.ts",
+    "ocr:runner:check": "tsx scripts/check-ocr-job-runner.ts",
+    "ocr:enrich:structured": "tsx scripts/enrich-ocr-structured-data.ts",
+    "ocr:text:migrate-r2": "node scripts/migrate-ocr-text-to-r2.mjs",
+    "dashboard:ocr:check": "node scripts/check-dashboard-ocr-client.mjs",
+    "dev:astro": "pnpm run astro:sync && astro dev --host 127.0.0.1",
+    "preview:astro": "astro preview --host 127.0.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfpages-admtravelbos/Franchisor.id.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "packageManager": "pnpm@10.34.1",
+  "bugs": {
+    "url": "https://github.com/cfpages-admtravelbos/Franchisor.id/issues"
+  },
+  "homepage": "https://github.com/cfpages-admtravelbos/Franchisor.id#readme",
+  "dependencies": {
+    "@clerk/backend": "^3.7.1",
+    "@clerk/clerk-js": "^6.17.0",
+    "unpdf": "^1.6.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/cloudflare": "^12.6.13",
+    "@types/node": "^20.19.25",
+    "astro": "^5.18.2",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3",
+    "wrangler": "4.86.0"
+  }
+}

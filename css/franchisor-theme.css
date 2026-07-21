@@ -1,0 +1,199 @@
+:root {
+  --franchisor-red: #cf322e;
+  --franchisor-red-dark: #a9201c;
+  --franchisor-coral: #f46a64;
+  --franchisor-ink: #1c0d0a;
+  --franchisor-text: #353535;
+  --franchisor-soft: #fff4f3;
+  --franchisor-border: rgba(28, 13, 10, 0.14);
+
+  --ast-global-color-0: var(--franchisor-red);
+  --ast-global-color-1: var(--franchisor-red-dark);
+  --ast-global-color-2: var(--franchisor-ink);
+  --ast-global-color-3: var(--franchisor-text);
+  --ast-global-color-4: var(--franchisor-coral);
+  --ast-global-color-5: #ffffff;
+  --ast-global-color-6: #eeeeee;
+  --ast-global-color-7: #140b06;
+  --ast-global-color-8: #222222;
+
+  --e-global-color-astglobalcolor0: var(--franchisor-red);
+  --e-global-color-astglobalcolor1: var(--franchisor-red-dark);
+  --e-global-color-astglobalcolor2: var(--franchisor-ink);
+  --e-global-color-astglobalcolor3: var(--franchisor-text);
+  --e-global-color-astglobalcolor4: var(--franchisor-coral);
+  --e-global-color-astglobalcolor5: #ffffff;
+
+  --dash-ink: var(--franchisor-ink);
+  --dash-ink-soft: var(--franchisor-text);
+  --dash-line: var(--franchisor-border);
+  --dash-border: var(--franchisor-border);
+  --dash-soft: var(--franchisor-soft);
+  --dash-card: #ffffff;
+  --dash-accent: var(--franchisor-red);
+  --dash-accent-hover: var(--franchisor-red-dark);
+  --dash-accent-dark: #7a1714;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.dash-title h1,
+.dash-card strong,
+.fr-profile-title,
+.fr-tool-brand,
+.fr-tool-hero h1,
+.fr-tool-panel h2,
+.fr-premium-hero h1,
+.fr-premium-section h2 {
+  font-family: "Lexend", "DM Sans", Arial, sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(207, 50, 46, 0.34);
+  outline-offset: 2px;
+}
+
+.fr-profile-body {
+  --fr-profile-yellow: var(--franchisor-red);
+  --fr-profile-yellow-dark: var(--franchisor-red-dark);
+  --fr-profile-ink: var(--franchisor-ink);
+  --fr-profile-ink-soft: var(--franchisor-text);
+  --fr-profile-cream: var(--franchisor-soft);
+  --fr-profile-cream-strong: #f9d7d5;
+  --fr-profile-card: #ffffff;
+  --fr-profile-border: var(--franchisor-border);
+}
+
+.fr-profile-brand-mark,
+.dash-brand-mark {
+  background: transparent !important;
+  height: 40px;
+  width: 48px;
+}
+
+.fr-profile-brand-mark img,
+.dash-brand-mark img {
+  display: block;
+  height: 38px;
+  object-fit: contain;
+  width: 48px;
+}
+
+.fr-profile-nav .fr-auth-nav-role,
+.fr-profile-nav .fr-auth-nav-logout:hover,
+.fr-profile-nav .fr-auth-nav-logout:focus,
+.fr-profile-button,
+.fr-profile-next-action.is-premium .fr-profile-next-primary,
+.fr-profile-next-action.is-success .fr-profile-next-primary,
+.dash-tab[aria-selected="true"],
+.dash-ocr-job-filter.is-active strong,
+.dash-ocr-guide-card.is-active i,
+.fr-owner-cta__primary,
+.franchise-directory-quicklinks a.is-active,
+.fr-compare-button.is-added,
+.fr-claim-sticky__button,
+.fr-save-opportunity-cta,
+.form-submit-feedback-cta,
+.fr-site-promo-bar a,
+.fr-premium-card-actions span {
+  color: #ffffff !important;
+}
+
+.fr-premium-header {
+  border-bottom: 3px solid var(--franchisor-red);
+}
+
+.fr-premium-brand img,
+.fr-tool-brand img {
+  display: block;
+  height: auto;
+  max-width: min(220px, 48vw);
+  width: 210px;
+}
+
+.fr-premium-brand > span {
+  background: transparent;
+  height: auto;
+  line-height: 1;
+  width: auto;
+}
+
+.hfe-site-logo-img[src*="fr-logo-website-franchisor.id_"] {
+  filter: brightness(0) invert(1);
+}
+
+.fr-tool-header nav a:hover,
+.fr-tool-header nav a:focus {
+  background: var(--franchisor-red);
+  color: #ffffff;
+}
+
+.fr-auth-panel {
+  border-color: var(--franchisor-border);
+  border-top: 4px solid var(--franchisor-red);
+}
+
+.fr-auth-tab:hover,
+.fr-auth-tab:focus {
+  background: rgba(207, 50, 46, 0.1);
+}
+
+.fr-auth-submit,
+.fr-auth-session-button,
+.fr-auth-role input:checked + span {
+  background: var(--franchisor-red) !important;
+  border-color: var(--franchisor-red) !important;
+  color: #ffffff !important;
+}
+
+.fr-auth-submit:hover,
+.fr-auth-submit:focus,
+.fr-auth-session-button:hover,
+.fr-auth-session-button:focus {
+  background: var(--franchisor-red-dark) !important;
+}
+
+.legal-header {
+  background: #ffffff !important;
+  border-bottom-color: var(--franchisor-red) !important;
+}
+
+.legal-header .legal-nav a {
+  color: var(--franchisor-ink);
+}
+
+.legal-header .legal-nav a:hover {
+  color: var(--franchisor-red-dark);
+}
+
+.legal-header .legal-nav__cta {
+  background: var(--franchisor-red);
+  color: #ffffff !important;
+}
+
+.legal-footer__brand img {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 720px) {
+  .fr-premium-brand img,
+  .fr-tool-brand img {
+    width: 170px;
+  }
+}

@@ -1,0 +1,270 @@
+---
+import DashboardOcrPanel from "../../components/dashboard/DashboardOcrPanel.astro";
+import DashboardIntegrationPanel from "../../components/dashboard/DashboardIntegrationPanel.astro";
+import DashboardLeadsPanel from "../../components/dashboard/DashboardLeadsPanel.astro";
+import DashboardPremiumPanel from "../../components/dashboard/DashboardPremiumPanel.astro";
+import DashboardPublicationPanel from "../../components/dashboard/DashboardPublicationPanel.astro";
+import DashboardReviewPanel from "../../components/dashboard/DashboardReviewPanel.astro";
+import DashboardSystemPanel from "../../components/dashboard/DashboardSystemPanel.astro";
+import { OCR_PROVIDER_FIELD_NAMES, OCR_PROVIDER_METADATA } from "../../lib/ocr-provider-metadata.js";
+
+export const prerender = true;
+
+const ocrProviderMetadataJson = JSON.stringify({
+  providers: OCR_PROVIDER_METADATA,
+  field_names: OCR_PROVIDER_FIELD_NAMES,
+}).replace(/</g, "\\u003c");
+---
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Dashboard Operasional - Franchisor.id</title>
+    <link rel="icon" href="/wp-content/uploads/2025/10/cropped-fr-logo-website-franchisor.png">
+    <link rel="apple-touch-icon" href="/wp-content/uploads/2025/10/cropped-fr-logo-website-franchisor.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/wp-content/plugins/elementor/assets/css/frontend.min.css">
+    <link rel="stylesheet" href="/wp-content/plugins/elementor/assets/lib/font-awesome/css/all.min.css?ver=3.32.3">
+    <link rel="stylesheet" href="/css/auth-clerk.css">
+    <link rel="stylesheet" href="/css/shared-tooltip.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashboard-auth.css">
+    <link rel="stylesheet" href="/css/dashboard-review.css">
+    <link rel="stylesheet" href="/css/dashboard-operations.css">
+    <link rel="stylesheet" href="/css/dashboard-outreach.css">
+    <link rel="stylesheet" href="/css/dashboard-integration.css">
+    <link rel="stylesheet" href="/css/dashboard-premium.css">
+    <link rel="stylesheet" href="/css/dashboard-ocr.css">
+    <link rel="stylesheet" href="/css/dashboard-ocr-settings.css?v=20260711-ocr-css-split">
+    <link rel="stylesheet" href="/css/dashboard-ocr-execution.css?v=20260711-ocr-css-split">
+    <link rel="stylesheet" href="/css/dashboard-ocr-results.css?v=20260711-ocr-css-split">
+    <link rel="stylesheet" href="/css/franchisor-theme.css">
+  </head>
+  <body>
+    <div class="dash-shell">
+      <header class="dash-header">
+        <div class="dash-header-inner">
+          <div class="dash-title">
+            <span class="dash-brand-mark" aria-hidden="true"><img src="/wp-content/uploads/2025/10/fr-logo-website-franchisor.png" alt=""></span>
+            <div>
+              <p class="dash-kicker">Franchisor.id</p>
+              <h1>Dashboard Operasional</h1>
+              <p>Ruang kerja internal untuk menjaga listing, Premium, dan publikasi tetap rapi.</p>
+            </div>
+          </div>
+          <div class="dash-user" data-dashboard-user>Memuat sesi...</div>
+        </div>
+      </header>
+
+      <main class="dash-main" data-dashboard-protected="locked">
+        <div class="dash-alert" data-dashboard-status>Memeriksa akses admin/staff...</div>
+
+        <section class="dash-auth-loading" data-dashboard-loading aria-live="polite" aria-label="Memeriksa akses dashboard">
+          <div class="dash-auth-skeleton-card">
+            <div class="dash-skeleton-line is-title"></div>
+            <div class="dash-skeleton-line"></div>
+            <div class="dash-skeleton-line is-short"></div>
+            <div class="dash-skeleton-grid">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dash-login-panel" data-dashboard-login aria-label="Login admin dan staff" hidden>
+          <div id="franchise-auth-root" data-auth-mode="login" data-auth-variant="staff" data-auth-next="/dashboard/" data-auth-defer="true"></div>
+          <div class="dash-debug-panel" data-auth-debug>
+            <div class="dash-debug-head">
+              <div>
+                <strong>Auth Debug</strong>
+                <span>Safe to screenshot: token values are masked.</span>
+              </div>
+              <div class="dash-debug-actions">
+                <button class="dash-icon-button" type="button" data-auth-debug-copy aria-label="Salin debug login" data-fr-tooltip="Salin debug login">
+                  <i class="fas fa-copy" aria-hidden="true"></i>
+                </button>
+                <button class="dash-icon-button dash-action-button" type="button" data-auth-debug-refresh aria-label="Refresh debug login" data-fr-tooltip="Refresh debug login">
+                  <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <div class="dash-debug-body">
+              <div class="dash-debug-summary" data-auth-debug-summary>Menunggu auth runtime...</div>
+              <pre class="dash-debug-output" data-auth-debug-output>{}</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="dash-grid" aria-label="Ringkasan dashboard">
+          <div class="dash-card"><span>Total listing</span><strong data-metric="total_listings">-</strong></div>
+          <div class="dash-card"><span>Belum diklaim</span><strong data-metric="unclaimed_listings">-</strong></div>
+          <div class="dash-card"><span>Terverifikasi</span><strong data-metric="verified_listings">-</strong></div>
+          <div class="dash-card"><span>Pending publish</span><strong data-metric="pending_publish">-</strong></div>
+        </section>
+
+        <nav class="dash-tabs" role="tablist" aria-label="Dashboard sections" data-dashboard-tabs>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-outreach" aria-controls="dash-panel-outreach" aria-selected="true" data-dashboard-tab="outreach">
+            <i class="fas fa-comments dash-tab-icon" aria-hidden="true"></i>
+            Outreach
+            <span class="dash-tab-badge" data-outreach-tab-badge hidden>0</span>
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-pipeline" aria-controls="dash-panel-pipeline" aria-selected="false" data-dashboard-tab="pipeline">
+            <i class="fas fa-columns dash-tab-icon" aria-hidden="true"></i>
+            Pipeline
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-quality" aria-controls="dash-panel-quality" aria-selected="false" data-dashboard-tab="quality">
+            <i class="fas fa-check-circle dash-tab-icon" aria-hidden="true"></i>
+            Data Quality
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-review" aria-controls="dash-panel-review" aria-selected="false" data-dashboard-tab="review">
+            <i class="fas fa-clipboard-check dash-tab-icon" aria-hidden="true"></i>
+            Review
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-leads" aria-controls="dash-panel-leads" aria-selected="false" data-dashboard-tab="leads">
+            <i class="fas fa-users dash-tab-icon" aria-hidden="true"></i>
+            Leads
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-publication" aria-controls="dash-panel-publication" aria-selected="false" data-dashboard-tab="publication">
+            <i class="fas fa-network-wired dash-tab-icon" aria-hidden="true"></i>
+            Publikasi
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-premium" aria-controls="dash-panel-premium" aria-selected="false" data-dashboard-tab="premium">
+            <i class="fas fa-crown dash-tab-icon" aria-hidden="true"></i>
+            Premium
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-system" aria-controls="dash-panel-system" aria-selected="false" data-dashboard-tab="system">
+            <i class="fas fa-heartbeat dash-tab-icon" aria-hidden="true"></i>
+            Sistem
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-integration" aria-controls="dash-panel-integration" aria-selected="false" data-dashboard-tab="integration">
+            <i class="fas fa-plug dash-tab-icon" aria-hidden="true"></i>
+            Integrasi
+          </button>
+          <button class="dash-tab" type="button" role="tab" id="dash-tab-ocr" aria-controls="dash-panel-ocr" aria-selected="false" data-dashboard-tab="ocr">
+            <i class="fas fa-file-alt dash-tab-icon" aria-hidden="true"></i>
+            OCR
+          </button>
+        </nav>
+
+        <section class="dash-tab-panels">
+          <section class="dash-tab-panel" id="dash-panel-outreach" role="tabpanel" aria-labelledby="dash-tab-outreach" data-dashboard-panel="outreach">
+            <section class="dash-panel">
+              <div class="dash-panel-header">
+                <div class="dash-panel-title">
+                  <i class="fas fa-comments dash-section-icon" aria-hidden="true"></i>
+                  <div>
+                    <h2>Outreach</h2>
+                    <p>Daftar kerja untuk menyimpan kontak, menghubungi franchisor, dan mencatat tindak lanjut.</p>
+                  </div>
+                </div>
+                <div class="dash-panel-actions" data-outreach-actions>
+                  <span class="dash-badge" data-outreach-count>-</span>
+                </div>
+              </div>
+              <div class="dash-outreach-alert" data-google-contacts-notice hidden></div>
+              <div class="dash-outreach-worklist" data-outreach-worklist aria-label="Daftar kerja outreach">
+                <div class="dash-loading">Memuat daftar kerja outreach...</div>
+              </div>
+            </section>
+          </section>
+
+          <section class="dash-tab-panel" id="dash-panel-pipeline" role="tabpanel" aria-labelledby="dash-tab-pipeline" data-dashboard-panel="pipeline" hidden>
+            <section class="dash-panel">
+              <div class="dash-panel-header">
+                <div class="dash-panel-title">
+                  <i class="fas fa-columns dash-section-icon" aria-hidden="true"></i>
+                  <div>
+                    <h2>Pipeline Progress</h2>
+                    <p>Visualisasi tahap sales dari belum dikontak sampai subscribed atau burned.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-outreach-summary" data-outreach-stage-summary aria-label="Ringkasan pipeline sales">
+                <span class="dash-loading">Memuat ringkasan pipeline...</span>
+              </div>
+              <div class="dash-outreach-board" data-outreach-board aria-label="Kanban pipeline sales">
+                <div class="dash-loading">Memuat pipeline board...</div>
+              </div>
+            </section>
+          </section>
+
+          <section class="dash-tab-panel" id="dash-panel-quality" role="tabpanel" aria-labelledby="dash-tab-quality" data-dashboard-panel="quality" hidden>
+            <section class="dash-panel">
+              <div class="dash-panel-header">
+                <div class="dash-panel-title">
+                    <i class="fas fa-check-circle dash-section-icon" aria-hidden="true"></i>
+                  <div>
+                    <h2>Data Quality</h2>
+                    <p>Prioritas listing yang perlu dibersihkan.</p>
+                  </div>
+                </div>
+                <div class="dash-actions dash-toolbar" role="toolbar" aria-label="Aksi data quality">
+                  <button class="dash-icon-button dash-action-button" type="button" data-refresh-quality aria-label="Refresh quality checks" data-fr-tooltip="Refresh quality checks">
+                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="dash-table-wrap">
+                <table class="dash-table">
+                  <thead>
+                    <tr>
+                      <th>Brand</th>
+                      <th>Kategori</th>
+                      <th>Warning</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody data-quality-rows>
+                    <tr><td colspan="4" class="dash-loading">Memuat quality checks...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <DashboardReviewPanel />
+
+          <DashboardLeadsPanel />
+
+          <DashboardPublicationPanel />
+
+          <DashboardPremiumPanel />
+
+          <DashboardSystemPanel />
+
+          <DashboardIntegrationPanel />
+
+          <DashboardOcrPanel />
+        </section>
+      </main>
+    </div>
+
+    <script src="/js/auth-clerk-debug.js" is:inline></script>
+    <script src="/js/auth-clerk-ui.js" is:inline></script>
+    <script src="/js/fetch-json.js" is:inline></script>
+    <script src="/js/auth-clerk-core.js" is:inline></script>
+    <script src="/js/auth-clerk.js" is:inline></script>
+    <script src="/js/shared-tooltip.js" is:inline></script>
+    <script src="/js/dashboard-utils.js" is:inline></script>
+    <script src="/js/dashboard-premium-operations.js" is:inline></script>
+    <script src="/js/dashboard-review.js" is:inline></script>
+    <script src="/js/dashboard-google-contacts.js" is:inline></script>
+    <script src="/js/dashboard-outreach.js" is:inline></script>
+    <script src="/js/dashboard-operations.js" is:inline></script>
+    <script is:inline set:html={`window.FranchiseOcrProviderMetadata = ${ocrProviderMetadataJson};`}></script>
+    <script src="/js/dashboard-ocr-schedulers.js" is:inline></script>
+    <script src="/js/dashboard-ocr-state.js" is:inline></script>
+    <script src="/js/dashboard-ocr-providers.js" is:inline></script>
+    <script src="/js/dashboard-ocr-jobs.js" is:inline></script>
+    <script src="/js/dashboard-ocr-batches.js" is:inline></script>
+    <script src="/js/dashboard-ocr-results.js" is:inline></script>
+    <script src="/js/dashboard-ocr-worker.js" is:inline></script>
+    <script src="/js/dashboard-ocr.js" is:inline></script>
+    <script src="/js/dashboard-admin.js" is:inline></script>
+  </body>
+</html>

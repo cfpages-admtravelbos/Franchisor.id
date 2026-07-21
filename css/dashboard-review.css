@@ -1,0 +1,351 @@
+.dash-field-editor {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(28, 13, 10, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 248, 223, 0.56);
+  padding: 12px;
+}
+
+.dash-field-editor-head,
+.dash-field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-field-editor-head {
+  justify-content: space-between;
+}
+
+.dash-field-editor-head strong {
+  display: block;
+  color: #171717;
+  font-size: 13px;
+}
+
+.dash-field-editor-head span,
+.dash-field-old {
+  display: block;
+  color: var(--dash-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dash-field-list {
+  display: grid;
+  gap: 10px;
+}
+
+.dash-field-row {
+  align-items: flex-start;
+  border: 1px solid rgba(28, 13, 10, 0.1);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.dash-field-main {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.42fr) minmax(0, 1fr);
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.dash-field-main textarea {
+  min-height: 72px;
+  font-family: inherit;
+}
+
+.dash-field-remove {
+  flex: 0 0 auto;
+}
+
+.dash-field-diff {
+  display: grid;
+  gap: 8px;
+}
+
+.dash-field-diff-row {
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(28, 13, 10, 0.09);
+  border-radius: 8px;
+  background: #fff7f6;
+  padding: 8px;
+}
+
+.dash-field-diff-row strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dash-ink);
+  font-size: 12px;
+}
+
+.dash-field-diff-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dash-review-field-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  border-radius: 999px;
+  background: #f3fbf6;
+  color: #166534;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 7px;
+  white-space: nowrap;
+}
+
+.dash-review-field-choice input {
+  accent-color: #16a34a;
+  inline-size: 13px;
+  block-size: 13px;
+}
+
+.dash-field-diff-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 7px;
+}
+
+.dash-diff-value {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
+  border: 1px solid rgba(28, 13, 10, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px;
+  color: var(--dash-muted);
+  font-size: 12px;
+  word-break: break-word;
+}
+
+.dash-diff-value i {
+  margin-top: 2px;
+}
+
+.dash-diff-value b {
+  color: var(--dash-ink);
+  font-size: 11px;
+}
+
+.dash-diff-value em {
+  color: #374151;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.dash-diff-value.is-new {
+  border-color: rgba(22, 163, 74, 0.22);
+  background: #f3fbf6;
+}
+
+.dash-diff-value.is-new i {
+  color: #15803d;
+}
+
+.dash-diff-value.is-old i {
+  color: #9ca3af;
+}
+
+.dash-diff-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dash-muted);
+  font-size: 11px;
+}
+
+.dash-review-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  border: 1px dashed rgba(246, 138, 30, 0.32);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px;
+}
+
+.dash-review-evidence-text {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
+  min-width: min(100%, 320px);
+  flex: 1 1 320px;
+  color: var(--dash-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.dash-review-evidence-text i {
+  color: #b45309;
+  margin-top: 2px;
+}
+
+.dash-review-evidence-text b {
+  color: var(--dash-ink);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.dash-review-evidence-text em {
+  color: #374151;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.dash-review-evidence-text mark {
+  border-radius: 4px;
+  background: #fde68a;
+  color: #1c0d0a;
+  font-weight: 900;
+  padding: 0 2px;
+}
+
+.dash-review-evidence-text small {
+  display: block;
+  grid-column: 1 / -1;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dash-review-evidence-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dash-review-evidence-image {
+  flex: 0 0 auto;
+}
+
+.dash-review-table-wrap {
+  overflow-x: auto;
+}
+
+.dash-review-table {
+  min-width: 980px;
+}
+
+.dash-review-table th:nth-child(1),
+.dash-review-table td:nth-child(1) {
+  width: 22%;
+}
+
+.dash-review-table th:nth-child(2),
+.dash-review-table td:nth-child(2) {
+  width: 44%;
+}
+
+.dash-review-table th:nth-child(3),
+.dash-review-table td:nth-child(3) {
+  width: 28%;
+  white-space: normal;
+}
+
+.dash-review-table th:nth-child(4),
+.dash-review-table td:nth-child(4) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.dash-review-brand {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  white-space: normal;
+}
+
+.dash-review-brand a {
+  display: block;
+  color: var(--dash-ink);
+  font-weight: 900;
+}
+
+.dash-review-brand > .dash-muted {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.dash-review-source {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  margin-top: 2px !important;
+  border: 1px solid rgba(246, 138, 30, 0.26);
+  border-radius: 999px;
+  background: #fff4f3;
+  color: #6b4c00 !important;
+  padding: 4px 7px;
+  font-size: 11px !important;
+  font-weight: 900;
+}
+
+.dash-review-source.is-manual {
+  border-color: rgba(37, 99, 235, 0.2);
+  background: #eff6ff;
+  color: #1d4ed8 !important;
+}
+
+.dash-review-reason {
+  color: #374151;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.dash-location-editor {
+  border-top: 1px solid var(--dash-line);
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px 18px;
+}
+
+.dash-location-form {
+  border: 1px solid rgba(28, 13, 10, 0.1);
+  border-radius: 8px;
+  grid-template-columns: 1fr;
+  padding: 12px;
+}
+
+.dash-location-form textarea {
+  min-height: 130px;
+}
+
+@media (max-width: 720px) {
+  .dash-field-editor-head,
+  .dash-field-row,
+  .dash-field-main,
+  .dash-field-diff-row,
+  .dash-field-diff-head,
+  .dash-field-diff-values,
+  .dash-review-evidence-text {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .dash-diff-arrow {
+    justify-content: flex-start;
+    padding-left: 6px;
+  }
+}

@@ -1,0 +1,186 @@
+# Franchisor.id deployment and integration checklist
+
+Last updated: 2026-07-22
+
+The code is built and locally verified. The steps below require access to Cloudflare, Clerk, GitHub, and any optional providers, so they must be completed manually before the production application features can work.
+
+Never paste secret keys into this repository, Markdown, a public issue, or a client-side variable. Use encrypted Cloudflare or GitHub secrets.
+
+## 1. Deploy Astro through the Cloudflare web UI (no terminal deployment)
+
+Before starting, review, commit, and push this work to `cfpages-admtravelbos/Franchisor.id` on the GitHub `main` branch. Deployment itself is performed entirely in the Cloudflare dashboard:
+
+1. Sign in to the Cloudflare dashboard and select the account that owns `franchisor.id` and the shared D1/R2 resources.
+2. Open **Workers & Pages**.
+3. Select **Create application**.
+4. Select the **Pages** tab.
+5. Select **Import an existing Git repository** (the current UI may label this **Connect to Git**).
+6. Select **GitHub**. If prompted, authorize the Cloudflare Pages GitHub app for the `cfpages-admtravelbos` organization and grant it access to `Franchisor.id`.
+7. Choose `cfpages-admtravelbos/Franchisor.id`, then select **Begin setup**.
+8. In **Set up builds and deployments**, enter exactly:
+
+   | Dashboard field | Value |
+   | --- | --- |
+   | Project name | `franchisor-id` |
+   | Production branch | `main` |
+   | Framework preset | `Astro` (or `None`; the explicit fields below are authoritative) |
+   | Build command | `pnpm run build` |
+   | Build output directory | `dist` |
+   | Root directory (advanced) | leave blank, meaning repository root |
+
+9. Expand **Environment variables (advanced)** and add these non-secret build variables:
+
+   | Name | Value |
+   | --- | --- |
+   | `NODE_VERSION` | `20.19.4` |
+   | `PNPM_VERSION` | `10.34.1` |
+   | `CLOUDFLARE_ACCOUNT_ID` | `0ba63b7f0096bc267a93fe5c80b1f571` |
+   | `CLOUDFLARE_D1_DATABASE_ID` | `812cd8ac-edd0-45d9-981f-c9a15358317b` |
+
+10. The build also needs `CLOUDFLARE_API_TOKEN` to read the remote D1 snapshot. If the setup screen offers **Encrypt**, enter the token and select **Encrypt**. If it only offers a plain variable, do not store the token there: allow the initial build to fail, open the newly created project, then add it as an encrypted secret using step 12 and retry the deployment from **Deployments**.
+11. Select **Save and Deploy**. Cloudflare will install pnpm dependencies from `pnpm-lock.yaml`, run the Astro build, validate every reachable local asset, upload `dist`, and deploy the Pages Functions from `functions/`.
+12. After the project exists, open **Settings → Variables and Secrets → Add**, set `CLOUDFLARE_API_TOKEN`, select **Encrypt**, and save it for both Production and Preview. Never save this token as a plain variable.
+13. If the first build failed because the encrypted token was not available yet, open **Deployments**, select the failed deployment, and use **Retry deployment**. If that action is not displayed in your account UI, open its failed GitHub check, select **Details**, then **Rerun**; no terminal is required.
+14. In the successful deployment's **View details → Build log**, confirm the end of the log includes `Built asset check passed`. Then select the generated `https://franchisor-id.pages.dev` URL.
+
+Cloudflare's official [Astro dashboard guide](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/), [Git integration guide](https://developers.cloudflare.com/pages/get-started/git-integration/), and [build configuration reference](https://developers.cloudflare.com/pages/configuration/build-configuration/) describe this flow. Do not choose dashboard **Direct Upload**: Cloudflare documents that it does not support Pages Functions. Git integration also gives automatic production deployments from `main` and preview deployments for pull requests.
+
+This repository deliberately omits `pages_build_output_dir` from `wrangler.toml`. That keeps the Cloudflare dashboard—not the Wrangler file—as the production configuration source, so bindings and secrets remain editable in the web UI. The D1/R2 entries in `wrangler.toml` are retained for local tooling only. Cloudflare explains this source-of-truth behavior in its [Pages Functions configuration guide](https://developers.cloudflare.com/pages/functions/wrangler-configuration/).
+
+## 2. Bind the shared Cloudflare resources
+
+In **Workers & Pages → franchisor-id → Settings → Bindings**, configure both Production and Preview:
+
+| Type | Binding | Resource |
+| --- | --- | --- |
+| D1 | `franchise_db` | database ID `812cd8ac-edd0-45d9-981f-c9a15358317b` |
+| R2 | `FRANCHISE_ASSETS` | bucket `franchise-assets` |
+
+Cloudflare documents Pages bindings and their Production/Preview scopes in [Pages Functions bindings](https://developers.cloudflare.com/pages/functions/bindings/).
+
+Web UI clicks for each environment:
+
+1. Open **Workers & Pages → franchisor-id → Settings → Bindings → Add**.
+2. Choose **D1 database binding**, enter variable name `franchise_db`, and select the existing `franchise_db` database. Save.
+3. Select **Add** again, choose **R2 bucket binding**, enter variable name `FRANCHISE_ASSETS`, and select `franchise-assets`. Save.
+4. Repeat for Preview if the dashboard presents Production and Preview separately. Do not create a new database or bucket.
+5. Open the next deployment's **View details → Functions** and confirm both bindings are listed before testing authenticated writes/uploads.
+
+Add these build/runtime variables:
+
+| Variable | Value or purpose | Secret? |
+| --- | --- | --- |
+| `CLOUDFLARE_ACCOUNT_ID` | `0ba63b7f0096bc267a93fe5c80b1f571` | No |
+| `CLOUDFLARE_D1_DATABASE_ID` | `812cd8ac-edd0-45d9-981f-c9a15358317b` | No |
+| `CLOUDFLARE_API_TOKEN` | Least-privilege token for D1 read and any intended Pages deployment | Yes |
+| `FRANCHISE_ASSETS_PUBLIC_BASE_URL` | `https://assets.franchisee.id` while the network keeps the existing shared asset hostname | No |
+| `R2_PUBLIC_BASE_URL` | Same shared asset base URL | No |
+
+The `assets.franchisee.id` hostname is intentionally shared infrastructure, not accidental Franchisee branding. Change it only after a replacement R2 custom domain is configured and all network consumers are migrated.
+
+## 2A. CSS and static-asset routing guarantees
+
+Cloudflare uploads the contents of `dist` as the URL root. Therefore `/css/franchisor-theme.css` must exist at `dist/css/franchisor-theme.css`, `/js/auth-clerk.js` at `dist/js/auth-clerk.js`, and `/wp-content/...` at the same path under `dist/wp-content/...`.
+
+The build enforces that layout:
+
+- Astro creates `dist/_astro/` and copies `public/_redirects` to `dist/_redirects`.
+- `scripts/copy-legacy-static.mjs` copies `css/`, `js/`, `wp-content/`, `wp-includes/`, functional legacy HTML, and other retained static files without overwriting Astro-owned routes.
+- The same script copies the pinned Clerk browser bundle into `dist/clerk/`.
+- `pnpm run assets:check` runs automatically at the end of `pnpm run build`. It crawls every deployed HTML file and every CSS file those pages actually load, then fails the Cloudflare build if a local stylesheet, script, image, font, or nested CSS asset is missing or has the wrong letter case.
+- `public/_redirects` contains only explicit page redirects; it has no catch-all rewrite that could intercept `/css/`, `/js/`, `/_astro/`, `/clerk/`, `/wp-content/`, or `/wp-includes/`. Do not add a catch-all redirect without extending the asset test first. Cloudflare notes that `_redirects` rules run before static asset responses in its [redirect documentation](https://developers.cloudflare.com/pages/configuration/redirects/).
+
+After the first successful web-UI deployment, open these URLs directly in Opera to confirm they return content rather than a Cloudflare HTML error page:
+
+- `https://franchisor-id.pages.dev/css/franchisor-theme.css`
+- `https://franchisor-id.pages.dev/js/auth-clerk.js`
+- `https://franchisor-id.pages.dev/wp-content/uploads/2025/10/fr-logo-website-franchisor.id_.png`
+- `https://franchisor-id.pages.dev/clerk/clerk.browser.js`
+
+Then open the Pages URL, press `Ctrl+Shift+I`, select **Network**, enable **Disable cache**, and reload. Filter by `CSS`, then `JS`, then `Img`; all local requests should be `200`/`304`, with no `404`, redirect loop, or response whose content type is HTML for a CSS/JS URL. Cloudflare serves uploaded Pages assets from its cache and maps `index.html` files to extensionless page routes as described in [Serving Pages](https://developers.cloudflare.com/pages/configuration/serving-pages/).
+
+## 3. Configure shared Clerk identity
+
+Franchisor.id can use the same Clerk instance as Franchisee.id, but because it is a different domain it must be configured as a Clerk satellite application. Clerk states that production satellite domains require a paid plan. Follow [Clerk's satellite-domain setup](https://clerk.com/docs/guides/dashboard/dns-domains/satellite-domains).
+
+In the Clerk Dashboard:
+
+1. Open the network Clerk application used by Franchisee.id.
+2. Go to **Domains → Satellites** and add `franchisor.id`.
+3. Add the CNAME record Clerk displays to Cloudflare DNS and wait until Clerk verifies it.
+4. Add `https://franchisor.id` and `https://www.franchisor.id` to allowed redirect origins.
+5. Confirm the primary sign-in/sign-up URLs point to the working Franchisee.id auth routes, or create equivalent primary routes and use those.
+6. Create a webhook endpoint at `https://franchisor.id/clerk-webhook` and subscribe to `user.created`, `user.updated`, and `user.deleted`.
+7. Copy the webhook signing secret into Cloudflare as `CLERK_WEBHOOK_SIGNING_SECRET`.
+
+Set these Cloudflare Production and Preview values:
+
+| Variable | Recommended production value | Secret? |
+| --- | --- | --- |
+| `PUBLIC_CLERK_PUBLISHABLE_KEY` | Publishable key from the shared Clerk instance | No |
+| `CLERK_SECRET_KEY` | Secret key from the shared Clerk instance | Yes |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | Signing secret for the Franchisor webhook endpoint | Yes |
+| `CLERK_AUTHORIZED_PARTIES` | `https://franchisor.id,https://www.franchisor.id` | No |
+| `CLERK_IS_SATELLITE` | `true` | No |
+| `CLERK_DOMAIN` | `franchisor.id` | No |
+| `CLERK_SIGN_IN_URL` | `https://franchisee.id/login/` | No |
+| `CLERK_SIGN_UP_URL` | `https://franchisee.id/login/?mode=register` | No |
+| `CLERK_ALLOWED_REDIRECT_ORIGINS` | `https://franchisor.id,https://www.franchisor.id` | No |
+| `CLERK_SATELLITE_AUTO_SYNC` | `true` if already-signed-in primary users should be recognized automatically; otherwise `false` | No |
+
+The application deliberately has no embedded Clerk-key fallback. Missing configuration makes login unavailable instead of silently using the wrong domain's settings. Clerk's [webhook overview](https://clerk.com/docs/guides/development/webhooks/overview), [user synchronization guide](https://clerk.com/docs/guides/development/webhooks/syncing), and [environment-variable reference](https://clerk.com/docs/guides/development/clerk-environment-variables) provide the provider-side details.
+
+If the shared Clerk plan does not support production satellites, create a separate Franchisor Clerk application only as a temporary fallback. That gives separate Clerk identities and therefore does not satisfy seamless shared network login without an explicit account-linking design.
+
+## 4. Connect the production domain
+
+1. In the Cloudflare Pages project, add `franchisor.id` and `www.franchisor.id` as custom domains.
+2. Confirm both show Active and that HTTPS works.
+3. Choose one canonical host. The application currently uses `https://franchisor.id`; redirect `www` to the apex domain.
+4. Do not change legacy route redirects until their SEO migration is verified.
+
+## 5. Configure GitHub Actions
+
+In **GitHub repository → Settings → Secrets and variables → Actions**, add:
+
+Secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `PAGES_DEPLOY_HOOK_FRANCHISOR_ID`
+- `PREMIUM_EMAIL_WORKER_SECRET` only if this repository is chosen to dispatch lifecycle email manually
+
+Variables:
+
+- `CLOUDFLARE_ACCOUNT_ID=0ba63b7f0096bc267a93fe5c80b1f571`
+- `CLOUDFLARE_D1_DATABASE_ID=812cd8ac-edd0-45d9-981f-c9a15358317b`
+- `PAGES_PROJECT_NAME=franchisor-id`
+- `FRANCHISOR_SITE_URL=https://franchisor.id`
+
+Create the deploy hook in the Cloudflare Pages project, then save its URL only in `PAGES_DEPLOY_HOOK_FRANCHISOR_ID`. GitHub documents this UI and secret handling in [Using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets).
+
+The copied Premium email workflow is intentionally manual-only. Do not schedule it in both Franchisee.id and Franchisor.id, or users may receive duplicate lifecycle messages. If Franchisor.id becomes the sole scheduler, first disable the schedule in Franchisee.id, then add the schedule here in a separate reviewed change.
+
+## 6. Optional integrations
+
+Configure only the features you intend to enable:
+
+| Feature | Variables/secrets | Required external action |
+| --- | --- | --- |
+| Premium email | `RESEND_API_KEY`, `PREMIUM_EMAIL_FROM`, `PREMIUM_EMAIL_REPLY_TO`, `PREMIUM_EMAIL_WORKER_SECRET` | Verify the sending domain/address in Resend. |
+| OCR worker | `OCR_KEY` or `OCR_SECRET`, `OCR_WORKER_URL`, `OCR_WORKER_DAILY_CAP` | Use a random secret of at least 32 bytes and configure the same secret on the worker. |
+| Google Contacts | `GOOGLE_CONTACTS_CLIENT_ID`, `GOOGLE_CONTACTS_CLIENT_SECRET`, `GOOGLE_CONTACTS_REDIRECT_URI`, `GOOGLE_CONTACTS_TOKEN_KEY` | Add `https://franchisor.id/google-contacts-callback` as an authorized redirect URI in Google Cloud. |
+| Legacy Sheets fallback | `G_CLIENT_EMAIL`, `G_PRIVATE_KEY`, `G_SHEET_ID` | Enable only while a documented legacy consumer remains. |
+
+## 7. First-deploy verification
+
+After deployment, verify without exposing secret values:
+
+1. `https://franchisor.id/auth-config` returns `configured: true`, `isSatellite: true`, and no secret key.
+2. `/login/`, `/daftar/`, `/profil/`, `/dashboard/`, `/premium/`, and `/peluang-usaha/` render with Franchisor branding.
+3. Sign in and confirm `/auth-sync` creates or updates the same network user record rather than a duplicate identity.
+4. Confirm unauthorized methods return `405` and protected endpoints return `401`/`403` as appropriate.
+5. Upload one disposable test asset and confirm its object is in `franchise-assets` and its public URL resolves.
+6. Trigger one Franchisor-scoped publication rebuild and confirm only the Franchisor Pages project deploys.
+7. Confirm legacy public pages still resolve and use the intended canonical host.
+
+The shared database currently contains zero published rows for `site_franchisor_id`. Therefore an empty generated Franchisor directory is expected. Do not mass-copy Franchisee publication rows. Publish through the normal Premium/admin workflow so each `franchise_site_publications` row is explicit and auditable.
