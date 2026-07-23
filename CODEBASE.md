@@ -1,6 +1,6 @@
 # Franchisor.id codebase
 
-Last updated: 2026-07-22
+Last updated: 2026-07-23
 
 ## Current state
 
@@ -23,8 +23,9 @@ Implemented on 2026-07-22:
 - GitHub workflows for Franchisor-scoped static publication and manual-only Premium email dispatch.
 - Deployment and provider setup instructions in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
 - A production asset crawler that validates every deployed HTML file and reachable CSS dependency.
+- `TOPICAL_AUTHORITY.md` and `ARTICLE_CATALOG.md`, which plan 19 operator-facing topics and 114 distinct article briefs without changing application routes or publishing content.
 
-The existing home page still describes Franchisor.id as a directory of franchise and business opportunities. New application surfaces are operator/franchisor-facing while retaining public discovery. The shared database had zero published `site_franchisor_id` rows when verified on 2026-07-22, so that build's generated directory was correctly empty. Re-query D1 before relying on this count later.
+The existing home page still describes Franchisor.id as a directory of franchise and business opportunities. New application surfaces are operator/franchisor-facing while retaining public discovery. The shared database had zero published `site_franchisor_id` rows when verified again on 2026-07-23, so that build's generated directory was correctly empty. Re-query D1 before relying on this count later.
 
 ## Target architecture
 
@@ -64,6 +65,8 @@ The repository now has this hybrid shape:
 ```text
 Franchisor.id/
 ├── AGENTS.md
+├── TOPICAL_AUTHORITY.md
+├── ARTICLE_CATALOG.md
 ├── CODEBASE.md
 ├── CHANGELOG.md
 ├── package.json
@@ -115,7 +118,7 @@ The runtime was copied as an implementation baseline and then adapted. Shared ne
 - Production build: `pnpm run build`
 - Asset routing: the production build finishes with `scripts/check-built-assets.mjs`, which rejects missing/case-mismatched local dependencies before `dist` can be deployed.
 - Feature checks are exposed as the `*:check` scripts in `package.json`.
-- Last verified on 2026-07-22: Astro check returned 0 errors and 5 non-blocking hints; all 15 feature-contract checks passed; the build generated 12 Astro pages and validated 4,887 deployed files.
+- Last verified on 2026-07-23: Astro check returned 0 errors and 5 non-blocking hints; the build generated 12 Astro pages, fetched zero published Franchisor rows, and validated 4,887 deployed files. The 15 feature-contract checks last passed on 2026-07-22.
 - Do not start the development server unless the user explicitly asks.
 
 The build requires Cloudflare credentials to fetch the remote D1 snapshot. Production bindings and secrets are documented in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.

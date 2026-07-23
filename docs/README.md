@@ -4,11 +4,13 @@ Start here after reading the root `AGENTS.md`.
 
 ## Current status
 
-The D1/Clerk/Astro/Pages Functions runtime is implemented and locally verified. The repository is not yet documented as production-live: Cloudflare Pages bindings, Clerk satellite configuration, custom domains, provider secrets, and live smoke tests remain manual launch gates. The shared D1 query returned zero published `site_franchisor_id` rows on 2026-07-22; that is timestamped evidence, not a permanent assumption.
+The D1/Clerk/Astro/Pages Functions runtime is implemented and locally verified. The repository is not yet documented as production-live: Cloudflare Pages bindings, Clerk satellite configuration, custom domains, provider secrets, and live smoke tests remain manual launch gates. The shared D1 query returned zero published `site_franchisor_id` rows again on 2026-07-23; that is timestamped evidence, not a permanent assumption.
 
 ## Core documents
 
 - `../CODEBASE.md` — current repository inventory, target structure, stable identifiers, and reference paths.
+- `../TOPICAL_AUTHORITY.md` — audited Franchisor/operator knowledge universe, existing-route decisions, evidence standards, and bounded first cluster.
+- `../ARTICLE_CATALOG.md` — 114 distinct briefs with intent, scope boundaries, evidence formats, links, priority, and publication waves.
 - `architecture/FRANCHISE_NETWORK_CONTEXT.md` — the complete cross-site architecture and product boundary distilled from Franchisee.id.
 - `data/SHARED_DATA_CONTRACT.md` — required D1 read/write, publication, identity, and asset contracts.
 - `architecture/FRANCHISOR_BUILD_PLAN.md` — phased implementation plan and acceptance criteria.

@@ -2,6 +2,18 @@
 
 All notable repository file changes are recorded here.
 
+## 2026-07-23
+
+### Operator topical-authority plan
+
+- Added `TOPICAL_AUTHORITY.md` after auditing the hybrid Astro/Cloudflare and legacy WordPress-export route model, all sitemap children, 70 sitemap page URLs, 34 legacy brand pages, application surfaces, and the shared Franchise Network boundary.
+- Added `ARTICLE_CATALOG.md` with 19 parent topics and 114 distinct operator-facing briefs, six per topic, including explicit intent, exclusions, evidence formats, related IDs, priority, waves, an anti-cannibalization register, and a matching coverage ledger.
+- Defined Franchisor.id as the network-owner, seller, and operator knowledge surface while preserving Franchisee.id as an independent buyer-facing domain; excluded location-swapped briefs and thin city filter pages.
+- Added current official Indonesian source and qualified-review gates for franchise regulation, STPW/licensing, trademarks/IP, financial claims, tax, competition, privacy, safety, and international expansion.
+- Updated `README.md`, `CODEBASE.md`, and `docs/README.md` to index the authority artifacts.
+- Refreshed the current build evidence after the 2026-07-23 production build again fetched zero published Franchisor rows, generated 12 Astro pages, and validated all 4,887 deployed files.
+- Added `.context/session-20260723-2337.md` with audit, validation, build-impact, and handoff evidence.
+
 ## 2026-07-22
 
 ### Documentation freshness reconciliation
