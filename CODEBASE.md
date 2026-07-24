@@ -24,6 +24,7 @@ Implemented on 2026-07-22:
 - Deployment and provider setup instructions in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
 - A production asset crawler that validates every deployed HTML file and reachable CSS dependency.
 - `TOPICAL_AUTHORITY.md` and `ARTICLE_CATALOG.md`, which plan 19 operator-facing topics and 114 distinct article briefs without changing application routes or publishing content.
+- `GLOBAL_RESEARCH.md`, which maps 20 direct-source franchise-network evidence records and 12 explicit gates across all 19 topics without authorizing outlines, drafts, publication, advice, or commercial claims.
 
 The existing home page still describes Franchisor.id as a directory of franchise and business opportunities. New application surfaces are operator/franchisor-facing while retaining public discovery. The shared database had zero published `site_franchisor_id` rows when verified again on 2026-07-23, so that build's generated directory was correctly empty. Re-query D1 before relying on this count later.
 
@@ -67,6 +68,7 @@ Franchisor.id/
 ├── AGENTS.md
 ├── TOPICAL_AUTHORITY.md
 ├── ARTICLE_CATALOG.md
+├── GLOBAL_RESEARCH.md
 ├── CODEBASE.md
 ├── CHANGELOG.md
 ├── package.json

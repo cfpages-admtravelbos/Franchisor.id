@@ -2,6 +2,15 @@
 
 All notable repository file changes are recorded here.
 
+## 2026-07-25
+
+### Operator global-research foundation
+
+- Added `GLOBAL_RESEARCH.md` with 20 direct-source evidence records, exact 19/19 topic-family coverage, 12 legal/financial/sector/offer gates, and refresh triggers shared with the buyer-side franchise research family.
+- Updated `CODEBASE.md` and `docs/README.md` to register the research artifact as the constrained bridge from the frozen catalog to separately authorized outlining and drafting.
+- Added a legacy-law/financial-claim reconciliation suggestion to `SUGGESTION.md`.
+- Added `.context/session-20260725-2350.md` with research validation, current-law changes, and the remaining project-specific gates.
+
 ## 2026-07-23
 
 ### Operator topical-authority plan

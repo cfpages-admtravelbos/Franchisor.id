@@ -11,6 +11,7 @@ The D1/Clerk/Astro/Pages Functions runtime is implemented and locally verified. 
 - `../CODEBASE.md` — current repository inventory, target structure, stable identifiers, and reference paths.
 - `../TOPICAL_AUTHORITY.md` — audited Franchisor/operator knowledge universe, existing-route decisions, evidence standards, and bounded first cluster.
 - `../ARTICLE_CATALOG.md` — 114 distinct briefs with intent, scope boundaries, evidence formats, links, priority, and publication waves.
+- `../GLOBAL_RESEARCH.md` — project-wide pre-writing evidence foundation with direct official sources, exact topic coverage, grounded facts, applicability limits, gates, and refresh triggers.
 - `architecture/FRANCHISE_NETWORK_CONTEXT.md` — the complete cross-site architecture and product boundary distilled from Franchisee.id.
 - `data/SHARED_DATA_CONTRACT.md` — required D1 read/write, publication, identity, and asset contracts.
 - `architecture/FRANCHISOR_BUILD_PLAN.md` — phased implementation plan and acceptance criteria.

@@ -29,3 +29,7 @@ Add a small fixture-based contract suite that both sites run to verify:
 - Premium site mapping;
 - rebuild queue isolation;
 - canonical URL rules.
+
+## Reconcile legacy franchise-law and financial claims
+
+Before the separately authorized outline/publication stage, inventory legacy pages that cite PP 42/2007, omit the 2025 STPW/licensing changes, or imply guaranteed returns. Preserve useful URLs, update them against `GLOBAL_RESEARCH.md`, remove unsupported guarantees, and require current Indonesian legal/financial review for definitive claims.
