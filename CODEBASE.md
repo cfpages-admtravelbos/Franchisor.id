@@ -136,3 +136,12 @@ The build requires Cloudflare credentials to fetch the remote D1 snapshot. Produ
 - A Premium Network subscription does not make a page live by itself; a published per-site row and successful Franchisor build are both required.
 
 See `docs/architecture/FRANCHISOR_BUILD_PLAN.md` for the implementation sequence.
+
+<!-- BEGIN MANAGED LOCAL ARTICLE HANDOFF MAP -->
+## Repository-local article writing handoff
+
+- `ARTICLE_CATALOG.md` appoints historical CMS publication dates for 114 planned articles.
+- `artikel/` contains 114 constrained Markdown writing packets; these are outlines, not published pages.
+- `ARTICLE-GUIDE.md` and the managed block in `AGENTS.md` instruct one-file-at-a-time expansion.
+- The eventual public route contract is `/artikel/[slug].html`; no HTML, sitemap, deployment, or D1 publication state is changed by this handoff.
+<!-- END MANAGED LOCAL ARTICLE HANDOFF MAP -->

@@ -77,3 +77,22 @@ All notable repository file changes are recorded here.
 - `docs/data/SHARED_DATA_CONTRACT.md` with required D1 read/write and publication rules.
 - `SUGGESTION.md` for non-committed platform and migration ideas.
 - `.context/session-20260722-0429.md` as the initial Franchisor context handoff.
+
+## 2026-07-25 17:54 (Asia/Jakarta)
+
+### Added
+
+- `ARTICLE-GUIDE.md`: repository-local one-article-at-a-time writing instructions.
+- `artikel/*.md` (114 files): source-constrained article outlines appointed by `ARTICLE_CATALOG.md`.
+- `.context/session-20260725-1754.md`: recorded this bounded handoff session.
+
+### Changed
+
+- `ARTICLE_CATALOG.md`: assigned unique historical CMS publication dates.
+- `AGENTS.md`: appended the managed repository-local article workflow without replacing existing rules.
+- `CODEBASE.md`: recorded the outline-only article handoff and publication boundary.
+- `CHANGELOG.md`: recorded every path class changed by this handoff.
+
+### Removed
+
+- None.
