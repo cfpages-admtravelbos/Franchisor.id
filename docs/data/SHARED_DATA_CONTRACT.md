@@ -103,9 +103,9 @@ The Franchisee Premium helper used to format every site as:
 https://franchisor.id/peluang-usaha/{slug}/
 ```
 
-The Franchisor-owned copies now map `site_franchisor_id` to `https://franchisor.id/usaha/{slug}`. **Cross-repo follow-up:** `../Franchisee.id/functions/_premium.js` needs the same mapping, or a Premium approval executed from Franchisee's dashboard writes the wrong franchisor canonical into `franchise_site_publications.canonical_url`.
+Both copies now map `site_franchisor_id` to `https://franchisor.id/usaha/{slug}`: this repository's `functions/_premium.js`, and `../Franchisee.id/functions/_premium.js` as of 2026-09-26 (`87a4d73`). That cross-repo change matters because Premium activation writes `franchise_site_publications.canonical_url` for all four sites from whichever dashboard runs the approval. It is guarded on both sides — `premium:lifecycle:check` in the owner repository and `ownership:check` here — so the two copies cannot drift apart silently.
 
-Still open in this family: relocating the generated detail route to `usaha/[slug]`, retiring the 34 legacy `/usaha/*` files (they are currently the only working brand pages, because `site_franchisor_id` has zero published rows), generating one authoritative sitemap, the soft-404 fix, and the single slug divergence `/usaha/pisang-molen-m-a` → `/usaha/pisang-molen-ma`. Redirecting that slug before the replacement page is generated would break a working URL. Track these as D.2–D.4 in `../product/NETWORK_MEMBERSHIP_PROGRESS.md`.
+Still open in this family: relocating the generated detail route to `usaha/[slug]`, retiring the 34 legacy `/usaha/*` files (they are currently the only working brand pages, because `site_franchisor_id` has zero published rows), generating one authoritative sitemap, the soft-404 fix, and the single slug divergence `/usaha/pisang-molen-m-a` → `/usaha/pisang-molen-ma`. Redirecting that slug before the replacement page is generated would break a working URL. Track these as D.2–D.3 in `../product/NETWORK_MEMBERSHIP_PROGRESS.md`.
 
 Cross-domain pages should have distinct audience value. `is_primary` and `canonical_url` must be used intentionally; do not automatically point every page at Franchisee.id or self-canonicalize duplicates without an SEO decision.
 

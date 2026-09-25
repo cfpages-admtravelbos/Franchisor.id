@@ -2,6 +2,15 @@
 
 All notable repository file changes are recorded here.
 
+## 2026-09-26 (later) — Cross-repo follow-up D.4 closed
+
+Authorized cross-repo change, recorded here and in the owning repository so another harness can review it.
+
+- `../Franchisee.id` commit `87a4d73` maps `site_franchisor_id` to `https://franchisor.id/usaha/{slug}` in its own `functions/_premium.js`, adds a `checkPerSiteCanonicalFamilies()` guard to `scripts/check-premium-lifecycle.ts`, and records the decision in `docs/architecture/PREMIUM_MONETIZATION_PLAN.md`, `CHANGELOG.md`, and `.context/session-20260926-0634.md`. No schema, secret, or D1 change; all 15 of that repository's `*:check` scripts pass.
+- Updated `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md` (D.4 → done, with the commit and guard), `docs/product/FRANCHISOR_PARITY_MATRIX.md` (canonical family row closed), `docs/data/SHARED_DATA_CONTRACT.md`, and `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md` to record that both `_premium.js` copies now agree and are guarded on each side.
+
+Still open from that repository's findings, recorded so it is not lost: its `scripts/d1-static-publish-poller.mjs` needs the same table/column/ordering correction applied here in `eb94f7d`, and the `d1_migrations` ledger still lacks rows for 0034–0036 and 0039.
+
 ## 2026-09-26 — Gate 0 audits and Gate 1 ownership parity
 
 Executed Gates 0 and 1 of `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md` (continued from the 2026-09-25 planning review into this date). No D1 migration, secret, or live-provider change was made, and no row was written to the shared database — all live access was read-only.
