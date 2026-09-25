@@ -10,6 +10,7 @@ import { SITE_ID, EDIT_FIELD_NAME, sanitizeChanges, updateListingStatement } fro
 import { getListingSnapshot, hasAutoApproval } from "./_dashboard-queries.js";
 import { auditStatement, assertAdmin, isAdmin, jsonResponse, parseJson, randomId } from "./_dashboard-utils.js";
 import { manualLocationSummary, manualLocationWriteStatements } from "./_location-writes.js";
+import { OWNER_REVIEW_REASON, reviewedProfileStatements } from "./_profile-owner-review.js";
 import { refreshDashboardQualityChecks } from "./_quality-checks.js";
 import { siteRebuildStatements } from "./_site-publish-queue.js";
 import { createPremiumNotification, queueNotificationEmail, recordPremiumEvent, updatePremiumSettings } from "./_premium-ops.js";
@@ -201,9 +202,25 @@ export async function handleReviewEditSuggestion(db, auth, data) {
   if (approved && !Object.keys(selectedSuggestedChanges).length) {
     return jsonResponse({ success: false, error: "NO_VALID_FIELDS_SELECTED", message: "Field yang dipilih tidak ada di suggestion ini." }, { status: 400 });
   }
+  // An owner proposal is only safe to apply while the public row still matches
+  // the values captured when the proposal was queued and the listing is still
+  // owned by the applicant. Otherwise the change is stale and must be re-queued.
+  if (approved && suggestion.reason === OWNER_REVIEW_REASON && suggestion.field_name === EDIT_FIELD_NAME) {
+    const current = await getListingSnapshot(db, suggestion.franchise_id);
+    const previous = parseJson(suggestion.old_value, {});
+    if (!current || current.owner_user_id !== suggestion.suggested_by_user_id ||
+        Object.keys(selectedSuggestedChanges).some((field) => (current[field] ?? null) !== (previous[field] ?? null))) {
+      return jsonResponse({ success: false, error: "OWNER_REVIEW_STALE",
+        message: "Data listing berubah sejak usulan diajukan. Tolak usulan lama dan minta pengajuan baru." }, { status: 409 });
+    }
+  }
   const skippedFields = requestedFields
     ? Object.keys(suggestedChanges).filter((field) => !Object.prototype.hasOwnProperty.call(selectedSuggestedChanges, field))
     : [];
+  if (approved && suggestion.reason === OWNER_REVIEW_REASON && !String(data.notes || "").trim()) {
+    return jsonResponse({ success: false, error: "REVIEW_EVIDENCE_REQUIRED",
+      message: "Catat dasar pemeriksaan pemilik dan perubahan sebelum menyetujui." }, { status: 400 });
+  }
   const reviewNotes = [
     data.notes,
     approved && requestedFields ? `Approved fields: ${Object.keys(selectedSuggestedChanges).join(", ")}.` : "",
@@ -225,7 +242,14 @@ export async function handleReviewEditSuggestion(db, auth, data) {
     }, auth.id),
   ];
 
-  if (approved) {
+  if (approved && suggestion.field_name === "franchisor_profile") {
+    const profileStatements = await reviewedProfileStatements(db, suggestion, selectedSuggestedChanges, auth.id);
+    if (!profileStatements) {
+      return jsonResponse({ success: false, error: "PROFILE_REVIEW_STALE",
+        message: "Data pemilik sudah berubah. Tolak usulan lama dan minta pengajuan baru." }, { status: 409 });
+    }
+    statements.push(...profileStatements);
+  } else if (approved) {
     const changes = sanitizeChanges(selectedSuggestedChanges);
     statements.push(
       updateListingStatement(db, suggestion.franchise_id, changes),
@@ -247,15 +271,90 @@ export async function handleReviewEditSuggestion(db, auth, data) {
     );
   }
 
-  await db.batch(statements);
+  try {
+    await db.batch(statements);
+  } catch (error) {
+    if (/owner_edit_(already_reviewed|review_notes_required)/.test(String(error))) {
+      return jsonResponse({ success: false, error: "SUGGESTION_ALREADY_REVIEWED",
+        message: "Usulan telah diputuskan atau catatan pemeriksaan belum lengkap. Muat ulang daftar Review." }, { status: 409 });
+    }
+    throw error;
+  }
   return jsonResponse({ success: true, status });
+}
+
+export async function handleReviewBrandSubmission(db, auth, data) {
+  assertAdmin(auth);
+  if (!data.notes?.trim()) return jsonResponse({ success: false, error: "BRAND_EVIDENCE_REQUIRED" }, { status: 400 });
+  const review = await db.prepare(`
+    SELECT r.id, r.franchise_id, r.applicant_user_id, r.status,
+      f.brand_name, f.status AS franchise_status, f.owner_user_id,
+      p.id AS publication_id, p.publication_status
+    FROM franchise_submission_reviews r
+    JOIN franchises f ON f.id = r.franchise_id
+    JOIN franchise_site_publications p ON p.franchise_id = f.id AND p.site_id = ?
+    WHERE r.id = ? AND f.source_site_id = ? LIMIT 1
+  `).bind(SITE_ID, data.review_id, SITE_ID).first();
+  if (!review) return jsonResponse({ success: false, error: "BRAND_REVIEW_NOT_FOUND" }, { status: 404 });
+  if (review.status !== "pending") {
+    return jsonResponse({ success: false, error: "BRAND_ALREADY_REVIEWED" }, { status: 409 });
+  }
+  if (review.franchise_status !== "pending_review" || review.owner_user_id || review.publication_status !== "draft") {
+    return jsonResponse({ success: false, error: "BRAND_REVIEW_CONFLICT" }, { status: 409 });
+  }
+  const approved = data.decision === "approve";
+  const status = approved ? "approved" : "rejected";
+  const statements = [
+    db.prepare(`UPDATE franchise_submission_reviews
+      SET status = ?, review_notes = ?, reviewed_by_user_id = ?, reviewed_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND franchise_id = ? AND status IN ('pending', 'rejected')`)
+      .bind(status, data.notes.trim(), auth.id, review.id, review.franchise_id),
+  ];
+  if (approved) {
+    statements.push(
+      db.prepare(`UPDATE franchises SET status = 'free', owner_user_id = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND status = 'pending_review' AND owner_user_id IS NULL`)
+        .bind(review.applicant_user_id, review.franchise_id),
+      db.prepare(`UPDATE franchise_site_publications
+        SET publication_status = 'published', first_published_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND publication_status = 'draft'`).bind(review.publication_id),
+    );
+  }
+  if (!approved) {
+    statements.push(db.prepare(`UPDATE franchises SET status = 'archived', updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND status = 'pending_review' AND owner_user_id IS NULL`).bind(review.franchise_id));
+  }
+  statements.push(auditStatement(db, `dashboard.brand_submission.${status}`, "franchises", review.franchise_id, {
+    brand_name: review.brand_name, review_id: review.id, verification_notes: data.notes.trim(),
+  }, auth.id));
+  if (approved) {
+    statements.push(...siteRebuildStatements(db, {
+      siteId: SITE_ID, franchiseId: review.franchise_id, reason: "brand_submission_approved",
+      entityType: "franchises", entityId: review.franchise_id, actorUserId: auth.id,
+      source: "dashboard", metadata: { review_id: review.id, brand_name: review.brand_name },
+    }));
+  }
+  try {
+    const results = await db.batch(statements);
+    if (results[0]?.meta?.changes !== 1 || (approved && (results[1]?.meta?.changes !== 1 || results[2]?.meta?.changes !== 1))) {
+      return jsonResponse({ success: false, error: "BRAND_REVIEW_CONFLICT" }, { status: 409 });
+    }
+  } catch (error) {
+    if (/new_brand_(already_approved|already_reviewed|invalid_decision|evidence_required|not_pending|review_required)/.test(String(error))) {
+      return jsonResponse({ success: false, error: "BRAND_REVIEW_CONFLICT" }, { status: 409 });
+    }
+    throw error;
+  }
+  return jsonResponse({ success: true, status, franchise_id: review.franchise_id });
 }
 
 export async function handleReviewClaim(db, auth, data) {
   assertAdmin(auth);
   const claim = await db
     .prepare(
-      `SELECT fc.*, f.brand_name, f.status AS franchise_status, f.verification_tier
+      `SELECT fc.*, f.brand_name, f.status AS franchise_status, f.verification_tier, f.owner_user_id, f.source_sheet
        FROM franchise_claims fc
        JOIN franchises f ON f.id = fc.franchise_id
        WHERE fc.id = ? AND fc.source_site_id = ?
@@ -270,6 +369,12 @@ export async function handleReviewClaim(db, auth, data) {
   }
 
   const approved = data.decision === "approve";
+  if (approved && (!data.notes?.trim() || !claim.claimant_user_id || !claim.franchisor_profile_id)) {
+    return jsonResponse({ success: false, error: "CLAIM_EVIDENCE_REQUIRED", message: "Catat bukti verifikasi independen sebelum menyetujui klaim." }, { status: 400 });
+  }
+  if (approved && (claim.owner_user_id || claim.franchise_status !== "unclaimed" || claim.source_sheet !== "UNCLAIMED")) {
+    return jsonResponse({ success: false, error: "CLAIM_OWNER_CONFLICT", message: "Listing tidak lagi tersedia untuk diklaim. Periksa pemilik dan statusnya." }, { status: 409 });
+  }
   const status = approved ? "approved" : "rejected";
   const statements = [
     db
@@ -297,9 +402,10 @@ export async function handleReviewClaim(db, auth, data) {
                verification_tier = CASE WHEN verification_tier = 'unclaimed' THEN 'free' ELSE verification_tier END,
                source_sheet = 'FRANCHISOR',
                updated_at = CURRENT_TIMESTAMP
-           WHERE id = ?`
+           WHERE id = ? AND owner_user_id IS NULL AND status = 'unclaimed' AND source_sheet = 'UNCLAIMED'
+              AND EXISTS (SELECT 1 FROM franchise_claims WHERE id = ? AND status = 'approved' AND claimant_user_id = ?)`
         )
-        .bind(claim.claimant_user_id, claim.franchisor_profile_id, claim.franchise_id),
+        .bind(claim.claimant_user_id, claim.franchisor_profile_id, claim.franchise_id, data.claim_id, claim.claimant_user_id),
       auditStatement(db, "dashboard.claim.apply_owner", "franchise", claim.franchise_id, {
         claim_id: data.claim_id,
         claimant_user_id: claim.claimant_user_id,
@@ -317,7 +423,17 @@ export async function handleReviewClaim(db, auth, data) {
     );
   }
 
-  await db.batch(statements);
+  try {
+    const result = await db.batch(statements);
+    if (result[0]?.meta?.changes !== 1 || (approved && result[2]?.meta?.changes !== 1)) {
+      return jsonResponse({ success: false, error: "CLAIM_OWNER_CONFLICT", message: "Klaim atau pemilik berubah saat ditinjau. Muat ulang dashboard." }, { status: 409 });
+    }
+  } catch (error) {
+    if (/claim_(target_not_unclaimed|already_pending|already_reviewed)/.test(String(error))) {
+      return jsonResponse({ success: false, error: "CLAIM_OWNER_CONFLICT", message: "Listing tidak lagi tersedia untuk diklaim. Muat ulang dashboard." }, { status: 409 });
+    }
+    throw error;
+  }
   return jsonResponse({ success: true, status });
 }
 

@@ -40,7 +40,7 @@
               <h3>${escapeHtml(item.brand_name || "Listing")}</h3>
               <p>${escapeHtml(statusLabel(item))}</p>
             </div>
-            ${item.slug ? `<a class="fr-profile-text-link" href="/peluang-usaha/${attr(item.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Lihat listing</a>` : ""}
+            ${item.slug ? `<a class="fr-profile-text-link" href="/usaha/${attr(item.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Lihat listing</a>` : ""}
           </div>
           <div class="fr-profile-analytics-grid">
             ${smallMetric("Dilihat", last30.listing_view, total.listing_view)}

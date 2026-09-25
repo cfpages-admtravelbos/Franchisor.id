@@ -4,6 +4,8 @@
 
 Read [one membership, four sites](product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](product/FRANCHISOR_USER_JOURNEYS.md) before the July port documents. They record the 2026-09-25 gap between the repository's adapted app and the live legacy domain, the current Franchisee ownership safeguards, the one-brand membership contract, and launch gates. Use [network context](architecture/FRANCHISE_NETWORK_CONTEXT.md), [shared data contract](data/SHARED_DATA_CONTRACT.md), and [deployment checklist](operations/MANUAL_SETUP_CHECKLIST.md) for their narrower responsibilities. Historical manifests and session notes are evidence of past work, not current production acceptance.
 
+**Gate 0–1 execution record (2026-09-26):** [rollout progress tracker](product/NETWORK_MEMBERSHIP_PROGRESS.md), [parity matrix](product/FRANCHISOR_PARITY_MATRIX.md), [provider boundary record](operations/PROVIDER_BOUNDARY_RECORD.md), [legacy brand match](product/LEGACY_BRAND_MATCH.md). Read the tracker first; it is the canonical status surface and links every gate step to its evidence.
+
 Editorial research, image plans, progress trackers, and `artikel/*.md` outlines remain separate, managed source/task packets. Their absence of a repeated membership summary does not make them current product authority; an agent reads `AGENTS.md` and this index first.
 
 Start here after reading the root `AGENTS.md`.

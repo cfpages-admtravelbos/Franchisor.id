@@ -34,7 +34,7 @@
       var extracted = group.items.filter(function (row) { return row.extraction_status === "extracted"; }).length;
       var needsCheck = group.items.filter(function (row) { return row.extraction_status !== "extracted"; }).length;
       var listingLink = group.slug
-        ? '<a class="dash-ocr-row-action" href="/peluang-usaha/' + utils.escapeAttr(group.slug) + '" target="_blank" rel="noopener" data-fr-tooltip="Buka listing publik franchise ini."><i class="fas fa-external-link-alt" aria-hidden="true"></i><span>Listing</span></a>'
+        ? '<a class="dash-ocr-row-action" href="/usaha/' + utils.escapeAttr(group.slug) + '" target="_blank" rel="noopener" data-fr-tooltip="Buka listing publik franchise ini."><i class="fas fa-external-link-alt" aria-hidden="true"></i><span>Listing</span></a>'
         : "";
       return '<li class="dash-ocr-result-card" data-ocr-result-group="' + utils.escapeAttr(group.key) + '">' +
         '<div class="dash-ocr-result-card-head">' +

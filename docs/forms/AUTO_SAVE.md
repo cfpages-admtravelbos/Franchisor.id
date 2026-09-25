@@ -34,6 +34,19 @@ A claim draft is not restored over a different active claim. If both the saved a
 
 `FF.stopPeriodicAutoSave()` clears periodic/debounce timers. A successful submission also clears the draft and applicable claim state.
 
+## Multi-Tab And Stale Draft Policy
+
+The draft key is shared per browser origin, so two tabs can write the same record. Last write wins on `saved_at`; a tab that restores an older snapshot continues from that snapshot and saves it forward on its next trigger. There is no cross-tab locking and no field-level merge.
+
+Stale and mismatch guards:
+
+- A draft older than the 72-hour TTL is discarded rather than restored.
+- A draft whose `schema_version` does not match the current version is discarded.
+- A claim draft is not restored over a different active claim: if both the saved and current `claim_brand_id` exist and differ, restoration is skipped.
+- A successful submission clears the draft and the applicable claim state, so a second tab cannot resubmit the same payload from local storage.
+
+A surviving draft is recovery convenience only. It never proves the server accepted a submission, and it never carries ownership, review, or verification state.
+
 ## Code ownership
 
 - `js/form-01-state-helpers.js`: keys, TTL/schema metadata, save/restore/clear, stale and claim-mismatch guards.

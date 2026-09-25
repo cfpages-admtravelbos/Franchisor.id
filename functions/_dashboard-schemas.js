@@ -71,6 +71,13 @@ const ReviewClaimSchema = z.object({
   notes: z.string().trim().max(1200).optional().default(""),
 });
 
+const ReviewBrandSubmissionSchema = z.object({
+  action: z.literal("review_brand_submission"),
+  review_id: z.string().trim().min(1),
+  decision: DashboardDecisionSchema,
+  notes: z.string().trim().min(1).max(1200),
+});
+
 const RefreshQualityChecksSchema = z.object({
   action: z.literal("refresh_quality_checks"),
 });
@@ -149,6 +156,7 @@ export const DashboardActionSchema = z.discriminatedUnion("action", [
   UpdateOutreachStatusSchema,
   SuggestEditSchema,
   ReviewEditSuggestionSchema,
+  ReviewBrandSubmissionSchema,
   ReviewClaimSchema,
   RefreshQualityChecksSchema,
   UpdatePublicationSchema,

@@ -49,36 +49,45 @@ function rows(result) { return Array.isArray(result?.results) ? result.results :
 export function selectEligible(state, requests, now = Date.now()) {
   const force = state.force === true;
   if (!force && state.is_enabled === 0) return { requests:[], skip_reason:'disabled' };
-  if (!force && Number(state.daily_publish_limit) > 0 && Number(state.published_today || 0) >= Number(state.daily_publish_limit)) return { requests:[], skip_reason:'daily_limit' };
+  if (!force && Number(state.daily_publish_limit) > 0 && Number(state.daily_publish_count || state.published_today || 0) >= Number(state.daily_publish_limit)) return { requests:[], skip_reason:'daily_limit' };
   if (!force && state.last_published_at && Number(state.min_publish_interval_minutes) > 0 && now - Date.parse(state.last_published_at) < Number(state.min_publish_interval_minutes) * 60000) return { requests:[], skip_reason:'interval_limit' };
-  return { requests: requests.filter(r => r.status === 'pending' || r.status === 'failed_retryable').sort((a,b) => Number(a.id)-Number(b.id)), skip_reason:'' };
+  return { requests: requests.filter(r => r.status === 'pending' || r.status === 'failed_retryable').sort(compareQueueOrder), skip_reason:'' };
+}
+
+// site_rebuild_requests.id is TEXT (rebuild_<uuid>), so numeric coercion would
+// make the comparator return NaN and lose FIFO order. Order by created_at, then id.
+export function compareQueueOrder(a, b) {
+  const ac = String(a.created_at || ''), bc = String(b.created_at || '');
+  if (ac !== bc) return ac < bc ? -1 : 1;
+  const ai = String(a.id || ''), bi = String(b.id || '');
+  return ai < bi ? -1 : ai > bi ? 1 : 0;
 }
 
 export async function claimRequest(env, id, priorStatus, fetchImpl = globalThis.fetch) {
-  const sql = `UPDATE site_publish_requests SET status = 'queued', queued_at = CURRENT_TIMESTAMP WHERE id = ? AND site_id = ? AND status = ?`;
+  const sql = `UPDATE site_rebuild_requests SET status = 'queued', queued_at = CURRENT_TIMESTAMP WHERE id = ? AND site_id = ? AND status = ?`;
   return mutateD1(env, sql, [id, env.SITE_ID, priorStatus], fetchImpl);
 }
 export async function markDeployed(env = process.env, ids = [], fetchImpl = globalThis.fetch) {
   validateConfiguration(env);
   const unique = [...new Set(ids.map(String))];
   const out = [];
-  for (const id of unique) out.push(await mutateD1(env, `UPDATE site_publish_requests SET status = 'deployed', deployed_at = CURRENT_TIMESTAMP WHERE id = ? AND site_id = ? AND status = 'queued'`, [id, env.SITE_ID], fetchImpl));
+  for (const id of unique) out.push(await mutateD1(env, `UPDATE site_rebuild_requests SET status = 'deployed', deployed_at = CURRENT_TIMESTAMP WHERE id = ? AND site_id = ? AND status = 'queued'`, [id, env.SITE_ID], fetchImpl));
   return out;
 }
 export async function markFailed(env = process.env, ids = [], message = 'provider operation failed', fetchImpl = globalThis.fetch) {
   validateConfiguration(env);
   const safe = String(message).replace(/[\r\n\t]+/g,' ').replace(/https?:\/\/\S+/gi,'[redacted]').slice(0,200);
   const out = [];
-  for (const id of [...new Set(ids.map(String))]) out.push(await mutateD1(env, `UPDATE site_publish_requests SET status = 'failed_retryable', last_error = ? WHERE id = ? AND site_id = ? AND status = 'queued'`, [safe,id,env.SITE_ID], fetchImpl));
+  for (const id of [...new Set(ids.map(String))]) out.push(await mutateD1(env, `UPDATE site_rebuild_requests SET status = 'failed_retryable', error_message = ? WHERE id = ? AND site_id = ? AND status = 'queued'`, [safe,id,env.SITE_ID], fetchImpl));
   return out;
 }
 export async function recoverStaleQueue(env, fetchImpl = globalThis.fetch) {
   validateConfiguration(env);
-  return mutateD1(env, `UPDATE site_publish_requests SET status = 'failed_retryable' WHERE site_id = ? AND status = 'queued' AND queued_at < datetime('now', '-' || (SELECT stale_queued_after_minutes FROM site_publish_state WHERE site_id = ?) || ' minutes')`, [env.SITE_ID, env.SITE_ID], fetchImpl);
+  return mutateD1(env, `UPDATE site_rebuild_requests SET status = 'failed_retryable' WHERE site_id = ? AND status = 'queued' AND queued_at < datetime('now', '-' || (SELECT stale_queued_after_minutes FROM site_publish_state WHERE site_id = ?) || ' minutes')`, [env.SITE_ID, env.SITE_ID], fetchImpl);
 }
 export async function reconcileCounts(env, fetchImpl = globalThis.fetch) {
   validateConfiguration(env);
-  return queryD1(env, `SELECT COUNT(*) AS pending_count FROM site_publish_requests WHERE site_id = ? AND status IN ('pending','failed_retryable')`, [env.SITE_ID], fetchImpl);
+  return queryD1(env, `SELECT COUNT(*) AS pending_count FROM site_rebuild_requests WHERE site_id = ? AND status IN ('pending','failed_retryable')`, [env.SITE_ID], fetchImpl);
 }
 
 function output(name, value) {
@@ -91,11 +100,13 @@ export async function run(env = process.env, fetchImpl = globalThis.fetch) {
   const stateResult = await queryD1(env, `SELECT * FROM site_publish_state WHERE site_id = ?`, [env.SITE_ID], fetchImpl);
   const state = rows(stateResult)[0] || { site_id:env.SITE_ID, is_enabled:1, daily_publish_limit:0, min_publish_interval_minutes:0, publish_mode:'hook' };
   state.force = force;
-  const reqResult = await queryD1(env, `SELECT id, site_id, status, created_at FROM site_publish_requests WHERE site_id = ? AND status IN ('pending','failed_retryable') ORDER BY id ASC`, [env.SITE_ID], fetchImpl);
+  const reqResult = await queryD1(env, `SELECT id, site_id, status, created_at FROM site_rebuild_requests WHERE site_id = ? AND status IN ('pending','failed_retryable') ORDER BY created_at ASC, id ASC`, [env.SITE_ID], fetchImpl);
   const eligible = selectEligible(state, rows(reqResult));
   const queued = [];
   for (const item of eligible.requests) { await claimRequest(env, item.id, item.status, fetchImpl); queued.push(String(item.id)); }
-  const mode = state.publish_mode === 'direct' ? 'direct' : 'hook';
+  // The live state row stores cloudflare_deploy_hook; any explicit direct mode
+  // (direct / cloudflare_direct) deploys from the workflow, everything else uses the hook.
+  const mode = /direct/i.test(String(state.publish_mode || '')) ? 'direct' : 'hook';
   const should = queued.length > 0;
   if (should && mode === 'hook' && !env.DEPLOY_HOOK_URL) fail('missing configuration: DEPLOY_HOOK_URL');
   output('should_publish', should ? 'true':'false'); output('should_direct_deploy', should && mode === 'direct' ? 'true':'false'); output('should_call_deploy_hook', should && mode === 'hook' ? 'true':'false'); output('site_id', cfg.site); output('pending_count', rows(reqResult).length); output('queued_count', queued.length); output('publish_mode', mode); output('skip_reason', should ? '' : eligible.skip_reason || 'no_change'); output('queued_request_ids', queued.join(','));

@@ -69,7 +69,7 @@
     }
 
     function renderJobGroup(group) {
-      var listingLink = group.slug ? deps.renderJobActionLink("/peluang-usaha/" + group.slug, "fa-external-link-alt", "Listing", "Buka listing publik", true) : "";
+      var listingLink = group.slug ? deps.renderJobActionLink("/usaha/" + group.slug, "fa-external-link-alt", "Listing", "Buka listing publik", true) : "";
       return '<li class="dash-ocr-job-group">' +
         '<div class="dash-ocr-job-group-head"><strong><i class="fas fa-store" aria-hidden="true"></i>' + utils.escapeHtml(group.brand_name) + '</strong><span>' + Number(group.jobs.length || 0).toLocaleString("id-ID") + ' item</span>' + listingLink + '</div>' +
         '<div class="dash-ocr-job-group-grid">' + group.jobs.map(renderJobItem).join("") + '</div>' +

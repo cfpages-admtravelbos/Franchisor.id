@@ -40,8 +40,15 @@ async function main() {
   assert.match(prepared[2].sql, /status IN \('pending', 'failed_retryable'\)/);
 
   const pollerSource = readFileSync("scripts/d1-static-publish-poller.mjs", "utf8");
-  assert.match(pollerSource, /pending_count = \(/);
-  assert.match(pollerSource, /queued_count = \(/);
+  // The queue writer and the queue consumer must agree on one table and on the
+  // deployed column names, or the publish loop silently stalls.
+  assert.match(pollerSource, /site_rebuild_requests/, "poller must consume the table the writers fill");
+  assert.doesNotMatch(pollerSource, /site_publish_requests/, "site_publish_requests does not exist in the deployed schema");
+  assert.match(pollerSource, /daily_publish_count/, "poller must read the deployed daily counter column");
+  assert.match(pollerSource, /error_message = \?/, "poller must write the deployed error column");
+  assert.doesNotMatch(pollerSource, /last_error/, "site_rebuild_requests has no last_error column");
+  assert.match(pollerSource, /output\('pending_count'/, "poller must expose pending_count");
+  assert.match(pollerSource, /output\('queued_count'/, "poller must expose queued_count");
 
   const outreachStatusSource = readFileSync("functions/_outreach-status.js", "utf8");
   assert.match(outreachStatusSource, /last_status_changed_at = CURRENT_TIMESTAMP/);

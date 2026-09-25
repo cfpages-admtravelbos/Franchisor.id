@@ -1,5 +1,6 @@
 import { authErrorResponse, requireD1User } from "./_clerk-auth.js";
 import { SITE_FRANCHISOR_ID, siteRebuildStatements } from "./_site-publish-queue.js";
+import { OWNER_REVIEW_REASON, queueOwnerReview } from "./_profile-owner-review.js";
 import { logOperationEvent } from "./_telemetry.js";
 import { extractProposalKnowledge, proposalKnowledgeStatements } from "./_proposal-knowledge.js";
 
@@ -68,6 +69,22 @@ export async function onRequestPost(context) {
       return jsonResponse({ success: false, message: "Listing tidak ditemukan atau bukan milik akun ini." }, { status: 404 });
     }
 
+    const published = await db.prepare(`SELECT 1 AS published FROM franchise_site_publications
+      WHERE franchise_id = ? AND site_id = ? AND publication_status = 'published' LIMIT 1`)
+      .bind(listing.id, SITE_FRANCHISOR_ID).first();
+    if (published && listing.owner_user_id !== actor.id) {
+      return jsonResponse({ success: false, message: "Listing ini bukan milik akun Anda." }, { status: 403 });
+    }
+    if (published) {
+      const pending = await db.prepare(`SELECT id FROM listing_edit_suggestions
+        WHERE franchise_id = ? AND suggested_by_user_id = ? AND field_name = 'json_diff'
+          AND status = 'pending' AND reason = ? LIMIT 1`)
+        .bind(listing.id, actor.id, OWNER_REVIEW_REASON).first();
+      if (pending) {
+        return jsonResponse({ success: false, message: "Perubahan sebelumnya masih diperiksa admin. Tunggu keputusan sebelum mengunggah lagi." }, { status: 409 });
+      }
+    }
+
     const extension = extensionFor(file.name, file.type);
     const objectKey = `franchises/${slugPart(listing.slug || listing.id)}/${config.directory}/${Date.now()}-${randomId()}${extension}`;
     const publicUrl = joinUrl(publicBaseUrl, objectKey);
@@ -95,15 +112,16 @@ export async function onRequestPost(context) {
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`
         )
         .bind(assetId, listing.id, actor.id, assetType, "FRANCHISE_ASSETS", objectKey, publicUrl, file.type || null, file.size || null),
-      db
+      ...(!published ? [db
         .prepare(`UPDATE franchises SET ${config.column} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
-        .bind(publicUrl, listing.id),
+        .bind(publicUrl, listing.id)] : []),
       auditStatement(db, "profile.listing.media_upload", "franchise_assets", assetId, {
         franchise_id: listing.id,
         asset_type: assetType,
         field: config.column,
+        review_pending: Boolean(published),
       }, actor.id),
-      ...siteRebuildStatements(db, {
+      ...(!published ? siteRebuildStatements(db, {
         siteId: SITE_FRANCHISOR_ID,
         franchiseId: listing.id,
         reason: "owner_media_upload",
@@ -117,8 +135,14 @@ export async function onRequestPost(context) {
           asset_type: assetType,
           field: config.column,
         },
-      }),
+      }) : []),
     ]);
+    if (published) {
+      const review = await queueOwnerReview(db, actor, listing.id, { [config.column]: publicUrl }, listing, "json_diff");
+      if (!review.pending) {
+        return jsonResponse({ success: false, message: "Usulan baru saja diputuskan. Muat ulang dan unggah lagi." }, { status: 409 });
+      }
+    }
 
     let knowledgeStatus = null;
     if (proposalBuffer) {
@@ -137,6 +161,10 @@ export async function onRequestPost(context) {
 
     return jsonResponse({
       success: true,
+      status: published ? "pending" : "saved",
+      message: published
+        ? "File diunggah dan menunggu pemeriksaan admin sebelum ditampilkan publik."
+        : "File tersimpan.",
       asset: {
         id: assetId,
         franchise_id: listing.id,
@@ -171,7 +199,8 @@ async function loadOwnedListing(db, actor, franchiseId) {
     .prepare(
       `SELECT id, owner_user_id, franchisor_profile_id, brand_name, slug,
               outlet_type, location_requirement, total_investment_idr, fee_license_idr,
-              estimated_bep_months, royalty_percent, net_profit_percent, support_system
+              estimated_bep_months, royalty_percent, net_profit_percent, support_system,
+              logo_url, cover_url, proposal_url
        FROM franchises
        WHERE id = ?
          AND (owner_user_id = ? OR (? IS NOT NULL AND franchisor_profile_id = ?))

@@ -200,7 +200,7 @@ async function loadSavedOpportunities(db, userId) {
 
     return (result.results || []).map((row) => ({
       ...row,
-      canonical_url: row.canonical_url || (row.slug ? `/peluang-usaha/${row.slug}` : ""),
+      canonical_url: row.canonical_url || (row.slug ? `/usaha/${row.slug}` : ""),
       budget_fit: "unknown",
       budget_label: "Tersimpan",
       reasons: ["Tersimpan di akun Anda"],

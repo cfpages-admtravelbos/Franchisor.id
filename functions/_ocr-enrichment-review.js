@@ -182,7 +182,7 @@ function emptyQueueItem(row) {
     franchise_id: row.franchise_id,
     brand_name: row.brand_name || "",
     slug: row.slug || "",
-    public_url: row.slug ? `/peluang-usaha/${row.slug}` : "",
+    public_url: row.slug ? `/usaha/${row.slug}` : "",
     pending_bundle_count: Number(row.pending_bundle_count || 0),
     pending_page_suggestion_count: Number(row.pending_page_suggestion_count || 0),
     updated_at: row.updated_at || null,

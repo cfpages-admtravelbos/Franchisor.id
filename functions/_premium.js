@@ -43,6 +43,11 @@ export function premiumPublicationId(franchiseId, siteId) {
 
 export function premiumCanonicalUrl(siteId, slug) {
   const domain = PREMIUM_NETWORK_SITE_DOMAINS[siteId] || PREMIUM_NETWORK_SITE_DOMAINS.site_franchisor_id;
+  // Decision 2026-09-25: franchisor.id keeps its retained /usaha/{slug} brand-page
+  // family instead of /peluang-usaha/{slug}. That is the URL the live brand pages
+  // already declare as their own <link rel="canonical">, and it matches this site's
+  // trailingSlash: "never" build. The other network sites keep their existing family.
+  if (siteId === "site_franchisor_id") return `https://franchisor.id/usaha/${slug}`;
   return `https://${domain}/peluang-usaha/${slug}/`;
 }
 

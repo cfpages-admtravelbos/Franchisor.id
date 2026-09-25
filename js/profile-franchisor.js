@@ -44,7 +44,7 @@
       var selected = listings.find(function (item) { return item.id === state.selectedFranchiseId; }) || listings[0];
       return `
         <h2 class="fr-profile-section-title"><i class="fas fa-pen-to-square" aria-hidden="true"></i> Listing Brand</h2>
-        <p class="fr-profile-copy">Perubahan listing akan disimpan dan tampil setelah halaman diperbarui. Untuk menjaga kualitas data, satu listing bisa diedit setiap ${selected.edit_interval_hours || 6} jam.</p>
+        <p class="fr-profile-copy">Perubahan pada listing yang sudah tayang diajukan lebih dulu untuk diperiksa admin; data publik tetap seperti semula sampai disetujui. Maksimal satu usulan menunggu per listing.</p>
         ${state.uploadMessage ? `<p class="fr-profile-message is-${attr(state.uploadMessage.type)}">${escapeHtml(state.uploadMessage.text)}</p>` : ""}
         <div class="fr-profile-select-row">
           <i class="fas fa-list" aria-hidden="true"></i>
@@ -81,7 +81,7 @@
           <p class="fr-profile-message" data-profile-message></p>
           <div class="fr-profile-actions">
             <button class="fr-profile-button" type="submit" ${selected.edit_locked ? "disabled" : ""}><i class="fas fa-floppy-disk" aria-hidden="true"></i> Simpan Listing</button>
-            ${selected.slug ? `<a class="fr-profile-secondary" href="/peluang-usaha/${encodeURIComponent(selected.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Lihat Halaman</a>` : ""}
+            ${selected.slug ? `<a class="fr-profile-secondary" href="/usaha/${encodeURIComponent(selected.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Lihat Halaman</a>` : ""}
           </div>
         </form>
       `;
@@ -147,7 +147,8 @@
           <div class="fr-profile-chip-row">
             ${rows.map(function (row) {
               var status = row.publication_status || "draft";
-              var url = row.canonical_url || (row.slug ? `https://${row.domain || "franchisor.id"}/peluang-usaha/${row.slug}` : "");
+              var path = (row.domain || "franchisor.id") === "franchisor.id" ? "usaha" : "peluang-usaha";
+              var url = row.canonical_url || (row.slug ? `https://${row.domain || "franchisor.id"}/${path}/${row.slug}` : "");
               return `<span class="fr-profile-distribution-chip is-${attr(status)}"><i class="fas ${status === "published" ? "fa-eye" : "fa-eye-slash"}" aria-hidden="true"></i> ${escapeHtml(row.domain || row.name || row.site_id)} · ${escapeHtml(status)}${url ? ` <a href="${attr(url)}" target="_blank" rel="noopener">Lihat</a>` : ""}</span>`;
             }).join("")}
           </div>

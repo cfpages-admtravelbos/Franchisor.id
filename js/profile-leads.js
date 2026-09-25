@@ -30,7 +30,7 @@
             <div class="fr-profile-chip-row">
               ${lead.email ? `<a href="mailto:${attr(lead.email)}"><i class="fas fa-envelope" aria-hidden="true"></i> Email</a>` : ""}
               ${lead.whatsapp ? `<a href="${attr(whatsappLink(lead.country_code, lead.whatsapp))}" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>` : ""}
-              ${lead.canonical_url || lead.slug ? `<a href="${attr(lead.canonical_url || "/peluang-usaha/" + lead.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Listing</a>` : ""}
+              ${lead.canonical_url || lead.slug ? `<a href="${attr(lead.canonical_url || "/usaha/" + lead.slug)}"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i> Listing</a>` : ""}
             </div>
           </div>
           <label class="fr-profile-lead-status">

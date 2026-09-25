@@ -4,6 +4,7 @@ import {
   handleManageNotificationEmail,
   handleRefreshQualityChecks,
   handleReviewPremiumPayment,
+  handleReviewBrandSubmission,
   handleReviewClaim,
   handleReviewEditSuggestion,
   handleSuggestEdit,
@@ -22,6 +23,7 @@ import {
   getLeadSummary,
   getOverview,
   getPendingClaims,
+  getPendingBrandSubmissions,
   getPendingPremiumPayments,
   getPremiumOperations,
   getPublishState,
@@ -32,7 +34,7 @@ import {
   getUnclaimedOutreachSummary,
 } from "./_dashboard-queries.js";
 import { DashboardActionSchema, EDITABLE_LISTING_FIELD_DEFS, SITE_ID } from "./_dashboard-schemas.js";
-import { jsonResponse } from "./_dashboard-utils.js";
+import { jsonResponse, isAdmin } from "./_dashboard-utils.js";
 import { getOcrProviderConfigs, handleToggleOcrProviderEnabled, handleUpdateOcrProviderConfig } from "./_ocr-provider-config.js";
 import { getOcrSchedulerState, handleToggleOcrSchedulerEnabled, handleUpdateOcrSchedulerConfig } from "./_ocr-scheduler-config.js";
 import { handleRetryOcrBatchRun, handleStartOcrBatchRun } from "./_ocr-batch-runs.js";
@@ -61,7 +63,7 @@ export async function onRequestGet({ request, env }) {
     const auth = await requireDashboardAccess(request, env, { fast: true });
     const db = env.franchise_db;
 
-    const [overview, dataQuality, publishState, publicationControls, outreachQueue, outreachSummary, googleContacts, pendingClaims, pendingPremiumPayments, premiumOperations, recentOutreach, editSuggestions, editableListings, leadSummary, systemHealth, ocrProviders, ocrJobs, ocrSchedulers] = await Promise.all([
+    const [overview, dataQuality, publishState, publicationControls, outreachQueue, outreachSummary, googleContacts, pendingClaims, pendingBrandSubmissions, pendingPremiumPayments, premiumOperations, recentOutreach, editSuggestions, editableListings, leadSummary, systemHealth, ocrProviders, ocrJobs, ocrSchedulers] = await Promise.all([
       getOverview(db),
       getDataQuality(db),
       getPublishState(db),
@@ -70,10 +72,11 @@ export async function onRequestGet({ request, env }) {
       getUnclaimedOutreachSummary(db),
       getStaffGoogleContactsState(db, auth, env),
       getPendingClaims(db),
+      isAdmin(auth) ? getPendingBrandSubmissions(db) : Promise.resolve([]),
       getPendingPremiumPayments(db),
       getPremiumOperations(db),
       getRecentOutreach(db),
-      getEditSuggestions(db),
+      getEditSuggestions(db, isAdmin(auth)),
       getEditableListings(db),
       getLeadSummary(db),
       getSystemHealth(db, env),
@@ -104,6 +107,7 @@ export async function onRequestGet({ request, env }) {
       outreach_pipeline: OUTREACH_PIPELINE_STATUSES,
       google_contacts: googleContacts,
       pending_claims: pendingClaims,
+      pending_brand_submissions: pendingBrandSubmissions,
       pending_premium_payments: pendingPremiumPayments,
       premium_operations: premiumOperations,
       recent_outreach: recentOutreach,
@@ -149,6 +153,7 @@ export async function onRequestPost({ request, env }) {
     if (data.action === "update_outreach_status") return handleUpdateOutreachStatus(env.franchise_db, auth, data);
     if (data.action === "suggest_edit") return handleSuggestEdit(env.franchise_db, auth, data);
     if (data.action === "review_edit_suggestion") return handleReviewEditSuggestion(env.franchise_db, auth, data);
+    if (data.action === "review_brand_submission") return handleReviewBrandSubmission(env.franchise_db, auth, data);
     if (data.action === "review_claim") return handleReviewClaim(env.franchise_db, auth, data);
     if (data.action === "review_premium_payment") return handleReviewPremiumPayment(env.franchise_db, auth, data);
     if (data.action === "update_payment_method") return handleUpdatePaymentMethod(env.franchise_db, auth, data);

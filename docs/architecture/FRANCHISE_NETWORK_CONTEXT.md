@@ -143,6 +143,8 @@ Free listings are primarily published on Franchisee.id. Premium activation creat
 
 Franchisor.id should turn eligible shared data into an operator-authority experience: richer brand proof, business support, owner controls, lead handling, and appropriate calls to action. It should avoid thin duplicated SEO pages and should set canonicals intentionally.
 
+**Per-site brand URL family (decided 2026-09-25).** `site_franchisor_id` publishes brand pages at `https://franchisor.id/usaha/{slug}` — the retained family, used for legacy and new brands alike. `site_franchisee_id`, `site_franchise_id`, and `site_waralaba_id` keep `https://<domain>/peluang-usaha/{slug}/`. The families are deliberately different so the two audiences get distinct URLs and intent rather than near-duplicates. Verified on production: `/usaha/{slug}` serves the real brand page and self-declares that canonical; `/peluang-usaha/{slug}` on franchisor.id currently returns the domain's soft-404 catch-all. Franchisor-owned code maps this in `functions/_premium.js`; `../Franchisee.id/functions/_premium.js` still needs the matching change before a Premium approval run from Franchisee's dashboard can write the correct franchisor canonical.
+
 ## Product flows reused by Franchisor
 
 Franchisee.id already documents and implements a progressive franchisor onboarding model. The canonical concepts include:
@@ -181,11 +183,12 @@ Migration principles:
 
 - preserve valuable URLs during transition;
 - inventory and match legacy brands against canonical D1 identities before importing anything;
-- choose whether `/usaha/{slug}` redirects to or remains distinct from `/peluang-usaha/{slug}`;
+- the `/usaha/{slug}` versus `/peluang-usaha/{slug}` question is **settled**: franchisor.id keeps `/usaha/{slug}` (see the per-site brand URL family note above);
 - generate one authoritative sitemap from the new build;
 - keep the implemented functional login/registration routes authoritative and remove only obsolete legacy copies after production verification;
 - copy legacy content into the build only when it does not overwrite new routes;
-- assign intentional canonical URLs and redirects before removing old files.
+- assign intentional canonical URLs and redirects before removing old files;
+- **do not retire the legacy `/usaha/*` files while `site_franchisor_id` has zero published rows.** Astro generates brand detail pages only for published rows, so today those legacy files are the only working brand pages on this domain; deleting them would 404 a live URL family.
 
 ## What “done” means
 

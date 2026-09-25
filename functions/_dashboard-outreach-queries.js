@@ -139,7 +139,7 @@ export async function getUnclaimedOutreachQueue(db) {
       is_overdue: overdue,
       overdue_label: overdue ? overdueLabel(row.next_follow_up_at) : "",
       urgency_rank: urgencyRank(row, effectiveStatus, overdue),
-      public_url: `/peluang-usaha/${row.slug}`,
+      public_url: `/usaha/${row.slug}`,
       claim_url: `/daftar?claim=${row.slug}`,
       contacts,
       primary_whatsapp_url: contacts[0] ? buildWhatsAppUrl(contacts[0].international_digits, row) : "",

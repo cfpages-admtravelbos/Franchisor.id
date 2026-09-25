@@ -4,6 +4,8 @@
 
 The repository contains a July adaptation of Franchisee's Astro/Pages app, while the live Franchisor domain still served legacy HTML at `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/` in an anonymous check. The app's presence in Git is not live acceptance. Its older claim handler can assign ownership during submit; current Franchisee code instead uses pending claim, private new-brand review, and owner-edit review guarded by shared D1 migrations `0035`–`0039`. Start with [the membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md); compare current code before enabling Franchisor writes or advertising paid network exposure.
 
+**2026-09-26 update:** Gates 0 and 1 of that plan are complete in code. The July handlers have been replaced by the current pending-claim, private `pending_review` new-brand, and owner-edit review-proposal contracts, guarded by `pnpm run ownership:check` in the build chain. Gate 2 (live deployment) is not started — the domain is a soft-404 catch-all that answers every unknown URL with HTTP 200 and the legacy directory page. Read [the progress tracker](docs/product/NETWORK_MEMBERSHIP_PROGRESS.md), [the parity matrix](docs/product/FRANCHISOR_PARITY_MATRIX.md), [the provider boundary record](docs/operations/PROVIDER_BOUNDARY_RECORD.md), and [the legacy brand match](docs/product/LEGACY_BRAND_MATCH.md). Brand pages use `https://franchisor.id/usaha/{slug}`.
+
 Last updated: 2026-07-23
 
 ## Current state

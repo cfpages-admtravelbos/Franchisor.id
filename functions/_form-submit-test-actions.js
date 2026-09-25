@@ -51,7 +51,7 @@ export async function handleCreateUnclaimed(db, data, actor) {
           id, franchise_id, site_id, slug, canonical_url, publication_status, is_primary, first_published_at, last_synced_at
         ) VALUES (?, ?, ?, ?, ?, 'published', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
       )
-      .bind(`publication_${randomId()}`, franchiseId, "site_franchisor_id", slug, `https://franchisor.id/peluang-usaha/${slug}/`),
+      .bind(`publication_${randomId()}`, franchiseId, "site_franchisor_id", slug, `https://franchisor.id/usaha/${slug}`),
     legacySourceStatement(db, "UNCLAIMED", publicId, parsed.data.brand_name, "franchises", franchiseId, payload),
     auditStatement(db, "franchise.test_create_unclaimed", "franchises", franchiseId, { source: "form-submit" }, actor.id),
     ...siteRebuildStatements(db, {

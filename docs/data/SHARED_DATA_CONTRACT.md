@@ -9,6 +9,7 @@
 - A published owner's public contact, listing, and media changes enter a review proposal. The previous public value remains until admin approval and successful site rebuild. Franchisee migrations `0035`–`0039` own the deployed guard chain; Franchisor's older submit/profile handlers require parity.
 - Payment approval, entitlement, publication row, rebuild queue, completed deploy, and verified public URL are separate states. Model each in owner and admin views. A subscription cannot prove a page is live.
 - One canonical brand can have site-specific content and SEO intent. Every public read remains scoped to that site's explicit `published` projection; no mass copy of Franchisee publication rows is allowed.
+- **Brand-page URL family (2026-09-25):** franchisor.id uses `https://franchisor.id/usaha/{slug}` for legacy and new brands; the other three network sites keep `/peluang-usaha/{slug}/`. See §Canonical URLs and SEO.
 
 Last updated: 2026-07-22
 
@@ -92,13 +93,19 @@ UI and APIs should not describe a page as live until the site publication and de
 
 ## Canonical URLs and SEO
 
-The Premium helper in Franchisee.id currently formats a Franchisor opportunity URL as:
+**Decision 2026-09-25 — franchisor.id has its own brand-page family.** Franchisor.id keeps `https://franchisor.id/usaha/{slug}` for **legacy and new brands**, instead of `https://franchisor.id/peluang-usaha/{slug}`. This is deliberate: the retained `/usaha/*` family is the only brand-detail URL that actually serves a page on this domain, and those pages already declare `canonical='/usaha/{slug}'` themselves. Franchisee.id, Franchise.id, and Waralaba.id keep `/peluang-usaha/{slug}/`. One brand, one canonical family per site; never advertise two URL families for the same brand.
+
+Verified against production on 2026-09-25: `/usaha/{slug}` and `/usaha/{slug}/` return the real brand page, while `/peluang-usaha/{slug}` returns the domain's **soft-404 catch-all** (HTTP 200 with the directory home page). Because that catch-all answers every unknown URL with 200, route status alone can never prove a brand page exists.
+
+The Franchisee Premium helper used to format every site as:
 
 ```text
 https://franchisor.id/peluang-usaha/{slug}/
 ```
 
-The implemented generator uses `/peluang-usaha/{slug}/`. Retained legacy brand pages still exist under `/usaha/`; do not advertise both URL families as new canonical pages. Complete the route match and redirect/canonical decision before broad Franchisor publication or destructive legacy cleanup.
+The Franchisor-owned copies now map `site_franchisor_id` to `https://franchisor.id/usaha/{slug}`. **Cross-repo follow-up:** `../Franchisee.id/functions/_premium.js` needs the same mapping, or a Premium approval executed from Franchisee's dashboard writes the wrong franchisor canonical into `franchise_site_publications.canonical_url`.
+
+Still open in this family: relocating the generated detail route to `usaha/[slug]`, retiring the 34 legacy `/usaha/*` files (they are currently the only working brand pages, because `site_franchisor_id` has zero published rows), generating one authoritative sitemap, the soft-404 fix, and the single slug divergence `/usaha/pisang-molen-m-a` → `/usaha/pisang-molen-ma`. Redirecting that slug before the replacement page is generated would break a working URL. Track these as D.2–D.4 in `../product/NETWORK_MEMBERSHIP_PROGRESS.md`.
 
 Cross-domain pages should have distinct audience value. `is_primary` and `canonical_url` must be used intentionally; do not automatically point every page at Franchisee.id or self-canonicalize duplicates without an SEO decision.
 

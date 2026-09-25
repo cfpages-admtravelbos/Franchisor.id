@@ -54,21 +54,23 @@ Display each site separately. A successful Franchisee deploy cannot clear a fail
 
 ## Controlled acceptance matrix
 
-Use disposable accounts, brands, and an explicitly approved test payment method. Record `pass`, `fail`, or `not run` with release SHA and date; local code checks do not replace signed-in production evidence.
+Use disposable accounts, brands, and an explicitly approved test payment method. Record `pass`, `fail`, or `not run` with release SHA and date; local code checks do not replace signed-in production evidence. Status key: ⬜ not run · ✅ pass · ⚠️ fail.
 
-| Scenario | Expected evidence |
-| --- | --- |
-| Anonymous offer and protected route | Offer is readable; protected data remains unavailable; login returns to selected brand/action. |
-| Same human on both domains | One Clerk identity and one D1 user; role-specific navigation works without relying on shared cookies. |
-| New brand with exact/ambiguous existing match | No second canonical row; clear claim/view/pending choice, no applicant contact leak. |
-| New brand private review | No owner or public page before evidenced admin approval; rejection releases name for a fresh application. |
-| Existing claim with two applicants | Neither can edit listing or see leads while pending; admin approval grants one owner only; stale second approval fails. |
-| Owner public edit and media | Old public value remains until admin review and site rebuild; rejected change leaves page untouched. |
-| Wrong role and wrong owner | Server returns 401/403 and no private brand, lead, payment proof, or other user's order. |
-| Order retry, proof failure, admin rejection | One valid order; recoverable confirmation; no active subscription or live claim from rejected payment. |
-| Approved membership | One brand gets one term; four intended site projections are distinct; each queue/build/deploy completes or shows its own failure. |
-| Lead and analytics | Buyer inquiry reaches only approved owner, source site is attributable, event counts have clear date/source definitions. |
-| Renewal and expiry | Reminder, renewal payment, grace/downgrade, site visibility, and owner/admin views agree; no duplicate email scheduler. |
-| SEO and mobile | Franchisor pages serve operator intent, old `/usaha/*` routes resolve intentionally, canonical/sitemap agree, and all key controls remain usable on narrow screens. |
+Status recorded 2026-09-25: every row is ⬜ **not run**. The franchisor application is not deployed (see the [provider boundary record](../operations/PROVIDER_BOUNDARY_RECORD.md)), so no scenario below can be exercised with a signed-in session yet. The Gate 1 code paths are covered by the local `ownership:check` contract instead, which is not a substitute. Tracker: [rollout progress](NETWORK_MEMBERSHIP_PROGRESS.md).
+
+| Scenario | Expected evidence | Status |
+| --- | --- | --- |
+| Anonymous offer and protected route | Offer is readable; protected data remains unavailable; login returns to selected brand/action. | ⬜ |
+| Same human on both domains | One Clerk identity and one D1 user; role-specific navigation works without relying on shared cookies. | ⬜ |
+| New brand with exact/ambiguous existing match | No second canonical row; clear claim/view/pending choice, no applicant contact leak. | ⬜ |
+| New brand private review | No owner or public page before evidenced admin approval; rejection releases name for a fresh application. | ⬜ |
+| Existing claim with two applicants | Neither can edit listing or see leads while pending; admin approval grants one owner only; stale second approval fails. | ⬜ |
+| Owner public edit and media | Old public value remains until admin review and site rebuild; rejected change leaves page untouched. | ⬜ |
+| Wrong role and wrong owner | Server returns 401/403 and no private brand, lead, payment proof, or other user's order. | ⬜ |
+| Order retry, proof failure, admin rejection | One valid order; recoverable confirmation; no active subscription or live claim from rejected payment. | ⬜ |
+| Approved membership | One brand gets one term; four intended site projections are distinct; each queue/build/deploy completes or shows its own failure. | ⬜ |
+| Lead and analytics | Buyer inquiry reaches only approved owner, source site is attributable, event counts have clear date/source definitions. | ⬜ |
+| Renewal and expiry | Reminder, renewal payment, grace/downgrade, site visibility, and owner/admin views agree; no duplicate email scheduler. | ⬜ |
+| SEO and mobile | Franchisor pages serve operator intent, old `/usaha/*` routes resolve intentionally, canonical/sitemap agree, and all key controls remain usable on narrow screens. | ⬜ |
 
 Never test with a real brand claim, real customer payment, or unredacted personal lead. A release is ready for paid onboarding only after the trust, identity, payment, and all advertised publication paths pass on the actual production configuration.

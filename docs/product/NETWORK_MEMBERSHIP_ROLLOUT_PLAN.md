@@ -2,6 +2,8 @@
 
 Reviewed 2026-09-25 against the current local `Franchisee.id` and `Franchisor.id` repositories and anonymous responses from `https://franchisor.id`. This is a delivery plan, not a claim that the Franchisor application is live. Start with [the user journeys](FRANCHISOR_USER_JOURNEYS.md), then use the [network context](../architecture/FRANCHISE_NETWORK_CONTEXT.md) and [shared data contract](../data/SHARED_DATA_CONTRACT.md) for implementation.
 
+> **Progress tracker:** [network membership rollout progress](NETWORK_MEMBERSHIP_PROGRESS.md) — status key ⬜ pending · 🔄 in progress · ✅ done · ⚠️ blocked · 🛑 excluded.
+
 ## Outcome and offer
 
 An authorized brand owner pays for **one Premium Network membership for one brand/listing** and receives eligibility for useful, audience-specific exposure on Franchisee.id, Franchise.id, Franchisor.id, and Waralaba.id. The current shared code sets a base price of **Rp3.000.000 per brand per year** (`Franchisee.id/functions/_premium.js`); a second brand needs its own membership unless an explicit campaign or discount rule applies. One account may manage more than one brand. Payment does not prove brand ownership, listing accuracy, page readiness, successful deployment, traffic, leads, or sales. Promise exposure only after each eligible site's public page is actually deployed.
@@ -35,7 +37,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 ## Delivery sequence
 
-### Gate 0 — freeze a current contract and release boundary
+### Gate 0 — freeze a current contract and release boundary — ✅ done 2026-09-25
 
 1. Compare Franchisor's July port against current Franchisee auth, new-brand, claim, owner-edit, Premium, publication, privacy, and dashboard-account paths. Treat the shared D1 migration head and current code as authority over old port notes. Record a parity matrix: feature, Franchisor file, shared dependency, current behavior, gap, owner, and check.
 2. Identify the exact Cloudflare Pages project, production branch, domain mapping, D1/R2 bindings, Clerk tenant/satellite settings, GitHub publisher, email dispatcher, and deployment SHA without copying secrets. Record `pass`, `fail`, or `not verified`; do not infer readiness from route status 200.
@@ -43,7 +45,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 **Gate passes when:** the release has an exact commit, no unresolved ownership or duplicate-brand path, and each required provider setting has evidence or a named blocker.
 
-### Gate 1 — protect shared identity and ownership
+### Gate 1 — protect shared identity and ownership — ✅ code done 2026-09-25; ⚠️ signed-in tests pending
 
 1. Use the same Clerk identity tenant only with verified Franchisor origins/callbacks and server-side D1 authorization. A user may carry both buyer and franchisor roles; a role alone cannot edit a brand without approved ownership.
 2. Port the current brand-match, pending claim, private new-brand review, rejected resubmission, and pending owner-edit proposal contracts into Franchisor handlers and UI. Keep existing public values and lead access unchanged until approval. Do not duplicate Franchisee's migration chain in this repo.
@@ -51,7 +53,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 **Gate passes when:** a disposable applicant cannot take over an existing brand, publish a new brand, change public contact/media, or see its leads before an independently evidenced admin decision; current Franchisee behavior still passes.
 
-### Gate 2 — make the Franchisor application reachable
+### Gate 2 — make the Franchisor application reachable — ⬜ pending
 
 1. Deploy the adapted app from its reviewed commit with the existing `pnpm run build` and asset check. Bind the shared D1/R2 resources to the Franchisor Pages project. Set the build D1 read token and runtime secrets in Cloudflare, never in Git.
 2. Configure the Clerk satellite/origin/callback/webhook path supported by the current tenant plan. Verify cross-domain sign-in by account identity, not by an assumption that browser cookies are shared.
@@ -59,7 +61,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 **Gate passes when:** `/auth-config` is a safe JSON response on the production domain, protected routes render the application, unauthorized APIs reject access, and the configured D1/R2 and Clerk paths work on the same deployed SHA.
 
-### Gate 3 — sell and fulfill one membership
+### Gate 3 — sell and fulfill one membership — 🔄 partial
 
 1. Show the offer, term, selected brand, included network sites, readiness work, and manual payment steps in plain Indonesian. Do not claim a site is live when it is merely eligible or queued.
 2. Reuse the existing shared order, unique-code amount, confirmation/proof upload, admin review, subscription activation, renewal, expiry, and audit event lifecycle. A retry must not create two active orders or subscriptions for the same brand/term.
@@ -68,7 +70,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 **Gate passes when:** one controlled order moves through pending, confirmation, admin approval or rejection, subscription, site publication, rebuild, deployment, owner receipt, renewal, and expiry with consistent records and no second payment.
 
-### Gate 4 — create distinct network exposure and useful owner work
+### Gate 4 — create distinct network exposure and useful owner work — 🔄 partial
 
 1. Publish only explicit `published` Franchisor rows for active canonical brands. Present operator-facing proof, support, requirements, and partnership model on Franchisor.id; preserve buyer-facing comparison, inquiry, and matching intent on Franchisee.id. Define the distinct purpose for Franchise.id and Waralaba.id before treating their URLs as delivery.
 2. Keep the owner profile, media/proposal, lead inbox, analytics, and per-site publication dashboard tied to the shared brand ID. Protect lead and contact data by owner scope and consent. Use honest labels for measured views, inquiries, saves, and contact clicks; never promise leads or ROI.
@@ -76,7 +78,7 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 **Gate passes when:** an approved test brand has audience-specific pages at every included site, each URL and canonical is intentional, the owner sees the actual per-site state, and buyer inquiries reach only the approved owner.
 
-### Gate 5 — limited launch, recovery, and scale
+### Gate 5 — limited launch, recovery, and scale — ⬜ pending
 
 1. Start with disposable or explicitly consenting pilot brands, one controlled membership, and a reversible content change. Test browser desktop/mobile, old URLs, both identity roles, payment failure, site build failure, and renewal/expiry before public sales copy promises network exposure.
 2. Record baseline and pilot evidence per brand/site: membership state, publication row, deployed URL and SHA, first-party events, inquiry receipt, owner response, and open support issue. Choose success thresholds only after observing real traffic and support load.

@@ -2,6 +2,46 @@
 
 All notable repository file changes are recorded here.
 
+## 2026-09-26 — Gate 0 audits and Gate 1 ownership parity
+
+Executed Gates 0 and 1 of `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md` (continued from the 2026-09-25 planning review into this date). No D1 migration, secret, or live-provider change was made, and no row was written to the shared database — all live access was read-only.
+
+### Audit artifacts (new)
+
+- Added `docs/product/FRANCHISOR_PARITY_MATRIX.md`: feature-by-feature parity matrix against the current Franchisee.id authority, the read-only live D1 evidence snapshot, and the publish-queue reconciliation finding.
+- Added `docs/operations/PROVIDER_BOUNDARY_RECORD.md`: Pages project, branch, domain, D1/R2 bindings, Clerk, publisher and dispatcher state with `pass` / `fail` / `not verified`, the anonymous route check, and the soft-404 catch-all finding.
+- Added `docs/product/LEGACY_BRAND_MATCH.md`: 34/34 legacy `/usaha/*` brands matched to canonical `franchises.id` with zero writes.
+- Added `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md`: Unicode-status rollout tracker covering Gates 0–5.
+
+### Gate 1 ownership and membership parity (runtime)
+
+- Added `functions/_profile-owner-review.js`: `queueOwnerReview` and `reviewedProfileStatements`, ported with `SITE_FRANCHISOR_ID`.
+- Rewrote `functions/_form-submit-franchisor.js`: existing-brand claims are now guarded `pending` rows that never touch `owner_user_id`; new brands are private `pending_review` rows that are ownerless, draft-published, and carry a `franchise_submission_reviews` record.
+- Added `findExistingBrands` and aligned `findClaimSource` to the guarded form in `functions/_form-submit-utils.js`.
+- Routed published owner listing and profile edits through review proposals in `functions/_profile-franchisor-actions.js`, and published media uploads in `functions/profile-upload.js`.
+- Added `handleReviewBrandSubmission` and extended `handleReviewEditSuggestion` and `handleReviewClaim` with staleness, evidence, and conflict guards in `functions/_dashboard-actions.js`; registered `review_brand_submission` in `functions/_dashboard-schemas.js` and `functions/dashboard-data.js`; added the brand-submission and owner-proposal review queues in `functions/_dashboard-queries.js`.
+- Moved the franchisor brand canonical to the `/usaha/{slug}` family in `functions/_premium.js`, `functions/_form-submit-franchisor.js`, `functions/_form-submit-test-actions.js`, and the brand-detail links in `_dashboard-queries.js`, `_dashboard-outreach-queries.js`, `_dashboard-utils.js`, `_profile-read-model.js`, `_profile-recommendations.js`, and `_ocr-enrichment-review.js`.
+
+### Client surfaces
+
+- Added brand-submission review rendering and submission in `js/dashboard-review.js`, wired `js/dashboard-admin.js`, and added the panel to `src/components/dashboard/DashboardReviewPanel.astro`.
+- Surfaced pending-review status to owners in `js/profile-page.js` and corrected the listing panel copy in `js/profile-franchisor.js`; moved brand-detail links to `/usaha/` in `js/profile-analytics.js`, `js/profile-leads.js`, `js/profile-franchisee.js`, `js/dashboard-ocr-results.js`, and `js/dashboard-ocr-jobs.js`.
+
+### Publish queue
+
+- Corrected `scripts/d1-static-publish-poller.mjs`: it read the nonexistent `site_publish_requests` table, `published_today`, and `last_error`. It now reads `site_rebuild_requests`, `daily_publish_count`, writes `error_message`, orders the FIFO queue by `created_at, id` instead of coercing a TEXT id to a number, and treats any explicit direct mode as direct.
+
+### Tests and build
+
+- Added `scripts/check-ownership-contract.ts` and the `ownership:check` script; it gates `build:astro` so the pre-0035 write shapes and the queue-table divergence cannot return.
+- Repaired two pre-existing stale assertions in `scripts/check-state-transitions.ts` (verified failing at the previous HEAD) and extended it to guard the queue producer/consumer table agreement.
+
+### Documentation
+
+- Updated `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md` and `FRANCHISOR_USER_JOURNEYS.md` with Unicode gate markers, a tracker link, and a status column on the acceptance matrix.
+- Recorded the `/usaha/{slug}` brand URL family decision and the soft-404 finding in `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md` and `docs/data/SHARED_DATA_CONTRACT.md`; added the multi-tab and stale draft policy to `docs/forms/AUTO_SAVE.md`.
+- Updated `AGENTS.md`, `CODEBASE.md`, and `docs/README.md` to route to the new artifacts; added `.context/session-20260926-0611.md`.
+
 ## 2026-09-25 — Franchise Network membership plan and context refresh
 
 - Added `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md` and `docs/product/FRANCHISOR_USER_JOURNEYS.md` for the one-brand annual membership, four-site exposure, current trust/deployment gaps, release gates, recovery paths, and controlled acceptance.

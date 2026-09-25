@@ -65,7 +65,7 @@ export function parsePhoneContacts(value, defaultLabel = "Telepon") {
 }
 
 export function buildWhatsAppUrl(internationalDigits, row) {
-  const listingUrl = `https://franchisor.id/peluang-usaha/${row.slug}`;
+  const listingUrl = `https://franchisor.id/usaha/${row.slug}`;
   const claimUrl = `https://franchisor.id/daftar?claim=${row.slug}`;
   const message = [
     `Halo, kami menemukan listing ${row.brand_name} (${row.category || "franchise"}) di Franchisor.id: ${listingUrl}.`,

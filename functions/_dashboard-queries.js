@@ -82,7 +82,7 @@ async function getPersistedDataQuality(db) {
 
     return rows.map((row) => ({
       ...row,
-      public_url: row.slug ? `/peluang-usaha/${row.slug}` : "",
+      public_url: row.slug ? `/usaha/${row.slug}` : "",
       warnings: String(row.warning_list || "").split(",").filter(Boolean),
       messages: String(row.message_list || "").split("||").filter(Boolean),
     }));
@@ -135,7 +135,7 @@ async function getComputedDataQuality(db) {
         likely_all_caps: warnings.includes("likely_all_caps") ? 1 : 0,
         full_desc: undefined,
         short_desc: undefined,
-        public_url: `/peluang-usaha/${row.slug}`,
+        public_url: `/usaha/${row.slug}`,
         warnings,
         messages: checks.map((check) => check.message),
       };
@@ -296,6 +296,24 @@ export async function getPremiumOperations(db) {
   };
 }
 
+export async function getPendingBrandSubmissions(db) {
+  const result = await db.prepare(`
+    SELECT r.id, r.franchise_id, r.status, r.created_at, r.review_notes,
+      f.brand_name, f.slug, fp.company_name, fp.pic_name, fp.nib_number,
+      fp.haki_status, fp.haki_number, fp.email_contact, fp.whatsapp, fp.website_url,
+      u.primary_email AS applicant_email, u.display_name AS applicant_name
+    FROM franchise_submission_reviews r
+    JOIN franchises f ON f.id = r.franchise_id
+    LEFT JOIN franchisor_profiles fp ON fp.id = f.franchisor_profile_id
+    LEFT JOIN users u ON u.id = r.applicant_user_id
+    WHERE f.source_site_id = ? AND ((r.status = 'pending' AND f.status = 'pending_review') OR (r.status = 'rejected' AND f.status = 'archived'))
+      AND r.status IN ('pending', 'rejected')
+    ORDER BY CASE r.status WHEN 'pending' THEN 0 ELSE 1 END, r.created_at DESC
+    LIMIT 50
+  `).bind(SITE_ID).all();
+  return result.results || [];
+}
+
 export async function getPendingClaims(db) {
   const result = await db
     .prepare(
@@ -304,6 +322,8 @@ export async function getPendingClaims(db) {
         fc.status,
         fc.evidence_text,
         fc.created_at,
+        fp.company_name, fp.pic_name, fp.nib_number, fp.haki_status, fp.haki_number,
+        fp.email_contact, fp.whatsapp, fp.website_url,
         f.brand_name,
         p.slug,
         u.primary_email AS claimant_email,
@@ -311,6 +331,8 @@ export async function getPendingClaims(db) {
       FROM franchise_claims fc
       JOIN franchises f ON f.id = fc.franchise_id
       LEFT JOIN franchise_site_publications p ON p.franchise_id = f.id AND p.site_id = ?
+      LEFT JOIN users u ON u.id = fc.claimant_user_id
+      LEFT JOIN franchisor_profiles fp ON fp.id = fc.franchisor_profile_id
       LEFT JOIN users u ON u.id = fc.claimant_user_id
       WHERE fc.source_site_id = ? AND fc.status = 'pending'
       ORDER BY fc.created_at DESC
@@ -342,7 +364,7 @@ export async function getEditableListings(db) {
     ...row,
     structured_locations: locationsByFranchise.get(row.id) || [],
     location_override_active: (locationsByFranchise.get(row.id) || []).some((item) => item.source_field === "owner_profile"),
-    public_url: `/peluang-usaha/${row.slug}`,
+    public_url: `/usaha/${row.slug}`,
   }));
 }
 
@@ -423,7 +445,7 @@ export async function getRecentOutreach(db) {
   return result.results || [];
 }
 
-export async function getEditSuggestions(db) {
+export async function getEditSuggestions(db, canReviewProfiles = false) {
   const [summary, pending] = await Promise.all([
     db
       .prepare(
@@ -454,10 +476,11 @@ export async function getEditSuggestions(db) {
          LEFT JOIN franchise_site_publications p ON p.franchise_id = f.id AND p.site_id = les.site_id
          LEFT JOIN users u ON u.id = les.suggested_by_user_id
          WHERE les.site_id = ? AND les.status = 'pending'
+          AND (les.field_name <> 'franchisor_profile' OR ? = 1)
          ORDER BY les.created_at DESC
          LIMIT 50`,
       )
-      .bind(SITE_ID)
+      .bind(SITE_ID, canReviewProfiles ? 1 : 0)
       .all(),
   ]);
 
@@ -465,7 +488,7 @@ export async function getEditSuggestions(db) {
     ...row,
     old_value: parseJson(row.old_value, {}),
     suggested_value: parseJson(row.suggested_value, {}),
-    public_url: row.slug ? `/peluang-usaha/${row.slug}` : "",
+    public_url: row.slug ? `/usaha/${row.slug}` : "",
   }));
 
   return {

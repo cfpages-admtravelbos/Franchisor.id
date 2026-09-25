@@ -43,7 +43,7 @@ export async function loadFranchiseeRecommendations(db, profile, ownedIds, limit
         short_desc: row.short_desc,
         logo_url: row.logo_url,
         cover_url: row.cover_url,
-        canonical_url: row.canonical_url || (row.slug ? `/peluang-usaha/${row.slug}` : ""),
+        canonical_url: row.canonical_url || (row.slug ? `/usaha/${row.slug}` : ""),
         budget_fit: budget.fit,
         budget_label: budget.label,
         reasons,
