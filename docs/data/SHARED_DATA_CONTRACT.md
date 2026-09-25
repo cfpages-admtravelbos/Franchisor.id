@@ -1,5 +1,15 @@
 # Shared data contract
 
+> Current membership and journey contracts: [rollout plan](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). This file's July baseline must be reconciled with the current Franchisee migration head before Franchisor writes are enabled.
+
+## Ownership and membership additions — 2026-09-25
+
+- One Premium Network subscription belongs to one canonical `franchise_id`; an account with two brands needs two entitlements unless an explicit discount changes order pricing. Reuse the shared order/subscription lifecycle; never create a Franchisor-only membership silo.
+- Existing-brand claim submit creates a pending claim and does not set `owner_user_id`, expose owner leads, or alter public content. New-brand submit creates a private ownerless `pending_review` application. Admin approval requires independent evidence; rejection and stale decisions cannot publish or claim a brand.
+- A published owner's public contact, listing, and media changes enter a review proposal. The previous public value remains until admin approval and successful site rebuild. Franchisee migrations `0035`–`0039` own the deployed guard chain; Franchisor's older submit/profile handlers require parity.
+- Payment approval, entitlement, publication row, rebuild queue, completed deploy, and verified public URL are separate states. Model each in owner and admin views. A subscription cannot prove a page is live.
+- One canonical brand can have site-specific content and SEO intent. Every public read remains scoped to that site's explicit `published` projection; no mass copy of Franchisee publication rows is allowed.
+
 Last updated: 2026-07-22
 
 This document is the minimum contract Franchisor.id must obey when reading or writing Franchise Network data. It summarizes the deployed design; the authoritative migration SQL currently lives in `../Franchisee.id/migrations/`.

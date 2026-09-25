@@ -1,5 +1,7 @@
 # Topical Authority — franchisor.id
 
+> Current Franchise Network context: [membership rollout](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 ## Role and boundary
 
 Franchisor.id is the operator-facing knowledge and workflow surface of the shared Franchise Network. Its primary reader is an Indonesian business owner, leadership team, franchise-development manager, or existing franchisor who must decide whether a business is ready to franchise, design and govern the system, recruit and support qualified partners, and grow without making unsupported performance promises.

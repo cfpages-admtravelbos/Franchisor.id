@@ -1,5 +1,11 @@
 # Suggestions
 
+> Current Franchise Network context: [membership rollout](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
+## P0 — close the ownership and live-route gap before paid onboarding
+
+Evidence on 2026-09-25: `functions/_form-submit-franchisor.js` still writes `owner_user_id` during an existing-brand claim, while current Franchisee submit and shared D1 guards require pending review; anonymous Franchisor `/auth-config` and protected routes served legacy HTML. Align the Franchisor claim, new-brand, owner-edit, and admin decision paths with shared migrations `0035`–`0039`, then deploy the adapted app and run two-applicant, wrong-owner, payment, and per-site publication acceptance on the exact production commit. The [rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) owns sequence and release criteria.
+
 Ideas here are not automatically approved work.
 
 ## Network platform extraction

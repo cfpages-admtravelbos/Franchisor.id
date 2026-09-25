@@ -1,5 +1,11 @@
 # Franchisor.id build plan
 
+> This is the historical July port plan. For the current membership outcome, release gates, and owner journeys, use [the 2026-09-25 rollout plan](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). A locally ported route is not proof of production availability.
+
+## Current release gate — 2026-09-25
+
+An anonymous production check found legacy HTML at Franchisor `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/`. Current Franchisee ownership rules are stricter than the older Franchisor submit path: existing claims stay pending, new brands are privately reviewed, and published owner edits wait for admin approval. Align and test those paths against shared D1 migrations `0035`–`0039` before applying the phases below to paying members. Recheck Cloudflare, Clerk, GitHub, D1, and R2 state on the exact release commit rather than assuming July manual setup remains pending or complete.
+
 Last updated: 2026-07-22
 
 ## Goal

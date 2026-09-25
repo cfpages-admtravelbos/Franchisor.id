@@ -2,6 +2,14 @@
 
 All notable repository file changes are recorded here.
 
+## 2026-09-25 — Franchise Network membership plan and context refresh
+
+- Added `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md` and `docs/product/FRANCHISOR_USER_JOURNEYS.md` for the one-brand annual membership, four-site exposure, current trust/deployment gaps, release gates, recovery paths, and controlled acceptance.
+- Updated `AGENTS.md`, `CODEBASE.md`, `README.md`, `docs/README.md`, `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md`, `docs/architecture/FRANCHISOR_BUILD_PLAN.md`, `docs/data/SHARED_DATA_CONTRACT.md`, and `docs/operations/MANUAL_SETUP_CHECKLIST.md` to route agents to the current network contract and distinguish July code from live production.
+- Updated `docs/forms/CLAIM_TRANSITION_MATRIX.md` to reflect current pending/conflict rules and label Franchisor's old handler unaligned; linked `docs/forms/AUTO_SAVE.md`, `docs/data/FRANCHISE_FIELD_DICTIONARY.md`, `docs/architecture/OCR_PROVIDER_STRATEGY.md`, and `docs/architecture/R2_D1_MIGRATION_RUNBOOK.md` to the current journey.
+- Linked `ARTICLE_CATALOG.md`, `TOPICAL_AUTHORITY.md`, `docs/PORT_MANIFEST.md`, `js/technical_comparison.md`, `js/symbols_inventory.md`, and `css/form-franchise/CSS_USAGE_MAP.md` to the current product context while preserving their historical/detail roles; `SUGGESTION.md` now records the evidenced P0 ownership/live-route gap.
+- Added `.context/session-20260925-1913.md`; this `CHANGELOG.md` entry records the change. No runtime code, schema, secret, or live payment state changed.
+
 ## 2026-07-25
 
 ### Operator global-research foundation

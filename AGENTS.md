@@ -1,5 +1,11 @@
 # Franchisor.id repository instructions
 
+## Current network context (2026-09-25)
+
+Before planning or changing membership, identity, ownership, public listings, Premium, leads, publication, or dashboard behavior, read `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md`, `docs/product/FRANCHISOR_USER_JOURNEYS.md`, `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md`, and `docs/data/SHARED_DATA_CONTRACT.md`. These documents distinguish the current Franchisor repository port, the shared Franchisee platform, and production behavior. The live Franchisor domain still served legacy HTML for protected routes at the 2026-09-25 review; reverify before claiming deployment. Franchisee's current pending claim, private new-brand, and owner-edit review contracts supersede this repository's older July handlers for target behavior. Do not enable Franchisor write routes until they are aligned and tested against the deployed shared D1 guards.
+
+Managed `artikel/*.md` outlines, `ARTICLE-GUIDE.md`, `ARTICLE_PROGRESS.md`, `GLOBAL_RESEARCH.md`, and `IMAGE_CATALOG.md` are editorial evidence and task packets. Read the network context above for product state; preserve those editorial artifacts instead of copying product architecture into every article.
+
 Read this file first, then `CODEBASE.md` and `docs/README.md` before making substantial changes.
 
 ## Product boundary

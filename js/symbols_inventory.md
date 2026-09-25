@@ -1,5 +1,7 @@
 # JavaScript symbols and ownership inventory
 
+> Current Franchise Network context: [membership rollout](../docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../docs/product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 Last updated: 2026-07-22 (Asia/Jakarta)
 
 This document maps the browser runtime in `/js`. The production data path is now D1/Clerk/R2 through Cloudflare Pages Functions; Google Sheets remains only in isolated legacy generator/fallback code.

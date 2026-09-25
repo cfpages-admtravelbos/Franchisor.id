@@ -1,5 +1,9 @@
 # Franchisor.id codebase
 
+## Current network boundary — 2026-09-25
+
+The repository contains a July adaptation of Franchisee's Astro/Pages app, while the live Franchisor domain still served legacy HTML at `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/` in an anonymous check. The app's presence in Git is not live acceptance. Its older claim handler can assign ownership during submit; current Franchisee code instead uses pending claim, private new-brand review, and owner-edit review guarded by shared D1 migrations `0035`–`0039`. Start with [the membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md); compare current code before enabling Franchisor writes or advertising paid network exposure.
+
 Last updated: 2026-07-23
 
 ## Current state

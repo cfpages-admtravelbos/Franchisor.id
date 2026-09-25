@@ -1,5 +1,7 @@
 # Franchise Field Dictionary
 
+> Current Franchise Network context: [membership rollout](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Purpose

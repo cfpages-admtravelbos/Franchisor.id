@@ -1,5 +1,7 @@
 # JavaScript runtime comparison and compatibility notes
 
+> Current Franchise Network context: [membership rollout](../docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../docs/product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 Last updated: 2026-07-22 (Asia/Jakarta)
 
 ## Current versus legacy paths

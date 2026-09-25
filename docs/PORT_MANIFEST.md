@@ -1,5 +1,7 @@
 # Franchisor application port manifest
 
+> Current Franchise Network context: [membership rollout](product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 Last updated: 2026-07-22
 
 > Historical scope record: this manifest describes the 2026-07-22 port and its file-level adaptations. Use `CODEBASE.md`, `docs/README.md`, and current code for present behavior; later documentation-only refreshes are recorded in `CHANGELOG.md` rather than expanding this port inventory.

@@ -1,5 +1,11 @@
 # Franchise Network context for Franchisor.id
 
+> Current rollout and acceptance: [one membership, four sites](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). This network architecture describes the intended shared platform; Franchisor's July application port was not proven live at the 2026-09-25 anonymous production check.
+
+## Current trust and delivery correction — 2026-09-25
+
+The shared Premium offer is one annual membership **per canonical brand** with a current Rp3.000.000 base in `Franchisee.id/functions/_premium.js`. Eligibility for four sites is distinct from an explicit per-site publication, successful deploy, and a verified public URL. Current Franchisee ownership paths keep existing claims pending, new brands private in `pending_review`, and published owner edits queued for admin review; D1 migrations `0035`–`0039` enforce key guards. Franchisor's older port does not yet implement all of these guards. Its write paths need parity before production onboarding. One shared Clerk identity still requires verified domain-specific configuration and server-side D1 authorization; a login, submitted document, or payment alone confers no brand ownership.
+
 Last updated: 2026-07-22
 
 ## Executive summary

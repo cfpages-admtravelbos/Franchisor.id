@@ -1,5 +1,7 @@
 # OCR Provider Strategy
 
+> Current Franchise Network context: [membership rollout](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 > Franchisor adaptation: this is a shared operational contract. Provider credentials must be configured separately for the Franchisor Pages project and must never be committed.
 
 Last updated: 2026-07-22 (Asia/Jakarta)

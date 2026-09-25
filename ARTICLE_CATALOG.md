@@ -1,5 +1,7 @@
 # Article Catalog — franchisor.id
 
+> Current Franchise Network context: [membership rollout](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 This catalog plans operator-facing editorial assets for Indonesian franchisors and businesses preparing to franchise. It is a knowledge architecture, not a publication queue or a substitute for legal, accounting, tax, privacy, security, or sector-specialist advice.
 
 Domain boundaries:

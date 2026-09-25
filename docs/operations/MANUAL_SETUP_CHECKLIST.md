@@ -1,5 +1,7 @@
 # Franchisor.id deployment and integration checklist
 
+> This checklist records the July launch procedure. On 2026-09-25 an anonymous request to the production `/auth-config` returned legacy HTML, and protected routes returned legacy pages. Current provider settings and deployments must be re-audited; do not assume every step below is still undone or that a 200 response proves the adapted app is live. Follow [the membership rollout gates](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [the controlled journeys](../product/FRANCHISOR_USER_JOURNEYS.md) before charging or onboarding a brand.
+
 Last updated: 2026-07-22
 
 The code is built and locally verified. The steps below require access to Cloudflare, Clerk, GitHub, and any optional providers, so they must be completed manually before the production application features can work.

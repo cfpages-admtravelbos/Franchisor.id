@@ -1,6 +1,6 @@
 # Franchisor.id
 
-Franchisor/operator-facing member of the shared Franchise Network. The application now combines the existing Franchisor.id WordPress-exported public site with an Astro/Cloudflare Pages application adapted from the proven Franchisee.id runtime.
+Franchisor/operator-facing member of the shared Franchise Network. This repository builds a hybrid WordPress-export and Astro/Cloudflare Pages application adapted from Franchisee.id. The live domain still served legacy HTML for protected routes at the 2026-09-25 review, so repository implementation is not production acceptance. Read the [membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md), [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md), and [documentation index](docs/README.md) before extending the app.
 
 ## Local verification
 

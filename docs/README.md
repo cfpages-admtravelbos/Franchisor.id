@@ -1,5 +1,11 @@
 # Franchisor.id documentation
 
+## Start here for current network work
+
+Read [one membership, four sites](product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](product/FRANCHISOR_USER_JOURNEYS.md) before the July port documents. They record the 2026-09-25 gap between the repository's adapted app and the live legacy domain, the current Franchisee ownership safeguards, the one-brand membership contract, and launch gates. Use [network context](architecture/FRANCHISE_NETWORK_CONTEXT.md), [shared data contract](data/SHARED_DATA_CONTRACT.md), and [deployment checklist](operations/MANUAL_SETUP_CHECKLIST.md) for their narrower responsibilities. Historical manifests and session notes are evidence of past work, not current production acceptance.
+
+Editorial research, image plans, progress trackers, and `artikel/*.md` outlines remain separate, managed source/task packets. Their absence of a repeated membership summary does not make them current product authority; an agent reads `AGENTS.md` and this index first.
+
 Start here after reading the root `AGENTS.md`.
 
 ## Current status

@@ -1,5 +1,7 @@
 # R2/D1 Migration Runbook
 
+> Current Franchise Network context: [membership rollout](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). Historical implementation notes here do not prove production behavior.
+
 > Migration ownership notice: Franchisor.id consumes the shared D1/R2 contract, but shared schema migrations remain owned and applied from `../Franchisee.id` until a dedicated network infrastructure repository exists.
 
 Last updated: 2026-07-22 (Asia/Jakarta)
