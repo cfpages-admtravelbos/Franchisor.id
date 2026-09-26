@@ -133,7 +133,27 @@ Finding 1 is route-level work still deliberately deferred; finding 2 is closed w
 
 ## 8. Custom domains and runtime variables — state at 2026-09-26
 
-**Custom domains.** `franchisor.id` and `www.franchisor.id` were both added to the Pages project through the API; both report `pending` after several minutes of polling. Public DNS for the apex resolves to Cloudflare-proxied addresses, but **`www.franchisor.id` does not resolve at all** — Cloudflare did not auto-create that record. Finishing this needs capabilities this token does not have: `GET`/`POST` on `/zones/{id}/dns_records` and `/zones/{id}/rulesets` both return **403**, so the token is Pages/D1/Workers-scoped with no Zone DNS or Zone Rules access. Outstanding: create a proxied `www` CNAME to `franchisor-id-9ar.pages.dev` (or grant Zone DNS edit), and create the `www` → apex 301 (needs Zone Rules edit) if the plan's "www redirected to apex" is to be enforced at the edge. If the apex stays `pending`, the Pages custom-domain panel names the exact record it is waiting for.
+**Custom domains.** `franchisor.id` and `www.franchisor.id` were both added to the Pages project through the API; both still report `pending` after repeated polling, and `https://franchisor.id/` answers **HTTP 403** at the edge while `https://franchisor-id-9ar.pages.dev/` answers **200** for the same deployment. So the Pages side is correct and what is stuck is hostname attachment, not the build.
+
+Diagnostics gathered (DNS read is 403 for this token, so these come from public resolution via 1.1.1.1):
+
+| Probe | Result | Reading |
+| --- | --- | --- |
+| `franchisor.id` A | `172.67.203.56`, `104.21.52.194` | resolves to Cloudflare-proxied anycast — the apex is behind Cloudflare |
+| `franchisee.id` A (working control) | `104.21.4.227`, `172.67.132.144` | same class of address, so the address shape is not the differentiator |
+| `https://franchisee.id/` | **200** | a working Pages custom domain in the same account |
+| `https://franchisor.id/` | **403** | proxied, cert valid, but not routed to the Pages hostname |
+| `www.franchisor.id` | **does not resolve** | Cloudflare did not auto-create the record |
+| `_cf-custom-hostname.franchisor.id` TXT | absent | Pages is not waiting on a TXT challenge, so this is not a verification-record problem |
+
+**Prime suspect:** the apex record present in the zone is not the record Pages expects for this project — most likely an `A` record left from before the domain was repointed, rather than a `CNAME` to `franchisor-id-9ar.pages.dev` (Cloudflare flattens an apex CNAME, and that is the shape Pages custom domains normally auto-create). This token cannot confirm or fix it: `GET`/`POST` on `/zones/{id}/dns_records` and `/zones/{id}/rulesets` all return **403**, i.e. the token is Pages/D1/Workers-scoped with no Zone DNS or Zone Rules access.
+
+Outstanding to finish, either with a token carrying **Zone → DNS → Edit** (plus **Zone → Rules → Edit** for the `www` → apex 301) or in the dashboard:
+
+1. Point the apex at the project: a proxied `CNAME franchisor.id → franchisor-id-9ar.pages.dev` (Cloudflare flattens at apex), replacing any stale `A` record.
+2. Add the missing `www` record: proxied `CNAME www → franchisor-id-9ar.pages.dev`.
+3. If the plan's "www redirected to apex" is to hold at the edge, add a zone redirect rule for `www.franchisor.id` → `franchisor.id` (301).
+4. Watch the Pages custom-domain panel until both leave `pending`; that panel names the exact record it wants if it disagrees with the above.
 
 **Runtime variables — and why they cannot simply be copied from `franchisee-id`.** Syamsul's proposal was to make this project's variables "the same" as `franchisee-id`, on the reasoning that Franchisee.id already holds them. Two independent reasons that does not work:
 
