@@ -37,7 +37,9 @@ Franchisee.id remains the buyer-facing discovery and shared-platform reference. 
 
 ## Delivery sequence
 
-### Gate 0 — freeze a current contract and release boundary — ✅ done 2026-09-25
+### Gate 0 — freeze a current contract and release boundary — ⚠️ partial after 2026-09-26 review
+
+The 34 legacy `/usaha/*` paths were matched to canonical brand IDs, but no Franchisor publication rows existed at the dated snapshot, so the publication-row part of Gate 0.3 remains open. See [review R3](ROLLOUT_CODE_REVIEW_2026-09-26.md) and the [progress tracker](NETWORK_MEMBERSHIP_PROGRESS.md). No row should be created merely to make this document appear complete.
 
 1. Compare Franchisor's July port against current Franchisee auth, new-brand, claim, owner-edit, Premium, publication, privacy, and dashboard-account paths. Treat the shared D1 migration head and current code as authority over old port notes. Record a parity matrix: feature, Franchisor file, shared dependency, current behavior, gap, owner, and check.
 2. Identify the exact Cloudflare Pages project, production branch, domain mapping, D1/R2 bindings, Clerk tenant/satellite settings, GitHub publisher, email dispatcher, and deployment SHA without copying secrets. Record `pass`, `fail`, or `not verified`; do not infer readiness from route status 200.

@@ -1,0 +1,7 @@
+# Session handoff — Franchisor rollout review (2026-09-26, Asia/Jakarta)
+
+Reviewed Franchisor `main` at `4b2decd`; `git ls-remote origin refs/heads/main` matched it before documentation edits. The working tree was clean at the start. Read `CODEBASE.md`, the rollout plan/progress/parity/journeys, provider record, and the relevant source paths. `pnpm run build` passed, and its generated Franchisor D1 snapshot contained zero rows; this is not a published-brand or live-deployment test. No D1 write, secret, provider configuration, application code, or production deploy was changed.
+
+The review outcome and next actions are in [R1–R4](../docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md). The user explicitly requires Franchisor brand-detail slugs at `/usaha/{slug}`. The key unresolved result is that generated Astro pages, metadata, CSV import, and optional bridge still use `/peluang-usaha/{slug}` despite corrected Premium/publication canonical writes. Keep the legacy `/usaha/*` pages during migration. Gate 0.3's brand-ID match is complete, but publication-row reconciliation is open; the provider record's old poller defect has a dated local-fix correction.
+
+Next implementing harness action: fix R1 and R2, add a synthetic published-row build check, then reconcile R3–R4 and run the signed-in/deployed gates in the progress tracker. The earlier snapshot's zero Franchisor publication rows and soft-404 production behavior must be reverified before treating them as current.

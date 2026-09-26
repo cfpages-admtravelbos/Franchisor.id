@@ -1,5 +1,7 @@
 # Franchisor.id codebase
 
+**Review update, 2026-09-26:** [Rollout code review R1–R4](docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md) found that the `/usaha/{slug}` publication contract has not yet reached the generated Astro detail route, rendered metadata/links, CSV import, or optional bridge. `pnpm run build` passed with zero published Franchisor rows, so it does not validate the published-brand case. Keep the 34 legacy `/usaha/*` pages until generated replacements and redirects are verified. The tracker now treats legacy brand-ID matching and publication-row reconciliation separately.
+
 ## Current network boundary — 2026-09-25
 
 The repository contains a July adaptation of Franchisee's Astro/Pages app, while the live Franchisor domain still served legacy HTML at `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/` in an anonymous check. The app's presence in Git is not live acceptance. Its older claim handler can assign ownership during submit; current Franchisee code instead uses pending claim, private new-brand review, and owner-edit review guarded by shared D1 migrations `0035`–`0039`. Start with [the membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md); compare current code before enabling Franchisor writes or advertising paid network exposure.

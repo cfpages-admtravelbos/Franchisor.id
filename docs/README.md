@@ -1,5 +1,7 @@
 # Franchisor.id documentation
 
+Current implementing-harness feedback: [rollout code review, 2026-09-26](product/ROLLOUT_CODE_REVIEW_2026-09-26.md) lists the `/usaha/{slug}` route, alternate publication producers, gate-status, and provider-record corrections with acceptance checks. Read it with the [progress tracker](product/NETWORK_MEMBERSHIP_PROGRESS.md) before resuming Gate 2 or a published-brand pilot.
+
 ## Start here for current network work
 
 Read [one membership, four sites](product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [Franchisor user journeys](product/FRANCHISOR_USER_JOURNEYS.md) before the July port documents. They record the 2026-09-25 gap between the repository's adapted app and the live legacy domain, the current Franchisee ownership safeguards, the one-brand membership contract, and launch gates. Use [network context](architecture/FRANCHISE_NETWORK_CONTEXT.md), [shared data contract](data/SHARED_DATA_CONTRACT.md), and [deployment checklist](operations/MANUAL_SETUP_CHECKLIST.md) for their narrower responsibilities. Historical manifests and session notes are evidence of past work, not current production acceptance.

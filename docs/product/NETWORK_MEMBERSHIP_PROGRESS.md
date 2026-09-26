@@ -2,13 +2,15 @@
 
 Execution tracker for [one membership, four sites](NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and the [user journeys](FRANCHISOR_USER_JOURNEYS.md). Update this file as work executes; it is the canonical status surface for the rollout, and the plan and journey documents carry matching gate markers.
 
+**Independent code review, 2026-09-26:** [R1–R4 findings and acceptance steps](ROLLOUT_CODE_REVIEW_2026-09-26.md). The `/usaha/{slug}` brand URL decision is correct, but generated detail pages, metadata, and the CSV/bridge paths still need alignment before a published-brand pilot. The current zero-publication-row build cannot prove that journey.
+
 Status key: ⬜ pending · 🔄 in progress · ✅ done · ⚠️ blocked · 🛑 excluded from this release
 
 | ID | Step | Gate | Owner | Status | Evidence | Date |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0.1 | Compare the July port against current Franchisee auth, claim, new-brand, owner-edit, Premium, publication, privacy, and dashboard paths; record a parity matrix | Gate 0 | Franchisor.id | ✅ | [parity matrix](FRANCHISOR_PARITY_MATRIX.md) | 2026-09-25 |
 | 0.2 | Identify the Pages project, branch, domain, D1/R2 bindings, Clerk tenant/satellite, publisher, dispatcher, and deployment SHA; record pass/fail/not verified | Gate 0 | Franchisor.id | ✅ | [provider boundary record](../operations/PROVIDER_BOUNDARY_RECORD.md) | 2026-09-25 |
-| 0.3 | Match every retained `/usaha/*` legacy brand to a canonical `franchises.id` and a Franchisor publication row | Gate 0 | Franchisor.id | ✅ | [legacy brand match](LEGACY_BRAND_MATCH.md) — 34/34 matched, 0 duplicates, 0 writes | 2026-09-25 |
+| 0.3 | Match every retained `/usaha/*` legacy brand to a canonical `franchises.id` and a Franchisor publication row | Gate 0 | Franchisor.id | ⚠️ | [Legacy brand match](LEGACY_BRAND_MATCH.md): 34/34 canonical brand IDs matched, 0 duplicates and 0 writes; **0 Franchisor publication rows existed**, so row reconciliation remains open (review R3). | 2026-09-26 |
 | 0.4 | Reconcile the publish queue: producers write `site_rebuild_requests`, the poller read a table that does not exist | Gate 0 | Franchisor.id | ✅ | Poller now reads `site_rebuild_requests`, `daily_publish_count`, `error_message`; `ownership:check` + `state-transitions:check` + poller tests pass | 2026-09-25 |
 | 0.5 | Reconcile the `d1_migrations` ledger against the applied schema (ids 34–36 and 39 have objects but no ledger row) | Gate 0 | Franchisee.id | ⚠️ | Recorded in the parity matrix §2; the repo already exposes `reconcile_d1_migration_ledger`. Needs the owner repository | 2026-09-25 |
 | 1.1 | Reuse the shared Clerk identity with server-side D1 authorization; a role alone cannot edit a brand | Gate 1 | Franchisor.id | ✅ | `functions/_clerk-auth.js` unchanged and already enforces role + D1 lookup; `auth:check` passes | 2026-09-25 |

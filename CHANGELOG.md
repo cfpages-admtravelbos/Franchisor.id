@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-26 — Independent rollout code review feedback
+
+- Added `docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md` with R1–R4 evidence and acceptance checks for the Franchisor `/usaha/{slug}` generated route, CSV/bridge producer paths, publication-row gate status, and the stale provider-record poller note.
+- Updated `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md`, `docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md`, `docs/product/FRANCHISOR_PARITY_MATRIX.md`, `docs/operations/PROVIDER_BOUNDARY_RECORD.md`, `CODEBASE.md`, and `docs/README.md` to route the implementing harness to the review and distinguish local code checks from published-brand and production proof.
+- Added `.context/session-20260926-franchisor-review.md` as the cross-harness continuation snapshot. No application code, D1 row, or production deployment changed in this review.
+
 All notable repository file changes are recorded here.
 
 ## 2026-09-26 (later) — Cross-repo follow-up D.4 closed
