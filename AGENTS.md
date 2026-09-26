@@ -8,6 +8,8 @@ Before planning or changing membership, identity, ownership, public listings, Pr
 
 Do not delete the legacy `/usaha/*` files while `site_franchisor_id` has zero published rows: they are currently the only working brand pages on this domain.
 
+**Deployment placement (2026-09-26).** The Franchisor Pages project must be created in the `franchise-network` Cloudflare account (`0ba63b7f0096bc267a93fe5c80b1f571`) — the one holding `franchise_db`, `franchise-assets` and `franchisee-id` — because Cloudflare bindings are account-scoped and the Functions need `env.franchise_db` at runtime. The GitHub organisation (`cfpages-admtravelbos`) is a different axis and does not determine the account; every `cfpages-*` organisation belongs to Syamsul and is not a third party. The project does not exist yet (verified `HTTP 404`); creating it needs a GitHub-side Cloudflare Pages App grant for this repository. See `docs/operations/PROVIDER_BOUNDARY_RECORD.md` §6.
+
 Managed `artikel/*.md` outlines, `ARTICLE-GUIDE.md`, `ARTICLE_PROGRESS.md`, `GLOBAL_RESEARCH.md`, and `IMAGE_CATALOG.md` are editorial evidence and task packets. Read the network context above for product state; preserve those editorial artifacts instead of copying product architecture into every article.
 
 Read this file first, then `CODEBASE.md` and `docs/README.md` before making substantial changes.

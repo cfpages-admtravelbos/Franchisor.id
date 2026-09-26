@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-26 (latest) — Deployment placement clarified; project confirmed absent
+
+Documentation only. No code, D1, secret, or provider change.
+
+- **Confirmed by read-only API probe:** the `franchise-network` Cloudflare account holds 30 Pages projects and `GET …/pages/projects/franchisor-id` returns **HTTP 404** — the project has never been created. The earlier record implied it might already exist.
+- **Decided and recorded:** the project must be created in the **`franchise-network`** account (`0ba63b7f…`), because Cloudflare bindings are account-scoped and the Pages Functions need `env.franchise_db` and `env.FRANCHISE_ASSETS` at runtime. A project in any other account would serve the public directory and then fail every authenticated call. Franchisor.id and Franchisee.id share one database, so they must share one Cloudflare account and one set of nameservers; their identity separation can be organisational only.
+- **Corrected my own earlier inference:** I previously wrote that the Cloudflare Pages GitHub App "is not authorized for `cfpages-admtravelbos`". What was actually observed is that the `franchise-network` account has no project from that organisation — which is equally consistent with that organisation's repositories deploying into a different Cloudflare account. The real prerequisite is a GitHub-side App grant on the organisation, and per Syamsul every `cfpages-*` organisation is his, not a third party.
+- Updated `docs/operations/PROVIDER_BOUNDARY_RECORD.md` §6 (account placement, the 404, the App-grant prerequisite, and `NODE_VERSION=22`), `docs/operations/MANUAL_SETUP_CHECKLIST.md` (`NODE_VERSION`), and `AGENTS.md` (deployment-placement paragraph).
+- **Not changed:** the repository stays in `cfpages-admtravelbos`. Moving it to `cfpages-syamsulalam-net` would not change the Cloudflare account the project deploys into, so it would add churn — a public repo URL change plus updates to `package.json`, the workflow's `GITHUB_REPOSITORY`, and the poller's `REPOS` allowlist — for no technical gain.
+
 ## 2026-09-26 (latest) — Handoff steps 3 and 5 implemented locally
 
 The two items in the [Astro/Pages handoff](docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) that did not need the Cloudflare dashboard. No D1, secret, migration, or provider change, and no synthetic row was written to remote D1.
