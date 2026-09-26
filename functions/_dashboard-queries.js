@@ -333,7 +333,6 @@ export async function getPendingClaims(db) {
       LEFT JOIN franchise_site_publications p ON p.franchise_id = f.id AND p.site_id = ?
       LEFT JOIN users u ON u.id = fc.claimant_user_id
       LEFT JOIN franchisor_profiles fp ON fp.id = fc.franchisor_profile_id
-      LEFT JOIN users u ON u.id = fc.claimant_user_id
       WHERE fc.source_site_id = ? AND fc.status = 'pending'
       ORDER BY fc.created_at DESC
       LIMIT 25`,

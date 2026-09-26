@@ -11,13 +11,13 @@ const contact = outreachRowToGoogleContact({
   id: "fr_123",
   brand_name: "Contoh Franchise",
   category: "Makanan & Minuman",
-  public_url: "/peluang-usaha/contoh-franchise",
+  public_url: "/usaha/contoh-franchise",
   contacts: [{ international_digits: "6281234567890" }],
 });
 
 assert.equal(contact?.name, "Contoh Franchise");
 assert.equal(contact?.phone, "+6281234567890");
-assert.equal(contact?.public_url, "https://franchisor.id/peluang-usaha/contoh-franchise");
+assert.equal(contact?.public_url, "https://franchisor.id/usaha/contoh-franchise");
 
 const payload = buildGoogleBatchCreatePayload([contact!]);
 assert.equal(payload.readMask, "names,phoneNumbers");
@@ -26,7 +26,7 @@ assert.equal(payload.contacts[0].contactPerson.names[0].unstructuredName, "Conto
 assert.equal(payload.contacts[0].contactPerson.phoneNumbers[0].value, "+6281234567890");
 assert.equal(payload.contacts[0].contactPerson.phoneNumbers[0].type, "mobile");
 assert.equal(payload.contacts[0].contactPerson.organizations[0].name, "Franchisor.id");
-assert.equal(payload.contacts[0].contactPerson.urls[0].value, "https://franchisor.id/peluang-usaha/contoh-franchise");
+assert.equal(payload.contacts[0].contactPerson.urls[0].value, "https://franchisor.id/usaha/contoh-franchise");
 assert.equal(googleContactHasPhone({ phoneNumbers: [{ canonicalForm: "+62 812-3456-7890" }] }, "+6281234567890"), true);
 assert.equal(googleContactHasPhone({ phoneNumbers: [{ value: "0812-3456-7890" }] }, "+6281234567890"), true);
 assert.match(googleContactSearchUrl("+6281234567890"), /people:searchContacts\?/);

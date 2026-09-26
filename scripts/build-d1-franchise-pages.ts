@@ -8,7 +8,9 @@ import { buildListingHtml, buildUnclaimedItems, compareFranchises, renderDetailP
 const ROOT_DIR = resolve(__dirname, "..");
 const DETAIL_TEMPLATE_PATH = join(ROOT_DIR, "templates", "detail-franchise-tpl.html");
 const LISTING_TEMPLATE_PATH = join(ROOT_DIR, "templates", "peluang-usaha-tpl.html");
-const OUTPUT_DIR = join(ROOT_DIR, "peluang-usaha");
+const LISTING_OUTPUT_DIR = join(ROOT_DIR, "peluang-usaha");
+// Brand detail pages live at /usaha/{slug}; the directory/category hub stays at /peluang-usaha/.
+const DETAIL_OUTPUT_DIR = join(ROOT_DIR, "usaha");
 const JSON_DIR = join(ROOT_DIR, "json");
 const MANIFEST_PATH = join(JSON_DIR, "d1-generated-pages-manifest.json");
 const UNCLAIMED_JSON_PATH = join(JSON_DIR, "unclaimed-brands.json");
@@ -92,7 +94,10 @@ async function main() {
   };
 
   ensureDir(JSON_DIR);
-  if (shouldRenderBridgePages) ensureDir(OUTPUT_DIR);
+  if (shouldRenderBridgePages) {
+    ensureDir(LISTING_OUTPUT_DIR);
+    ensureDir(DETAIL_OUTPUT_DIR);
+  }
 
   const sorted = [...franchises].sort(compareFranchises);
   if (shouldRenderBridgePages) {
@@ -106,7 +111,7 @@ async function main() {
       currentSlugs.add(row.slug);
       const html = renderDetailPage(row, template);
       const hash = sha256(html);
-      const pagePath = join(OUTPUT_DIR, `${row.slug}.html`);
+      const pagePath = join(DETAIL_OUTPUT_DIR, `${row.slug}.html`);
       const relativePath = toRepoPath(pagePath);
       const previous = previousManifest?.pages[row.slug];
 
@@ -345,7 +350,7 @@ function buildListingIndex(
 ) {
   const html = buildListingHtml(rows, template);
   const hash = sha256(html);
-  const indexPath = join(OUTPUT_DIR, "index.html");
+  const indexPath = join(LISTING_OUTPUT_DIR, "index.html");
 
   nextManifest.index = {
     path: toRepoPath(indexPath),
@@ -393,7 +398,7 @@ function pruneGeneratedPage(pagePath: string) {
   if (basename(pagePath) !== "index.html") return;
 
   const dirPath = dirname(pagePath);
-  if (dirPath === OUTPUT_DIR || !existsSync(dirPath)) return;
+  if (dirPath === LISTING_OUTPUT_DIR || dirPath === DETAIL_OUTPUT_DIR || !existsSync(dirPath)) return;
   if (readdirSync(dirPath).length === 0) {
     rmdirSync(dirPath);
   }

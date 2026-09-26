@@ -181,6 +181,65 @@ async function main() {
   assert.match(source("src/components/dashboard/DashboardReviewPanel.astro"), /data-brand-submission-rows/);
   assert.match(source("js/profile-page.js"), /payload\.status === "pending"/, "owners must be told a change is awaiting review");
 
+  // --- Review evidence must be collectable by the client that must supply it. ---
+  // The server refuses to approve an owner proposal or a claim without recorded
+  // evidence, so the shipped client has to be able to collect it. Asserting the
+  // client constant equals the server constant keeps the two from drifting.
+  const reviewClient = source("js/dashboard-review.js");
+  assert.match(reviewClient, new RegExp(`var OWNER_REVIEW_REASON = "${OWNER_REVIEW_REASON}";`),
+    "the client owner-review reason must equal the server constant");
+  assert.match(reviewClient, /data-suggestion-reason/, "owner proposals must expose their reason to the client");
+  assert.match(reviewClient, /decision === "approve" && isOwnerProposal/, "the edit-review client must collect evidence for owner proposals");
+  assert.match(reviewClient, /Catat bukti verifikasi kepemilikan dari sumber independen/, "the claim-review client must collect verification evidence");
+  assert.doesNotMatch(reviewClient, /action: "review_claim"[\s\S]{0,200}notes: ""/, "claim review must not post empty evidence");
+
+  // --- Every SQL statement in the dashboard read model must join each alias once. ---
+  // A duplicated `LEFT JOIN users u` was shipped once and made every dashboard load
+  // throw "ambiguous column name", which no string assertion in this file caught.
+  const dashboardQueries = source("functions/_dashboard-queries.js");
+  const sqlLiterals = dashboardQueries.match(/`[^`]*`/g) || [];
+  assert.ok(sqlLiterals.length > 0, "expected SQL template literals in the dashboard read model");
+  sqlLiterals.forEach((literal, index) => {
+    const seen = new Map<string, number>();
+    const joinPattern = /\bJOIN\s+([a-z_][a-z0-9_]*)\s+(?:AS\s+)?([a-z_][a-z0-9_]*)\b/gi;
+    let match: RegExpExecArray | null;
+    while ((match = joinPattern.exec(literal)) !== null) {
+      const key = `${match[1]} ${match[2]}`;
+      const count = (seen.get(key) || 0) + 1;
+      seen.set(key, count);
+      assert.equal(count, 1, `duplicate JOIN ${key} in _dashboard-queries.js SQL template #${index}`);
+    }
+  });
+
+  // --- Brand-detail URLs must be the /usaha/ family everywhere. ---
+  // A partial migration once left the stored canonical on /usaha/{slug} while the
+  // generated route, structured data, directory cards and CSV import still emitted
+  // /peluang-usaha/{slug}. A published brand would then have been linked and
+  // indexed at one path while its canonical pointed at another. Directory, category,
+  // city and capital hub routes stay under /peluang-usaha/ and are not slug-level.
+  const brandDetailFiles = [
+    "src/lib/franchise-static.ts",
+    "src/lib/franchise-directory-document.ts",
+    "src/lib/franchise-buyer-tools.ts",
+    "src/lib/franchise-premium-detail.ts",
+    "scripts/d1-page-renderer.ts",
+    "scripts/import-csv-utils.ts",
+  ];
+  for (const file of brandDetailFiles) {
+    assert.doesNotMatch(source(file), /peluang-usaha\/\$\{(?:row\.)?slug\}/,
+      `${file} must not emit a brand-detail /peluang-usaha/ URL`);
+  }
+  assert.match(source("src/lib/franchise-static.ts"), /\/usaha\/\$\{row\.slug\}/, "directory cards must link the /usaha/ detail page");
+  assert.match(source("src/lib/franchise-directory-document.ts"), /https:\/\/franchisor\.id\/usaha\/\$\{row\.slug\}/, "directory ItemList must use the /usaha/ URL");
+  const detailTemplate = source("templates/detail-franchise-tpl.html");
+  assert.match(detailTemplate, /rel="canonical" href="\/usaha\/\{SLUG\}"/, "the detail template canonical must be /usaha/{SLUG}");
+  assert.doesNotMatch(detailTemplate, /\/peluang-usaha\/\{SLUG\}/, "the detail template must not advertise /peluang-usaha/{SLUG}");
+  assert.ok(existsSync("src/pages/usaha/[slug].astro"), "the generated detail route must live under /usaha/");
+  assert.match(source("src/pages/usaha/[slug].astro"), /renderDetailPage/, "the /usaha/ route must render the real detail page");
+  const deprecatedRoute = source("src/pages/peluang-usaha/[slug].astro");
+  assert.match(deprecatedRoute, /canonicalPath/, "the deprecated /peluang-usaha/{slug} route must still resolve");
+  assert.match(deprecatedRoute, /noindex/, "the deprecated route must not compete for indexing");
+
   // --- Poison: the queue producer and the consumer must agree on one table. ---
   assert.match(source("functions/_site-publish-queue.js"), /site_rebuild_requests/);
   const pollerSource = source("scripts/d1-static-publish-poller.mjs");

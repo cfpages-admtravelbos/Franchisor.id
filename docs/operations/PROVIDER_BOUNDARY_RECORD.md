@@ -71,8 +71,8 @@ Local code does enforce the safe pattern — `functions/_clerk-auth.js` verifies
 | --- | --- | --- |
 | Publish workflow | `.github/workflows/d1-static-publish.yaml`, cron `7,37 * * * *`, `SITE_ID=site_franchisor_id` | ✅ code present and site-scoped |
 | Workflow repo guard | `GITHUB_REPOSITORY: cfpages-admtravelbos/Franchisor.id` | ✅ matches |
-| Queue consumer | `scripts/d1-static-publish-poller.mjs` | ❌ broken — reads a non-existent table; see §3 of the parity matrix. The workflow's poller step fails, so the deploy-hook step never runs |
-| `PAGES_DEPLOY_HOOK_FRANCHISOR_ID` | GitHub secret | ⬜ not verified; and cannot be exercised while the poller step fails first |
+| Queue consumer | `scripts/d1-static-publish-poller.mjs` | ✅ code fixed in `eb94f7d` — reads `site_rebuild_requests`, `site_publish_state.daily_publish_count`, writes `error_message`, orders FIFO by `created_at, id`; local tests pass. ⬜ the real GitHub workflow run, deploy hook and production Pages wiring remain unverified. The original `site_publish_requests` defect stays in §3 for chronology, not as a current code blocker |
+| `PAGES_DEPLOY_HOOK_FRANCHISOR_ID` | GitHub secret | ⬜ not verified; the local poller no longer blocks it, but no real hook invocation has been observed |
 | Direct-deploy fallback | `pnpm run build:astro` + `wrangler pages deploy dist` | ⬜ not verified |
 | Premium email dispatcher | `.github/workflows/premium-email-worker.yaml`, `workflow_dispatch` **only** | ✅ correctly manual-only, matching the "one scheduler" rule; the other repository owns scheduling |
 | `PREMIUM_EMAIL_WORKER_SECRET`, `RESEND_API_KEY` | secrets | ⬜ not verified |
@@ -89,7 +89,7 @@ Single-dispatcher rule: the rollout plan requires naming the active dispatcher a
 4. Configure `franchisor.id` as a Clerk satellite of the shared tenant, add the DNS CNAME, wait for verification, add the allowed redirect origins, and create the `/clerk-webhook` endpoint with its three events.
 5. Map `franchisor.id` and `www.franchisor.id` as custom domains with HTTPS active, apex canonical, `www` redirected to apex.
 6. Add the GitHub secrets/variables and create the Pages Deploy Hook; store its URL only in the secret.
-7. **Fix the poller table/column mismatches** (§3 of the parity matrix) before relying on the queue. Until then the queue-driven deploy cannot work even with correct secrets.
+7. Run one Franchisor-scoped rebuild end to end and confirm the poller's deploy hook actually fires and the row is marked deployed. The local table/column defect is already fixed in `eb94f7d`; what remains unverified is real workflow execution, not the code.
 8. Reconcile the `d1_migrations` ledger (§2 of the parity matrix).
 
 Success signals to record after each step: `/auth-config` returns JSON with `configured: true`, `isSatellite: true`, and no secret; `/profil/`, `/dashboard/`, `/premium/`, `/daftar/` render the application rather than the 333,814-byte legacy document; unauthorized API methods return 405 and protected endpoints 401/403; one disposable asset uploads to `franchise-assets` and resolves publicly; one Franchisor-scoped rebuild triggers **only** the Franchisor Pages project.

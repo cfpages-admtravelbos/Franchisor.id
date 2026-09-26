@@ -117,7 +117,7 @@ function comparisonPayload(rows: FranchiseStaticRow[]) {
       status: normalizeText(row.verification_tier || row.status) || "free",
       description: truncate(normalizeDescriptionText(row.short_desc || row.full_desc, row.brand_name) || `Peluang franchise ${normalizeBrandName(row.brand_name)}.`, 120),
       image: getThumb(row.cover_url || row.logo_url),
-      href: `/peluang-usaha/${row.slug}`,
+      href: `/usaha/${row.slug}`,
       budgetHref: budgetRecommendationLabel(capital)?.href || "/peluang-usaha",
     };
   }).filter((row) => row.brand).sort((a, b) => a.brand.localeCompare(b.brand, "id-ID"));

@@ -108,7 +108,7 @@ function generateCard(row: D1FranchiseRow, index: number) {
   const tier = normalizeText(row.verification_tier || row.status).toUpperCase() || "UNCLAIMED";
   const brandName = normalizeText(row.brand_name);
   const category = normalizeText(row.category) || "Bisnis Umum";
-  const link = `/peluang-usaha/${row.slug}`;
+  const link = `/usaha/${row.slug}`;
   const imageUrl = getThumb(row.cover_url || row.logo_url);
   const imageBlock = imageUrl
     ? `<img loading="lazy" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(brandName)}" width="300" height="150">`
@@ -164,7 +164,7 @@ function generateJsonLd(row: D1FranchiseRow, description: string, logoUrl: strin
     "@type": "Brand",
     name: row.brand_name,
     description,
-    url: `https://franchisor.id/peluang-usaha/${row.slug}`,
+    url: `https://franchisor.id/usaha/${row.slug}`,
     logo: logoUrl,
     category: row.category || "Franchise",
   };

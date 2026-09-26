@@ -2,6 +2,12 @@
   var utils = window.FranchiseDashboardUtils;
   if (!utils) throw new Error("Dashboard utilities belum tersedia.");
 
+  // Must stay identical to OWNER_REVIEW_REASON in functions/_profile-owner-review.js.
+  // Approving an owner proposal requires recorded evidence, so the client has to
+  // recognise the reason before it can collect that evidence. Guarded by
+  // scripts/check-ownership-contract.ts.
+  var OWNER_REVIEW_REASON = "Perubahan pemilik setelah listing diterbitkan";
+
   function createOperations(options) {
     options = options || {};
 
@@ -245,7 +251,7 @@
             })
           ], "Review edit")
           : '<span class="dash-muted">Menunggu admin.</span>';
-        return '<tr data-suggestion-row="' + utils.escapeAttr(row.id) + '">' +
+        return '<tr data-suggestion-row="' + utils.escapeAttr(row.id) + '" data-suggestion-reason="' + utils.escapeAttr(row.reason || "") + '">' +
           '<td class="dash-review-brand"><a href="' + utils.escapeAttr(row.public_url || "#") + '" target="_blank" rel="noopener">' + utils.escapeHtml(row.brand_name) + '</a>' + renderSuggestionActor(row) + renderSuggestionType(row) + '</td>' +
           '<td class="dash-review-diff-cell">' + renderFieldDiff(row, row.old_value || {}, row.suggested_value || {}) + '</td>' +
           '<td class="dash-review-reason">' + utils.escapeHtml(row.reason || "-") + '</td>' +
@@ -660,11 +666,19 @@
       try {
         button.disabled = true;
         var decision = button.getAttribute("data-decision");
+        var notes = "";
+        var row = button.closest("[data-suggestion-row]");
+        var isOwnerProposal = Boolean(row) && row.getAttribute("data-suggestion-reason") === OWNER_REVIEW_REASON;
+        if (decision === "approve" && isOwnerProposal) {
+          var entered = window.prompt("Catat dasar pemeriksaan sebelum menyetujui perubahan pemilik ini.", "");
+          if (entered === null || !entered.trim()) { button.disabled = false; return; }
+          notes = entered.trim();
+        }
         var payload = {
           action: "review_edit_suggestion",
           suggestion_id: button.getAttribute("data-suggestion-id"),
           decision: decision,
-          notes: ""
+          notes: notes
         };
         if (decision === "approve") {
           payload.approved_fields = collectSelectedReviewFields(button);
@@ -717,11 +731,18 @@
     async function reviewClaim(button) {
       try {
         button.disabled = true;
+        var decision = button.getAttribute("data-decision");
+        var notes = "";
+        if (decision === "approve") {
+          var entered = window.prompt("Catat bukti verifikasi kepemilikan dari sumber independen sebelum menyetujui klaim.", "");
+          if (entered === null || !entered.trim()) { button.disabled = false; return; }
+          notes = entered.trim();
+        }
         await options.postDashboardAction({
           action: "review_claim",
           claim_id: button.getAttribute("data-claim-id"),
-          decision: button.getAttribute("data-decision"),
-          notes: ""
+          decision: decision,
+          notes: notes
         });
         await options.reloadDashboard();
       } catch (error) {

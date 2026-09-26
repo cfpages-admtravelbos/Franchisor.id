@@ -24,7 +24,7 @@ export function generatePremiumLeadPanel(row: D1FranchiseRow) {
   if (!isPremiumListing(row)) return "";
   const brandName = normalizeBrandName(row.brand_name);
   const whatsappUrl = whatsappHref(row.whatsapp || row.phone);
-  const detailPath = `/peluang-usaha/${row.slug}`;
+  const detailPath = `/usaha/${row.slug}`;
   const hasProposal = extractUrls(row.proposal_url).length > 0;
 
   return `

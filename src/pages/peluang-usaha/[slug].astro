@@ -1,20 +1,33 @@
 ---
-import {
-  loadFranchiseStaticRows,
-  renderDetailPage,
-  type FranchiseStaticRow,
-} from "../../lib/franchise-static";
+// Deprecated brand-detail path. Franchisor.id brand pages live at /usaha/{slug}
+// (see docs/data/SHARED_DATA_CONTRACT.md). This route is kept only so previously
+// shared /peluang-usaha/{slug} links keep resolving: it sends the browser to the
+// canonical /usaha/{slug} page and tells crawlers, via canonical plus noindex,
+// that the /usaha/ URL is the indexed one. Directory, category, city and capital
+// hub routes under /peluang-usaha/ are unaffected and remain their own pages.
+import { loadFranchiseStaticRows } from "../../lib/franchise-static";
 
 export const prerender = true;
 
 export function getStaticPaths() {
   return loadFranchiseStaticRows().map((row) => ({
     params: { slug: row.slug },
-    props: { row },
+    props: { canonicalPath: `/usaha/${row.slug}` },
   }));
 }
 
-const { row } = Astro.props as { row: FranchiseStaticRow };
-const html = renderDetailPage(row);
+const { canonicalPath } = Astro.props as { canonicalPath: string };
 ---
-<Fragment set:html={html} />
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>Halaman dipindahkan</title>
+    <link rel="canonical" href={canonicalPath} />
+    <meta name="robots" content="noindex, follow" />
+    <meta http-equiv="refresh" content={`0; url=${canonicalPath}`} />
+  </head>
+  <body>
+    <p>Halaman brand ini pindah ke <a href={canonicalPath}>{canonicalPath}</a>.</p>
+  </body>
+</html>

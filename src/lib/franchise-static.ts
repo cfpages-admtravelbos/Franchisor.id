@@ -258,7 +258,7 @@ function generateCard(row: FranchiseStaticRow, index: number) {
   const tier = normalizeText(row.verification_tier || row.status).toUpperCase() || "UNCLAIMED";
   const brandName = normalizeBrandName(row.brand_name);
   const category = normalizeText(row.category) || "Bisnis Umum";
-  const link = `/peluang-usaha/${row.slug}`;
+  const link = `/usaha/${row.slug}`;
   const imageUrl = getThumb(row.cover_url || row.logo_url);
   const imageBlock = imageUrl
     ? `<img loading="lazy" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(brandName)}" width="300" height="150">`
@@ -608,7 +608,7 @@ function generateJsonLd(row: FranchiseStaticRow, description: string, logoUrl: s
     "@type": "Brand",
     name: normalizeBrandName(row.brand_name),
     description,
-    url: `https://franchisor.id/peluang-usaha/${row.slug}`,
+    url: `https://franchisor.id/usaha/${row.slug}`,
     category: row.category || "Franchise",
   };
   if (logoUrl) Object.assign(brand, { logo: logoUrl, image: imageUrl });
@@ -642,7 +642,7 @@ function generateBreadcrumbJsonLd(row: FranchiseStaticRow) {
       { "@type": "ListItem", position: 1, name: "Home", item: "https://franchisor.id/" },
       { "@type": "ListItem", position: 2, name: "Peluang Usaha", item: "https://franchisor.id/peluang-usaha" },
       { "@type": "ListItem", position: 3, name: category, item: `https://franchisor.id${canonicalCategoryHref(category)}` },
-      { "@type": "ListItem", position: 4, name: brandName, item: `https://franchisor.id/peluang-usaha/${row.slug}` },
+      { "@type": "ListItem", position: 4, name: brandName, item: `https://franchisor.id/usaha/${row.slug}` },
     ],
   };
   return `<script type="application/ld+json" class="franchise-breadcrumb-schema">${JSON.stringify(schema)}</script>`;

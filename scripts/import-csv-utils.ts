@@ -172,7 +172,7 @@ export function publication(franchiseId: string, siteId: string, slug: string, i
       franchise_id: franchiseId,
       site_id: siteId,
       slug,
-      canonical_url: `https://franchisor.id/peluang-usaha/${slug}/`,
+      canonical_url: `https://franchisor.id/usaha/${slug}`,
       publication_status: "published",
       is_primary: isPrimary ? 1 : 0,
       first_published_at: sqlRaw("CURRENT_TIMESTAMP"),

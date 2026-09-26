@@ -85,7 +85,7 @@ function generateDirectoryJsonLd(options: DirectoryPageOptions, rows: D1Franchis
   const items = rows.slice(0, 50).map((row, index) => ({
     "@type": "ListItem",
     position: index + 1,
-    url: `https://franchisor.id/peluang-usaha/${row.slug}`,
+    url: `https://franchisor.id/usaha/${row.slug}`,
     name: normalizeBrandName(row.brand_name),
   }));
   const graph = [
