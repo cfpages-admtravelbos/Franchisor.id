@@ -109,6 +109,10 @@ Then open the Pages URL, press `Ctrl+Shift+I`, select **Network**, enable **Disa
 
 Franchisor.id can use the same Clerk instance as Franchisee.id, but because it is a different domain it must be configured as a Clerk satellite application. Clerk states that production satellite domains require a paid plan. Follow [Clerk's satellite-domain setup](https://clerk.com/docs/guides/dashboard/dns-domains/satellite-domains).
 
+**Do not create a new Clerk account or instance for this site.** Add `franchisor.id` as a satellite domain of the existing network application. A separate instance issues different Clerk user ids for the same person, and `functions/_clerk-auth.js` resolves users from the **shared** D1 with `SELECT … FROM users WHERE clerk_user_id = ?`, so a brand claimed or a role granted on Franchisee.id would not be recognized on Franchisor.id. Line 139 below says the same thing.
+
+Status 2026-09-26: the seven non-secret variables in the table below are **already set** for Production and Preview, and `GET /auth-config` confirms them (`isSatellite:true`, `domain:"franchisor.id"`, the Franchisee.id sign-in/up URLs, both redirect origins, `satelliteAutoSync:true`). Remaining: `PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` (from the shared instance plus the satellite domain) and `CLERK_WEBHOOK_SIGNING_SECRET` (per-endpoint, so it must be the new Franchisor endpoint's own).
+
 In the Clerk Dashboard:
 
 1. Open the network Clerk application used by Franchisee.id.
@@ -140,9 +144,11 @@ If the shared Clerk plan does not support production satellites, create a separa
 
 ## 4. Connect the production domain
 
-1. In the Cloudflare Pages project, add `franchisor.id` and `www.franchisor.id` as custom domains.
-2. Confirm both show Active and that HTTPS works.
-3. Choose one canonical host. The application currently uses `https://franchisor.id`; redirect `www` to the apex domain.
+Status 2026-09-26: **steps 1 and 2 are done** — both domains are attached to the Pages project and report `active` with `ssl=active`; `https://franchisor.id/` returns 200. **Step 3 is outstanding.**
+
+1. ✅ In the Cloudflare Pages project, add `franchisor.id` and `www.franchisor.id` as custom domains. (Done via the API; the apex record had to be corrected in DNS before Pages would activate them.)
+2. ✅ Confirm both show Active and that HTTPS works.
+3. ⬜ **Outstanding.** Choose one canonical host. The application currently uses `https://franchisor.id`; redirect `www` to the apex domain. `https://www.franchisor.id/` currently returns **200** and serves the site directly instead of redirecting. Needs a zone redirect rule (Zone → Rules → Edit) or a Pages-level redirect.
 4. Do not change legacy route redirects until their SEO migration is verified.
 
 ## 5. Configure GitHub Actions

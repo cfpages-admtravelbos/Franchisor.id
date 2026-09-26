@@ -126,16 +126,39 @@ Deployment `8588ba9d-95c7-4950-9422-97eee771f159`, environment `production`, can
 
 **Findings from that deployment, and what has since happened to each:**
 
-1. ⬜ **Still open — unknown URLs answer HTTP 200 with the legacy document instead of a real 404.** `/usaha/definitely-not-a-real-brand-xyz` and `/peluang-usaha/definitely-not-a-real-brand-xyz` both return **200** with 331,549 bytes, byte-identical to `/`. This is the Gate 2 soft-404, confirmed on a live deployment. The planned anonymous "real 404" check therefore fails.
+1. ⬜ **Still open — "unknown URLs answer HTTP 200 with the legacy document instead of a real 404."**
+
+   **What it means.** When a visitor or a crawler requests a URL that does not exist, the server should reply `404 Not Found` and a "page not found" page. This site instead replies **`200 OK`** with the full homepage. The server is asserting, for every possible URL, "this page exists and here it is."
+
+   **Proof, measured on the unproxied host so nothing is rewritten** (`franchisor-id-9ar.pages.dev`; the zone-proxied host rewrites `mailto:` links, which changes bytes without changing the page):
+
+   | Request | Status | Bytes | SHA-256 (first 16) |
+   | --- | --- | --- | --- |
+   | `/` | 200 | 331,549 | `675B68D1A8D220DD` |
+   | `/usaha/tidak-ada-brand-ini-sama-sekali` | 200 | 331,549 | `675B68D1A8D220DD` |
+   | `/sebarang-junk-url` | 200 | 331,549 | `675B68D1A8D220DD` |
+
+   Byte-identical, same title (`Direktori Franchise & Peluang Usaha Terlengkap di Indonesia`), all `200`. Even `/tidak-ada-file-ini-sama-sekali.html` — a plainly missing static file — returns 200. A genuine miss and the homepage are indistinguishable to any client.
+
+   **Why it matters.**
+   - **Search engines.** Every junk or dead URL is a valid page as far as a crawler is concerned, so an unbounded set of URLs reads as duplicate content of the homepage, and dead URLs cannot be retired from the index. Search engines may also classify real pages as soft-404s once the pattern is established.
+   - **Users.** Someone following an expired link to a brand page lands on the directory homepage with no "not found" signal — it looks like the site ignored their request.
+   - **Operators.** Real breakage is invisible. A brand page that has genuinely disappeared cannot be told apart from a typo, so monitoring and the "did my published page go live?" question both become unanswerable from status codes.
+
+   **Why it happens here.** There is **no `404.html` in `dist/` and no `src/pages/404.astro`** in the source, and no catch-all `_redirects` rule, no `functions/_middleware.js`, and no `functions/[[path]].js` were found. So there is no not-found response to serve and the root document ends up standing in for one. The `/peluang-usaha/[slug].js` handler that was added for this rollout deliberately falls through on an unverified slug, and its fall-through target is that same root document — so it behaves exactly as designed while still contributing to this symptom.
+
+   **The fix shape.** Add a real 404 (`src/pages/404.astro`, which Astro emits as `dist/404.html`) so Pages serves it with a genuine 404 status for unmatched paths, then confirm by re-running the table above and expecting three `404`s. Because the legacy tree still contains 34 real brand pages, the slug-collision behaviour (a generated brand page beating a retained legacy one) must keep working — `published:check` already guards that.
 2. ✅ **FIXED 2026-09-26 (`2dd0702`).** Legacy brand URLs no longer 308-redirect to a trailing slash. The 34 legacy pages were exported as `usaha/<slug>/index.html`, so Cloudflare answered `/usaha/<slug>` with a 308 to the slash form while the declared canonical family is `/usaha/{slug}` — meaning every legacy brand served from a URL that contradicted its own canonical. `copy-legacy-static.mjs` now emits those pages flat as `usaha/<slug>.html`, which is also where the Astro-generated brand pages already land (`trailingSlash: "never"`, `build.format: "preserve"`), so the two sources collide on one path and the existing no-overwrite rule still lets the generated page win. Verified live on deployment `f9fd9747` (commit `2dd0702`): `/usaha/abo-meatshop` → **200** (was 308), `/usaha/abo-meatshop/` → **308 to `/usaha/abo-meatshop`** (the correct direction now), `/usaha/al-arashy-tour-travel` → 200. Flattening was proven safe first: the legacy HTML contains **zero** relative asset references (`href`/`src` starting with `../`), so moving it up one directory level cannot break asset resolution. A new gate in `check-built-assets.mjs` fails the build if any brand in the source tree lacks a flat page or if the directory form reappears — it reads the source tree, so it cannot go stale.
 
 Finding 1 is route-level work still deliberately deferred; finding 2 is closed with a build-enforced regression guard.
 
 ## 8. Custom domains and runtime variables — state at 2026-09-26
 
-**Custom domains.** `franchisor.id` and `www.franchisor.id` were both added to the Pages project through the API; both still report `pending` after repeated polling, and `https://franchisor.id/` answers **HTTP 403** at the edge while `https://franchisor-id-9ar.pages.dev/` answers **200** for the same deployment. So the Pages side is correct and what is stuck is hostname attachment, not the build.
+**Custom domains.** ✅ **Active as of 2026-09-26.** `franchisor.id` and `www.franchisor.id` are both attached to the Pages project and both report `status=active` with `ssl=active`. `https://franchisor.id/` returns **200**, and the trailing-slash fix is confirmed on the real domain: `/usaha/abo-meatshop` → 200, `/usaha/abo-meatshop/` → 308 back to the canonical. The earlier `pending` state was caused by the apex record in the zone not being the record Pages expected; Syamsul corrected the DNS and both hostnames activated without further API work.
 
-Diagnostics gathered (DNS read is 403 for this token, so these come from public resolution via 1.1.1.1):
+⬜ **Still outstanding: `www` does not redirect to the apex.** `https://www.franchisor.id/` returns **200** and serves the site directly rather than issuing a 301 to `https://franchisor.id/`, so `MANUAL_SETUP_CHECKLIST.md` §4 step 3 ("redirect `www` to the apex domain") is unmet. Enforcing it needs either a zone redirect rule (**Zone → Rules → Edit**) or a Pages-level redirect; this token has neither scope.
+
+Diagnostics kept for the record (DNS read is 403 for this token, so these came from public resolution via 1.1.1.1). They are what identified the problem before it was fixed:
 
 | Probe | Result | Reading |
 | --- | --- | --- |
@@ -172,3 +195,50 @@ Entries that must be **site-specific rather than copied**:
 Safe to reuse verbatim (shared provider resources): `FRANCHISE_ASSETS_PUBLIC_BASE_URL` / `R2_PUBLIC_BASE_URL` — they are read as `env.FRANCHISE_ASSETS_PUBLIC_BASE_URL || env.R2_PUBLIC_BASE_URL` and name the one shared R2 asset host, correct for both sites; `RESEND_API_KEY`; `OCR_KEY`, `OCR_SECRET`; `GOOGLE_CONTACTS_CLIENT_ID/_SECRET/_TOKEN_KEY`; `G_PRIVATE_KEY`; `PREMIUM_EMAIL_WORKER_SECRET` if the same worker serves both sites. `CLERK_SECRET_KEY` is the shared tenant secret and is reusable because this site is a satellite of the same tenant.
 
 Nothing was guessed into place: a half-set Clerk configuration would make `/auth-config` claim `configured: true` while sign-in still failed, which is worse than an honest `configured: false`. `/auth-config` currently reports `configured: false`, and that is the accurate state.
+
+## 9. Runtime variables set, a self-inflicted outage, and the satellite decision — 2026-09-26
+
+**Non-secret Clerk variables are now set** for both Production and Preview, using the values `MANUAL_SETUP_CHECKLIST.md` §3 prescribes:
+
+| Variable | Value set |
+| --- | --- |
+| `CLERK_IS_SATELLITE` | `true` |
+| `CLERK_DOMAIN` | `franchisor.id` |
+| `CLERK_SIGN_IN_URL` | `https://franchisee.id/login/` |
+| `CLERK_SIGN_UP_URL` | `https://franchisee.id/login/?mode=register` |
+| `CLERK_AUTHORIZED_PARTIES` | `https://franchisor.id,https://www.franchisor.id` |
+| `CLERK_ALLOWED_REDIRECT_ORIGINS` | `https://franchisor.id,https://www.franchisor.id` |
+| `CLERK_SATELLITE_AUTO_SYNC` | `true` — the seamless option; reversible to `false` |
+
+Live proof after deployment `684707f3` (commit `7ddd575`), `GET /auth-config`:
+
+```
+{"publishableKey":"","configured":false,"isSatellite":true,"domain":"franchisor.id",
+ "signInUrl":"https://franchisee.id/login/","signUpUrl":"https://franchisee.id/login/?mode=register",
+ "allowedRedirectOrigins":["https://franchisor.id","https://www.franchisor.id"],"satelliteAutoSync":true}
+```
+
+`configured` is still `false` because `configured` is `Boolean(publishableKey)` and the publishable key has not been supplied yet. That is correct, not a defect.
+
+### ⚠️ A read-merge-write PATCH destroyed the build token — do not repeat this
+
+**What happened.** To add the Clerk variables I read `deployment_configs`, merged my new keys, and PATCHed the whole map back. Cloudflare returns `secret_text` values as **empty strings**, so the read produced `CLOUDFLARE_API_TOKEN = ""` and writing it back **erased the real token**. The next build failed with `Error: No Cloudflare token found for cfman account "franchise-network" and CLOUDFLARE_API_TOKEN is not set` — deployment `74cdc080`, stage `build/failure`. Production was never down: Pages kept serving the last good deployment throughout.
+
+**The rule.** Never round-trip `deployment_configs` from a `GET` into a `PATCH`. Secret values are write-only, so a round trip silently writes them back empty. Supply the **complete** `env_vars` map with known values for every key, or PATCH only the keys you are changing. Reading the map to "merge safely" is exactly the operation that causes the loss.
+
+**Recovery.** Re-sent the complete map with the real token plus every plain-text value, then deployed to prove it: deployment `684707f3` → `deploy/success`, which is only possible if the D1 read succeeded.
+
+### The Clerk account question — create a satellite domain, not a new account
+
+Syamsul said he would "create the clerk account". That must not be a **new Clerk account or instance**. `MANUAL_SETUP_CHECKLIST.md` §3 already specifies the design: use the **same Clerk instance as Franchisee.id** and add `franchisor.id` under **Domains → Satellites**. Two reasons this is not a preference:
+
+1. **The shared database keys identity on the Clerk user id.** `functions/_clerk-auth.js` resolves users with `SELECT … FROM users WHERE clerk_user_id = ?` against the **shared** D1. A separate Clerk instance issues a different user id for the same human, so a brand claimed or a role granted on Franchisee.id would not be recognized on Franchisor.id. `_clerk-auth.js` does carry an email-match fallback that backfills `clerk_user_id` (lines ~264–273), which softens but does not remove the problem.
+2. **The checklist says so explicitly.** §3 line 139: creating a separate Franchisor Clerk application "gives separate Clerk identities and therefore does not satisfy seamless shared network login without an explicit account-linking design."
+
+Note also, from the same section: Clerk requires a **paid plan** for production satellite domains. If the current plan cannot do it, that is a real decision (upgrade, or accept separate identities plus account-linking work) — not something to route around silently.
+
+Still outstanding on this axis: `PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` (from the shared instance and the satellite domain), and `CLERK_WEBHOOK_SIGNING_SECRET` for the new `/clerk-webhook` endpoint.
+
+### `schema:check` still SKIPs inside the Pages build
+
+The build log shows `SKIP dashboard SQL check: shared migrations not found at ../Franchisee.id/migrations (a skip is not a pass)`. Moving the deploy path to Node 22 removed the *runtime* reason it skipped, but a second reason remains: the sibling `Franchisee.id` repository is not present in the Pages build sandbox, so the 39 shared migrations cannot be loaded there. The gate therefore runs for real only where the sibling checkout exists — locally or in CI with both repos. Do not read a green Pages build as proof that the dashboard SQL was validated.
