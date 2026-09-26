@@ -38,7 +38,7 @@ Before starting, review, commit, and push this work to `cfpages-admtravelbos/Fra
 
    | Name | Value |
    | --- | --- |
-   | `NODE_VERSION` | `20.19.4` |
+   | `NODE_VERSION` | `22` (Node 22+ so the build's `schema:check` runs its real migration-backed assertions instead of taking its SKIP path; Node 20 has no `node:sqlite`) |
    | `PNPM_VERSION` | `10.34.1` |
    | `CLOUDFLARE_ACCOUNT_ID` | `0ba63b7f0096bc267a93fe5c80b1f571` |
    | `CLOUDFLARE_D1_DATABASE_ID` | `812cd8ac-edd0-45d9-981f-c9a15358317b` |

@@ -1,10 +1,13 @@
 ---
-// Deprecated brand-detail path. Franchisor.id brand pages live at /usaha/{slug}
-// (see docs/data/SHARED_DATA_CONTRACT.md). This route is kept only so previously
-// shared /peluang-usaha/{slug} links keep resolving: it sends the browser to the
-// canonical /usaha/{slug} page and tells crawlers, via canonical plus noindex,
-// that the /usaha/ URL is the indexed one. Directory, category, city and capital
-// hub routes under /peluang-usaha/ are unaffected and remain their own pages.
+// Deprecated brand-detail path, fallback only.
+//
+// Franchisor.id brand pages live at /usaha/{slug} (see docs/data/SHARED_DATA_CONTRACT.md).
+// functions/peluang-usaha/[slug].js is the primary handler: it answers with a real HTTP 301
+// when the shared D1 database confirms a published Franchisor projection for the slug. This
+// route is the fallback for a request the Function deliberately lets through — for example a
+// D1 lookup failure — and it consolidates with canonical plus noindex rather than serving a
+// competing duplicate. Directory, category, city and capital hub routes under
+// /peluang-usaha/ are unaffected and remain their own pages.
 import { loadFranchiseStaticRows } from "../../lib/franchise-static";
 
 export const prerender = true;

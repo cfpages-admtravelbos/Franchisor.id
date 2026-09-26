@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-26 (latest) — Handoff steps 3 and 5 implemented locally
+
+The two items in the [Astro/Pages handoff](docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) that did not need the Cloudflare dashboard. No D1, secret, migration, or provider change, and no synthetic row was written to remote D1.
+
+- Added `functions/peluang-usaha/[slug].js`: a real HTTP **301** to `/usaha/{slug}` for the deprecated brand path, answered only when the shared D1 database confirms a published `site_franchisor_id` projection. `kategori`, `kota`, `modal` and the directory aliases are reserved and fall through, so directory subroutes can never be captured; an unverified slug, a D1 failure, or a non-GET method also falls through. `src/pages/peluang-usaha/[slug].astro` remains only as a `noindex` meta-refresh fallback and its comment now says so.
+- Added `scripts/check-published-brand-build.mjs` and the `published:check` script: the published-brand build proof, run explicitly rather than from `build:astro` (which would recurse). It drives the real chain — snapshot generator via `--from-json`, `astro build`, the legacy copy bridge, `assets:check` — from a synthetic two-row snapshot covering a new published slug and a published slug colliding with a retained legacy `/usaha/{slug}/` page, then asserts the generated flat page wins over copied legacy HTML, the legacy directory form survives, and the directory card / canonical / Open Graph URL agree on `/usaha/` and never on `/peluang-usaha/`. Both tracked snapshot files are restored and the work area lives outside the repository.
+- Extended `scripts/check-dashboard-sql.ts` with the public-read predicate: against the real migrations it now proves a draft publication and an archived canonical brand are both excluded. A `--from-json` fixture cannot express "row exists but is not published", so that half lives here.
+- Extended `scripts/check-franchise-directory.ts` to cover the new redirect handler: 301 on a verified published slug, fall-through for every reserved subroute, for an unverified slug, for a D1 failure, and for a non-GET method.
+- Made the build gate real in the deploy path: `.github/workflows/d1-static-publish.yaml` now runs Node 22 (was 20) and `docs/operations/MANUAL_SETUP_CHECKLIST.md` sets `NODE_VERSION=22`, so `schema:check` executes its migration-backed assertions instead of taking its SKIP path.
+- Documentation: provider record gains a build-gate row and a Node-requirement note; the tracker closes D.2b and adds D.3b; the parity matrix §1b closes the two remaining rows; the handoff plan gains a dated "progress against this plan" section.
+
+Verification: 18 `*:check` scripts pass, `astro:check` 0 errors / 5 hints, `pnpm run build` green with `assets:check`. The new fixture was proved able to fail by regressing the directory link and observing the assertion.
+
 ## 2026-09-26 — Directory/detail contract and Astro/Pages handoff (documentation only)
 
 - Added `docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md`: reviewed route matrix, current build and theme inputs, provider setup sequence, repeatable published/unpublished and legacy-slug proof, CSS/asset checks, preview/production acceptance, rollback, and per-site rebuild loop.

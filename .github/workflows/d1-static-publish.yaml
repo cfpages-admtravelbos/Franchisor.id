@@ -38,7 +38,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: '20'
+          # Node 22+ so `schema:check` can run its real migration-backed assertions instead
+          # of taking its explicit SKIP path; Node 20 has no node:sqlite.
+          node-version: '22'
       - name: Poll D1 publish queue
         id: poller
         run: node scripts/d1-static-publish-poller.mjs
@@ -55,7 +57,7 @@ jobs:
         if: steps.poller.outputs.should_direct_deploy == 'true'
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: '20'
+          node-version: '22'
           cache: pnpm
       - name: Install dependencies
         if: steps.poller.outputs.should_direct_deploy == 'true'

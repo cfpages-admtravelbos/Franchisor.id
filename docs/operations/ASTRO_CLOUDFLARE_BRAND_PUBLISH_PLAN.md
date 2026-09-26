@@ -54,3 +54,11 @@ Confirm Franchisor-scoped writes enqueue `site_rebuild_requests` for `site_franc
 Attach the fixture command/result, route and asset checks, desktop/mobile comparison, provider setting inventory without secret values, build/deployment SHA, Pages Functions and Clerk smoke results, and queue-to-deployment trace to the [rollout tracker](../product/NETWORK_MEMBERSHIP_PROGRESS.md). Update `CODEBASE.md`, the provider record, manual checklist, and `CHANGELOG.md` when implementation changes their claims. A paid pilot remains gated on the signed-in ownership tests and actual per-site live publication checks.
 
 Official provider references checked on 2026-09-26: [Cloudflare Astro on Pages](https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/) and [Pages Deploy Hooks](https://developers.cloudflare.com/pages/configuration/deploy-hooks/). Verify the current dashboard labels during implementation.
+
+## Progress against this plan — 2026-09-26
+
+Steps 1, 2, 5 (deployed half), and 6 still need the Cloudflare dashboard and a real signed-in session.
+
+- **Step 3 (the fixture) is done** in `scripts/check-published-brand-build.mjs`, run with `pnpm run published:check`. It is intentionally not part of `build:astro`, which would recurse. It drives the real chain from a synthetic snapshot and asserts both a new published slug and a published slug colliding with a retained legacy `/usaha/{slug}/` page; the unpublished half lives in `pnpm run schema:check`, which tests the public-read predicate against the real migrations because a `--from-json` row set is already the published set. Proved it can fail by regressing the directory link and observing the assertion.
+- **Step 5 (the redirect) is done**: `functions/peluang-usaha/[slug].js` answers `301` to `/usaha/{slug}` when the shared D1 confirms a published Franchisor projection, reserves `kategori`/`kota`/`modal` (and their aliases) so directory subroutes are never captured, and falls through on an unverified slug, a D1 failure, or a non-GET method. The Astro route remains only as a `noindex` fallback. Covered by `pnpm run directory:check`.
+- **Step 2's Node requirement is applied**: the Pages build should set `NODE_VERSION=22` (see the checklist) and the direct-deploy workflow now runs Node 22, so `schema:check` executes instead of skipping.

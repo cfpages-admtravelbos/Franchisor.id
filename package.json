@@ -30,6 +30,7 @@
     "state-transitions:check": "tsx scripts/check-state-transitions.ts",
     "ownership:check": "tsx scripts/check-ownership-contract.ts",
     "schema:check": "tsx scripts/check-dashboard-sql.ts",
+    "published:check": "node scripts/check-published-brand-build.mjs",
     "proposal-download:check": "tsx scripts/check-proposal-download.ts",
     "detail-assets:check": "tsx scripts/check-franchise-detail-assets.ts",
     "directory:check": "tsx scripts/check-franchise-directory.ts",

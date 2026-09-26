@@ -18,6 +18,9 @@ const MIGRATIONS_DIR = "../Franchisee.id/migrations";
 
 async function loadSqlite() {
   try {
+    // @ts-ignore node:sqlite exists at runtime but this project's @types/node version
+    // does not declare it. The probe is what makes its absence safe: a missing module
+    // returns null and the check takes its explicit SKIP path.
     const mod = await import("node:sqlite");
     return mod.DatabaseSync;
   } catch {
@@ -188,6 +191,49 @@ async function main() {
   assert.match(indexRow.sql, /\(franchise_id, suggested_by_user_id, field_name\)/, "the index must key on field_name so one owner can hold a listing proposal and a profile proposal at once");
   assert.match(indexRow.sql, /reason = 'Perubahan pemilik setelah listing diterbitkan'/, "the index must be scoped to the owner-review reason");
   console.log("  owner review: the partial unique index keys on field_name and the owner-review reason");
+
+  // --- 5. The public-read predicate must exclude unpublished and archived rows. ---
+  // The offline build fixture cannot express "the row exists but is not published", because
+  // a --from-json row set is already the published set. This is where that half is proven,
+  // against the real schema and the real canonical status exclusion.
+  insert(db, "franchises", {
+    id: "franchise_is_published", brand_name: "Is Published", slug: "is-published",
+    source_sheet: "FRANCHISOR", status: "free", source_site_id: "site_franchisor_id",
+  });
+  insert(db, "franchises", {
+    id: "franchise_is_archived", brand_name: "Is Archived", slug: "is-archived",
+    source_sheet: "FRANCHISOR", status: "archived", source_site_id: "site_franchisor_id",
+  });
+  insert(db, "franchises", {
+    id: "franchise_is_draft", brand_name: "Is Draft", slug: "is-draft",
+    source_sheet: "FRANCHISOR", status: "free", source_site_id: "site_franchisor_id",
+  });
+  insert(db, "franchise_site_publications", {
+    id: "publication_is_published", franchise_id: "franchise_is_published", site_id: "site_franchisor_id",
+    slug: "is-published", canonical_url: "https://franchisor.id/usaha/is-published", publication_status: "published",
+  });
+  insert(db, "franchise_site_publications", {
+    id: "publication_is_archived", franchise_id: "franchise_is_archived", site_id: "site_franchisor_id",
+    slug: "is-archived", canonical_url: "https://franchisor.id/usaha/is-archived", publication_status: "published",
+  });
+  insert(db, "franchise_site_publications", {
+    id: "publication_is_draft", franchise_id: "franchise_is_draft", site_id: "site_franchisor_id",
+    slug: "is-draft", canonical_url: "https://franchisor.id/usaha/is-draft", publication_status: "draft",
+  });
+
+  const exposedSlugs = (db
+    .prepare(
+      `SELECT p.slug FROM franchise_site_publications p
+       JOIN franchises f ON f.id = p.franchise_id
+       WHERE p.site_id = 'site_franchisor_id'
+         AND p.publication_status = 'published'
+         AND f.status NOT IN ('archived', 'suspended')
+       ORDER BY p.slug`,
+    )
+    .all() as any[]).map((row) => row.slug);
+  assert.deepEqual(exposedSlugs, ["is-published"],
+    "the public-read predicate must expose only a published, non-archived Franchisor row");
+  console.log("  public read: a draft publication and an archived canonical brand are both excluded");
 
   console.log("Database-backed dashboard contract check passed.");
 }

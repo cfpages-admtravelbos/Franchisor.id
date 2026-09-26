@@ -13,6 +13,8 @@ import { applyCanonicalLegacyLinks } from "../src/lib/franchise-text";
 import { canonicalCategoryPath } from "../src/shared/franchise-category-route.mjs";
 // @ts-ignore Pages Functions are JavaScript modules without generated declarations.
 import { onRequest as redirectLegacyCategory } from "../functions/peluang-usaha/index.js";
+// @ts-ignore Pages Functions are JavaScript modules without generated declarations.
+import { onRequest as redirectDeprecatedBrandDetail } from "../functions/peluang-usaha/[slug].js";
 
 const root = resolve(process.cwd());
 const legacyCategoryUrlPattern = /\/peluang-usaha\/?\?kategori=/;
@@ -106,7 +108,94 @@ async function checkLegacyRedirect() {
   console.log(`Directory checks passed for ${rows.length} listings and ${categoryEntries.length} category routes.`);
 }
 
-checkLegacyRedirect().catch((error) => {
+checkLegacyRedirect().then(checkBrandDetailRedirect).catch((error) => {
   console.error(error);
   process.exit(1);
 });
+
+// The deprecated /peluang-usaha/{slug} path must reach /usaha/{slug} with a real HTTP 301,
+// must never capture the directory subroutes that share its prefix, and must fall through
+// rather than redirect when it cannot verify the row.
+async function checkBrandDetailRedirect() {
+  const publishedEnv = {
+    franchise_db: {
+      prepare: () => ({
+        bind: (slug: string) => ({
+          first: async () => (slug === "codero" ? { published: 1 } : null),
+        }),
+      }),
+    },
+  };
+
+  const redirected = await redirectDeprecatedBrandDetail({
+    request: new Request("https://franchisor.id/peluang-usaha/codero?utm_source=old"),
+    env: publishedEnv,
+    params: { slug: "codero" },
+    next: () => Promise.reject(new Error("a verified published slug must not fall through")),
+  });
+  assert.equal(redirected.status, 301, "a verified published slug must return HTTP 301, not a meta refresh");
+  assert.equal(redirected.headers.get("location"), "https://franchisor.id/usaha/codero", "the 301 must clear query state and target the /usaha/ detail");
+
+  for (const reserved of ["kategori", "kota", "modal", ""]) {
+    let passedThrough = false;
+    const response = await redirectDeprecatedBrandDetail({
+      request: new Request(`https://franchisor.id/peluang-usaha/${reserved}`),
+      env: publishedEnv,
+      params: { slug: reserved },
+      next: () => {
+        passedThrough = true;
+        return Promise.resolve(new Response("static"));
+      },
+    });
+    assert.equal(response.status, 200);
+    assert.ok(passedThrough, `the ${reserved || "(root)"} path must keep its real page and never redirect`);
+  }
+
+  let unknownPassedThrough = false;
+  await redirectDeprecatedBrandDetail({
+    request: new Request("https://franchisor.id/peluang-usaha/not-a-published-brand"),
+    env: publishedEnv,
+    params: { slug: "not-a-published-brand" },
+    next: () => {
+      unknownPassedThrough = true;
+      return Promise.resolve(new Response("next"));
+    },
+  });
+  assert.ok(unknownPassedThrough, "an unverified slug must fall through rather than become a second soft-404");
+
+  let errorPassedThrough = false;
+  await redirectDeprecatedBrandDetail({
+    request: new Request("https://franchisor.id/peluang-usaha/codero"),
+    env: {
+      franchise_db: {
+        prepare: () => {
+          throw new Error("d1 unavailable");
+        },
+      },
+    },
+    params: { slug: "codero" },
+    next: () => {
+      errorPassedThrough = true;
+      return Promise.resolve(new Response("next"));
+    },
+  });
+  assert.ok(errorPassedThrough, "a failing D1 lookup must fall through, not break the route");
+
+  let postPassedThrough = false;
+  await redirectDeprecatedBrandDetail({
+    request: new Request("https://franchisor.id/peluang-usaha/codero", { method: "POST" }),
+    env: publishedEnv,
+    params: { slug: "codero" },
+    next: () => {
+      postPassedThrough = true;
+      return Promise.resolve(new Response("next"));
+    },
+  });
+  assert.ok(postPassedThrough, "non-GET requests must not be redirected");
+
+  const redirectSource = readFileSync(resolve(root, "functions/peluang-usaha/[slug].js"), "utf8");
+  assert.ok(redirectSource.includes('publication_status = \'published\''), "the redirect must verify a published projection before answering");
+  assert.ok(redirectSource.includes("f.status NOT IN ('archived', 'suspended')"), "the redirect must honour the canonical status exclusion");
+
+  console.log("Deprecated brand-detail redirect checks passed.");
+}

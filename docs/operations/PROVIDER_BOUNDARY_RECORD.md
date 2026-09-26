@@ -77,7 +77,8 @@ Local code does enforce the safe pattern — `functions/_clerk-auth.js` verifies
 | Workflow repo guard | `GITHUB_REPOSITORY: cfpages-admtravelbos/Franchisor.id` | ✅ matches |
 | Queue consumer | `scripts/d1-static-publish-poller.mjs` | ✅ code fixed in `eb94f7d` — reads `site_rebuild_requests`, `site_publish_state.daily_publish_count`, writes `error_message`, orders FIFO by `created_at, id`; local tests pass. ⬜ the real GitHub workflow run, deploy hook and production Pages wiring remain unverified. The original `site_publish_requests` defect stays in §3 for chronology, not as a current code blocker |
 | `PAGES_DEPLOY_HOOK_FRANCHISOR_ID` | GitHub secret | ⬜ not verified; the local poller no longer blocks it, but no real hook invocation has been observed |
-| Direct-deploy fallback | `pnpm run build:astro` + `wrangler pages deploy dist` | ⬜ not verified |
+| Direct-deploy fallback | `pnpm run build:astro` + `wrangler pages deploy dist` | ⬜ not verified; its workflow step now runs Node 22 so the `schema:check` gate is real there |
+| Build gate | `pnpm run build` runs `ownership:check` then `schema:check` before the D1 snapshot | ⬜ `schema:check` needs Node 22+ (`node:sqlite`) and the sibling `Franchisee.id/migrations` chain; without either it prints SKIP and exits 0, so a green build alone does not prove the schema assertions ran. Set `NODE_VERSION=22` for the Pages build, as the setup checklist now does, to make the gate real in production too |
 | Premium email dispatcher | `.github/workflows/premium-email-worker.yaml`, `workflow_dispatch` **only** | ✅ correctly manual-only, matching the "one scheduler" rule; the other repository owns scheduling |
 | `PREMIUM_EMAIL_WORKER_SECRET`, `RESEND_API_KEY` | secrets | ⬜ not verified |
 

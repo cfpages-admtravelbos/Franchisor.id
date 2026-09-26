@@ -47,8 +47,9 @@ Findings raised by the independent reviews after the Gate 1 port, and their stat
 | A failed claim committed an orphan `franchisor_profiles` row | Medium | ✅ fixed in **both** repositories | the profile insert shares the claimability predicate; `schema:check` proves a zero-row insert |
 | Decision updates lack a bare `AND status = 'pending'` predicate | Medium | ✅ deliberately unchanged, trigger behaviour now proven | the review's guidance was not to add it alone; `schema:check` proves the deployed 0035/0039 triggers abort a parallel claim, a second decision, and a claim on an owned listing |
 | A TypeScript `as` cast in the JavaScript module `functions/_dashboard-schemas.js` broke esbuild transforms | — | ✅ fixed in **both** repositories | caught by the Franchisee.id checks that transform that module |
-| The synthetic published-row build is not yet a repeatable check | — | ⬜ open | the reviewer ran one disposable built row by hand; pin it as a fixture before calling R1 closed (tracker D.2b) |
-| No HTTP 301 for old `/peluang-usaha/{slug}` links, only a `noindex` meta refresh | — | ⬜ open decision | decide whether a real redirect is required before launch (tracker D.3) |
+| The synthetic published-row build was a hand-run rather than a repeatable check | — | ✅ fixed | `pnpm run published:check` pins it: a new published slug plus a published slug colliding with a retained legacy page, asserting the generated page wins and the directory/canonical/Open Graph agree on `/usaha/`. Proven able to fail |
+| No HTTP 301 for old `/peluang-usaha/{slug}` links, only a `noindex` meta refresh | — | ✅ fixed | `functions/peluang-usaha/[slug].js` 301s to `/usaha/{slug}` on a verified published row, reserves the directory subroutes, and falls through otherwise; `directory:check` covers it. The Astro page stays as a `noindex` fallback |
+| `schema:check` would SKIP in the deploy path, so the build gate could be inert | — | ✅ fixed | the setup checklist now sets `NODE_VERSION=22` and the direct-deploy workflow runs Node 22, so the migration-backed assertions execute rather than skipping |
 
 ## 2. Live D1 evidence snapshot (read-only, 2026-09-25)
 
