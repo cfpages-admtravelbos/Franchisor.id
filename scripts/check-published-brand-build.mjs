@@ -117,8 +117,12 @@ function main() {
     const collisionDetail = dist(`usaha/${COLLIDING_SLUG}.html`);
     assert.ok(collisionDetail.includes("Review Synthetic Collision"),
       "a published slug colliding with a legacy page must be generated from D1, not served as copied legacy HTML");
-    assert.ok(existsSync(join(ROOT, "dist", "usaha", COLLIDING_SLUG, "index.html")),
-      "the retained legacy /usaha/{slug}/ page must survive the build");
+    assert.ok(existsSync(join(ROOT, "usaha", COLLIDING_SLUG, "index.html")),
+      "the retained legacy source page must survive the build");
+    assert.ok(existsSync(join(ROOT, "dist", "usaha", `${COLLIDING_SLUG}.html`)),
+      "the collided slug must still be served from the flat /usaha/{slug}.html path");
+    assert.ok(!existsSync(join(ROOT, "dist", "usaha", COLLIDING_SLUG, "index.html")),
+      "the legacy directory form must never be emitted: it forces a 308 to /usaha/{slug}/ and contradicts the declared canonical");
 
     // 3. The directory must card-link the canonical detail path for every published row.
     const directory = dist("peluang-usaha/index.html");

@@ -57,7 +57,35 @@ if (!exactFiles.has("/_redirects")) {
   process.exit(1);
 }
 
+checkLegacyBrandPagesAreFlat();
+
 console.log(`Built asset check passed for ${files.length} deployed files; all local HTML/CSS asset references resolve with exact casing.`);
+
+// The declared canonical family is /usaha/{slug} with no trailing slash. A legacy page emitted as
+// usaha/{slug}/index.html makes Cloudflare answer /usaha/{slug} with a 308 to the slash form, so the
+// served URL and the declared canonical disagree for every legacy brand. Emitting the flat
+// usaha/{slug}.html keeps the canonical honest. This asserts the emitted shape for every brand that
+// exists in the source tree, so the regression cannot come back silently.
+function checkLegacyBrandPagesAreFlat() {
+  const brandSourceDir = resolve(ROOT, "usaha");
+  if (!existsSync(brandSourceDir)) return;
+
+  const brands = readdirSync(brandSourceDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+
+  const flatMissing = brands.filter((slug) => !exactFiles.has(`/usaha/${slug}.html`));
+  const directoryForm = brands.filter((slug) => exactFiles.has(`/usaha/${slug}/index.html`));
+
+  if (flatMissing.length || directoryForm.length) {
+    console.error("Legacy brand pages must be emitted flat as /usaha/{slug}.html so the canonical URL serves without a trailing-slash redirect.");
+    if (flatMissing.length) console.error(`- no flat page emitted for: ${flatMissing.join(", ")}`);
+    if (directoryForm.length) console.error(`- directory form emitted (forces a 308 to /usaha/{slug}/) for: ${directoryForm.join(", ")}`);
+    process.exit(1);
+  }
+
+  console.log(`Legacy brand URL check passed for ${brands.length} brands: flat /usaha/{slug}.html, no directory form.`);
+}
 
 function walk(directory) {
   const result = [];

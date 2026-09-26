@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -137,22 +137,35 @@ function shouldCopyRootFile(fileName) {
 }
 
 function copyDirectoryNoOverwrite(sourceDir, targetDir) {
-  mkdirSync(targetDir, { recursive: true });
   stats.directories += 1;
 
   for (const entry of readdirSync(sourceDir, { withFileTypes: true })) {
     const sourcePath = join(sourceDir, entry.name);
-    const targetPath = join(targetDir, entry.name);
 
     if (entry.isDirectory()) {
-      copyDirectoryNoOverwrite(sourcePath, targetPath);
+      copyDirectoryNoOverwrite(sourcePath, join(targetDir, entry.name));
       continue;
     }
 
     if (entry.isFile()) {
-      copyFileNoOverwrite(sourcePath, targetPath);
+      copyFileNoOverwrite(sourcePath, legacyBrandTargetPath(targetDir, entry.name));
     }
   }
+}
+
+// Legacy brand pages are exported as usaha/<slug>/index.html. They are emitted flat as
+// usaha/<slug>.html so the declared canonical /usaha/{slug} serves directly with no
+// trailing-slash redirect: astro.config.mjs sets trailingSlash "never", the Astro-generated
+// brand pages already land on the flat path, and the directory form made Cloudflare answer a
+// 308 to /usaha/<slug>/ — a canonical that redirects. Every other file keeps its source layout.
+function legacyBrandTargetPath(targetDir, fileName) {
+  if (fileName !== "index.html") return join(targetDir, fileName);
+
+  const brand = basename(targetDir);
+  if (brand === "usaha") return join(targetDir, fileName);
+  if (basename(dirname(targetDir)) !== "usaha") return join(targetDir, fileName);
+
+  return join(dirname(targetDir), `${brand}.html`);
 }
 
 function copyFileNoOverwrite(sourcePath, targetPath) {
