@@ -1,0 +1,50 @@
+---
+export const prerender = true;
+
+const title = "Halaman Tidak Ditemukan (404) | Franchisor.id";
+const description =
+  "Halaman yang Anda cari tidak ditemukan di Franchisor.id. Gunakan tautan di bawah untuk kembali ke direktori peluang usaha.";
+
+// Cloudflare Pages serves a top-level 404.html with a real 404 status for unmatched paths.
+// Without this file Pages assumes the project is a single-page application and answers every
+// unknown URL with the root document and HTTP 200, which is why misses used to look like the
+// homepage. This must stay at the root of the build output: Pages walks up the directory tree
+// looking for the closest 404.html and ends at /404.html.
+//
+// Deliberately no rel=canonical: a not-found page has no canonical URL, and pointing it at "/"
+// would tell search engines the miss is a duplicate of the homepage. noindex is explicit instead.
+const html = `<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta name="robots" content="noindex, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800;900&family=Lexend:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/franchisor-theme.css">
+  </head>
+  <body class="fr-tool-page">
+    <main class="fr-legal-page" style="max-width:720px;margin:0 auto;padding:64px 20px;">
+      <p style="font-family:Lexend,sans-serif;font-size:64px;font-weight:800;margin:0 0 8px;">404</p>
+      <h1 style="font-family:Lexend,sans-serif;margin:0 0 16px;">Halaman tidak ditemukan</h1>
+      <p style="margin:0 0 12px;">
+        Halaman yang Anda cari tidak ada, sudah dipindahkan, atau alamatnya salah ketik.
+      </p>
+      <p style="margin:0 0 28px;">
+        Halaman brand di Franchisor.id berada di alamat <code>/usaha/&lt;nama-brand&gt;</code>.
+      </p>
+      <p style="margin:0 0 12px;">
+        <a href="/peluang-usaha/" style="font-weight:700;">Lihat direktori peluang usaha</a>
+      </p>
+      <p style="margin:0;">
+        <a href="/">Kembali ke halaman utama</a>
+      </p>
+    </main>
+  </body>
+</html>`;
+---
+
+<Fragment set:html={html} />

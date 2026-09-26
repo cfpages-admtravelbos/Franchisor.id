@@ -57,6 +57,17 @@ if (!exactFiles.has("/_redirects")) {
   process.exit(1);
 }
 
+// A top-level 404.html is load-bearing, not cosmetic. Cloudflare Pages assumes a single-page
+// application when no top-level 404.html exists, and then answers EVERY unmatched path with the
+// root document and HTTP 200 — so a missing brand page becomes indistinguishable from the
+// homepage and search engines cannot retire dead URLs. Losing this file silently reinstates that
+// behaviour, so the build fails instead.
+if (!exactFiles.has("/404.html")) {
+  console.error("Built asset check expected a top-level dist/404.html from src/pages/404.astro.");
+  console.error("Without it Cloudflare Pages falls back to single-page-application routing and serves the root document with HTTP 200 for every unknown URL.");
+  process.exit(1);
+}
+
 checkLegacyBrandPagesAreFlat();
 
 console.log(`Built asset check passed for ${files.length} deployed files; all local HTML/CSS asset references resolve with exact casing.`);
