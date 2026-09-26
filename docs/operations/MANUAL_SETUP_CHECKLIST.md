@@ -14,15 +14,15 @@ Never paste secret keys into this repository, Markdown, a public issue, or a cli
 
 ## 1. Deploy Astro through the Cloudflare web UI (no terminal deployment)
 
-Before starting, review, commit, and push this work to `cfpages-admtravelbos/Franchisor.id` on the GitHub `main` branch. Deployment itself is performed entirely in the Cloudflare dashboard:
+Before starting, review, commit, and push this work to `cfpages-syamsulalam-net/Franchisor.id` on the GitHub `main` branch. Deployment itself is performed entirely in the Cloudflare dashboard:
 
 1. Sign in to the Cloudflare dashboard and select the account that owns `franchisor.id` and the shared D1/R2 resources.
 2. Open **Workers & Pages**.
 3. Select **Create application**.
 4. Select the **Pages** tab.
 5. Select **Import an existing Git repository** (the current UI may label this **Connect to Git**).
-6. Select **GitHub**. If prompted, authorize the Cloudflare Pages GitHub app for the `cfpages-admtravelbos` organization and grant it access to `Franchisor.id`.
-7. Choose `cfpages-admtravelbos/Franchisor.id`, then select **Begin setup**.
+6. Select **GitHub**. The repository now lives in the `cfpages-syamsulalam-net` organization, whose GitHub organization name is Syamsul's marker for the Cloudflare account that hosts it (`me@syamsulalam.net`, the `franchise-network` account) — that is why the repository was transferred there on 2026-09-26. The **cloudflare-workers-and-pages** GitHub App is already installed on that organization with access to **all** repositories, so no additional grant is required. If the repository does not appear in the picker, the App installation's repository access is the thing to check.
+7. Choose `cfpages-syamsulalam-net/Franchisor.id`, then select **Begin setup**.
 8. In **Set up builds and deployments**, enter exactly:
 
    | Dashboard field | Value |

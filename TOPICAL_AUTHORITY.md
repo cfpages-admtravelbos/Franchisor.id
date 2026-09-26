@@ -16,7 +16,7 @@ This is a complete planning map, not permission to mass-publish. Every legal con
 
 Audit completed 2026-07-23 against local `main` at commit `513f62f645557bfa00913459a4fe915f813d5e78`.
 
-- Canonical repository: `cfpages-admtravelbos/Franchisor.id`; local branch `main` tracked `origin/main` and was clean before this documentation work.
+- Canonical repository: `cfpages-syamsulalam-net/Franchisor.id`; local branch `main` tracked `origin/main` and was clean before this documentation work.
 - Architecture: hybrid Astro 5 static application plus Cloudflare Pages Functions and a retained WordPress/Elementor export. Shared D1/R2/Clerk contracts are documented in `AGENTS.md`, `CODEBASE.md`, `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md`, and `docs/data/SHARED_DATA_CONTRACT.md`.
 - Source inventory: 94 legacy source HTML files outside build/vendor/WordPress-asset trees, including 34 `/usaha/` brand pages and 13 `/category/` pages.
 - Application inventory: 16 Astro page files, 78 Pages Function files, and 27 scripts. Public and operator surfaces include `/peluang-usaha/`, `/peluang-usaha/{slug}/`, category/city/capital filters, `/bandingkan/`, `/alat-franchise/`, `/premium/`, `/profil/`, and `/dashboard/`.

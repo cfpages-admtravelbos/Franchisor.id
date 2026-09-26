@@ -44,7 +44,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cfpages-admtravelbos/Franchisor.id.git"
+    "url": "git+https://github.com/cfpages-syamsulalam-net/Franchisor.id.git"
   },
   "keywords": [],
   "author": "",
@@ -52,9 +52,9 @@
   "type": "commonjs",
   "packageManager": "pnpm@10.34.1",
   "bugs": {
-    "url": "https://github.com/cfpages-admtravelbos/Franchisor.id/issues"
+    "url": "https://github.com/cfpages-syamsulalam-net/Franchisor.id/issues"
   },
-  "homepage": "https://github.com/cfpages-admtravelbos/Franchisor.id#readme",
+  "homepage": "https://github.com/cfpages-syamsulalam-net/Franchisor.id#readme",
   "dependencies": {
     "@clerk/backend": "^3.7.1",
     "@clerk/clerk-js": "^6.17.0",

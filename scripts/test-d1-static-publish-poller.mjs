@@ -10,7 +10,7 @@ const pollerUrl = pollerUrls.find(candidate => existsSync(fileURLToPath(candidat
 if (!pollerUrl) throw new Error('D1 static publish poller module was not found in source or installed layout');
 const { validateConfiguration, run, markDeployed, markFailed, ConflictError } = await import(pollerUrl.href);
 
-const base = { GITHUB_REPOSITORY:'cfpages-admtravelbos/Franchisor.id', SITE_ID:'site_franchisor_id', PAGES_PROJECT_NAME:'franchisor-id', TARGET_REF:'main', GITHUB_REF_TYPE:'branch', GITHUB_REF_NAME:'main', GITHUB_DEFAULT_BRANCH:'main', CLOUDFLARE_ACCOUNT_ID:'0ba63b7f0096bc267a93fe5c80b1f571', CLOUDFLARE_D1_DATABASE_ID:'812cd8ac-edd0-45d9-981f-c9a15358317b', CLOUDFLARE_API_TOKEN:'opaque', DEPLOY_HOOK_URL:'https://hooks.example.test/opaque' };
+const base = { GITHUB_REPOSITORY:'cfpages-syamsulalam-net/Franchisor.id', SITE_ID:'site_franchisor_id', PAGES_PROJECT_NAME:'franchisor-id', TARGET_REF:'main', GITHUB_REF_TYPE:'branch', GITHUB_REF_NAME:'main', GITHUB_DEFAULT_BRANCH:'main', CLOUDFLARE_ACCOUNT_ID:'0ba63b7f0096bc267a93fe5c80b1f571', CLOUDFLARE_D1_DATABASE_ID:'812cd8ac-edd0-45d9-981f-c9a15358317b', CLOUDFLARE_API_TOKEN:'opaque', DEPLOY_HOOK_URL:'https://hooks.example.test/opaque' };
 const response = body => ({ ok:true, status:200, json:async()=>body });
 
 let calls=[];

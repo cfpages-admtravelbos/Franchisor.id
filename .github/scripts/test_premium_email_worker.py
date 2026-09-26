@@ -39,7 +39,7 @@ def extract_shell(document):
 def approved_repository_for(document):
     site_url = document["jobs"]["premium-email-worker"]["env"]["SITE_URL"]
     if "https://franchisor.id" in site_url:
-        return "cfpages-admtravelbos/Franchisor.id"
+        return "cfpages-syamsulalam-net/Franchisor.id"
     if "https://franchisee.id" in site_url:
         return "cfpages-syamsulalam-net/Franchisee.id"
     raise AssertionError("workflow has no approved SITE_URL fallback")
@@ -134,7 +134,7 @@ if INSTALLED_LAYOUT:
             document = load_workflow(INSTALLED_WORKFLOW)
             repository = approved_repository_for(document)
             assert_workflow_contract(self, document, repository, {
-                "cfpages-admtravelbos/Franchisor.id": {"site_key": "franchisor-id", "site_variable": "FRANCHISOR_SITE_URL", "expected_site_url": "https://franchisor.id", "schedule": []},
+                "cfpages-syamsulalam-net/Franchisor.id": {"site_key": "franchisor-id", "site_variable": "FRANCHISOR_SITE_URL", "expected_site_url": "https://franchisor.id", "schedule": []},
                 "cfpages-syamsulalam-net/Franchisee.id": {"site_key": "franchisee-id", "site_variable": "FRANCHISEE_SITE_URL", "expected_site_url": "https://franchisee.id", "schedule": ["12,42 * * * *"]},
             })
 
@@ -177,7 +177,7 @@ else:
                 self.assertEqual(first, output.read_bytes())
 
         def test_renderer_poison_cases(self):
-            valid = parameters("cfpages-admtravelbos/Franchisor.id")
+            valid = parameters("cfpages-syamsulalam-net/Franchisor.id")
             poisons = [{**valid, "repository": "unknown/repository"}, {key: value for key, value in valid.items() if key != "site_key"}, {**valid, "extra": "field"}, {**valid, "workflow_path": "../premium-email-worker.yaml"}, {**valid, "site_key": "line\n${{ secrets.X }}"}, {**valid, "expected_site_url": "https://wrong.example"}, {**valid, "site_variable": "WRONG_SITE_URL"}, {**valid, "schedule": ["12,42 * * * *"]}]
             for poison in poisons:
                 with self.assertRaises(RenderError):
@@ -188,7 +188,7 @@ else:
             poisons = [template + "# duplicate {{site_key}}\n", template.replace("{{site_key}}", "{{unknown_placeholder}}", 1), template.replace("secrets.PREMIUM_EMAIL_WORKER_SECRET", "secrets.OTHER_SECRET")]
             for poison in poisons:
                 with self.assertRaises(RenderError):
-                    render_workflow(parameters("cfpages-admtravelbos/Franchisor.id"), template_text=poison)
+                    render_workflow(parameters("cfpages-syamsulalam-net/Franchisor.id"), template_text=poison)
 
         def test_source_shell_behavior(self):
             for repository, expected in ALLOWED_REPOSITORIES.items():

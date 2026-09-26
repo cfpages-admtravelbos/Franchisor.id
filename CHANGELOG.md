@@ -1,6 +1,15 @@
 # Changelog
 
-## 2026-09-26 (latest) — Deployment placement clarified; project confirmed absent
+## 2026-09-26 (latest) — Repository transferred to cfpages-syamsulalam-net
+
+Supersedes the "Not changed" decision in the entry below. No D1, secret, provider, or application-code change.
+
+- **Transferred `cfpages-admtravelbos/Franchisor.id` → `cfpages-syamsulalam-net/Franchisor.id`** via the GitHub API. The old URL redirects; remote parity verified after the move.
+- **Why:** Syamsul uses the `cfpages-*` GitHub organization name as his own marker for which Cloudflare account hosts a project, because he hosts many. `cfpages-syamsulalam-net` means the `me@syamsulalam.net` account (the `franchise-network` account holding `franchise_db`, `franchise-assets` and `franchisee-id`); `cfpages-admtravelbos` means the `admtravelbos@gmail.com` account. Franchisor.id must be hosted in `franchise-network`, so the marker must say so. Two corrections of my own earlier claims: I said the Cloudflare Pages GitHub App "is not authorized for `cfpages-admtravelbos`" — the App was in fact installed on **both** organizations; and I recommended keeping the repository in place on technical-churn grounds, ignoring a convention that matters operationally.
+- **Consequential updates in the same commit:** `package.json` (repository/issues/homepage), `.github/workflows/d1-static-publish.yaml` (`GITHUB_REPOSITORY`), `scripts/d1-static-publish-poller.mjs` (`REPOS` allowlist key), `scripts/test-d1-static-publish-poller.mjs` and `.github/scripts/test_premium_email_worker.py` fixtures, plus `AGENTS.md`, `docs/operations/PROVIDER_BOUNDARY_RECORD.md`, `docs/operations/MANUAL_SETUP_CHECKLIST.md`, `docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md`, `ARTICLE_PROGRESS.md`, and `TOPICAL_AUTHORITY.md`.
+- **The App prerequisite is already satisfied:** `cloudflare-workers-and-pages` is installed on `cfpages-syamsulalam-net` with `repository_selection = all`, so this repository is covered with no further grant. The Pages project still does not exist (verified `HTTP 404`) and remains the next step.
+
+## 2026-09-26 — Deployment placement clarified; project confirmed absent
 
 Documentation only. No code, D1, secret, or provider change.
 
@@ -8,7 +17,7 @@ Documentation only. No code, D1, secret, or provider change.
 - **Decided and recorded:** the project must be created in the **`franchise-network`** account (`0ba63b7f…`), because Cloudflare bindings are account-scoped and the Pages Functions need `env.franchise_db` and `env.FRANCHISE_ASSETS` at runtime. A project in any other account would serve the public directory and then fail every authenticated call. Franchisor.id and Franchisee.id share one database, so they must share one Cloudflare account and one set of nameservers; their identity separation can be organisational only.
 - **Corrected my own earlier inference:** I previously wrote that the Cloudflare Pages GitHub App "is not authorized for `cfpages-admtravelbos`". What was actually observed is that the `franchise-network` account has no project from that organisation — which is equally consistent with that organisation's repositories deploying into a different Cloudflare account. The real prerequisite is a GitHub-side App grant on the organisation, and per Syamsul every `cfpages-*` organisation is his, not a third party.
 - Updated `docs/operations/PROVIDER_BOUNDARY_RECORD.md` §6 (account placement, the 404, the App-grant prerequisite, and `NODE_VERSION=22`), `docs/operations/MANUAL_SETUP_CHECKLIST.md` (`NODE_VERSION`), and `AGENTS.md` (deployment-placement paragraph).
-- **Not changed:** the repository stays in `cfpages-admtravelbos`. Moving it to `cfpages-syamsulalam-net` would not change the Cloudflare account the project deploys into, so it would add churn — a public repo URL change plus updates to `package.json`, the workflow's `GITHUB_REPOSITORY`, and the poller's `REPOS` allowlist — for no technical gain.
+- **Superseded the same day:** I first recorded that the repository stays in `cfpages-admtravelbos`. That was reversed by the transfer entry above, because my reasoning weighed only technical churn and ignored Syamsul's convention of using the GitHub organization name as the marker for which Cloudflare account hosts a project.
 
 ## 2026-09-26 (latest) — Handoff steps 3 and 5 implemented locally
 

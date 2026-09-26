@@ -37,7 +37,7 @@ Five distinct routes returning the identical 333,814-byte document is conclusive
 
 | Item | Value | Status |
 | --- | --- | --- |
-| Repository | `https://github.com/cfpages-admtravelbos/Franchisor.id.git` | ✅ confirmed from `.git/config` |
+| Repository | `https://github.com/cfpages-syamsulalam-net/Franchisor.id.git` | ✅ confirmed from `.git/config` |
 | Production branch | `main` | ✅ confirmed (`docs/operations/MANUAL_SETUP_CHECKLIST.md`, workflow guard `github.ref_name == github.event.repository.default_branch`) |
 | Local HEAD at audit | `8dfadf9a94a01edf3f6bd8888f66b533b4334761` | ✅ this is the release commit for the Gate 1 change set |
 | Deployed SHA | unknown | ⬜ anonymous checks cannot read the deployed commit; requires the Pages dashboard |
@@ -74,7 +74,7 @@ Local code does enforce the safe pattern — `functions/_clerk-auth.js` verifies
 | Item | Value | Status |
 | --- | --- | --- |
 | Publish workflow | `.github/workflows/d1-static-publish.yaml`, cron `7,37 * * * *`, `SITE_ID=site_franchisor_id` | ✅ code present and site-scoped |
-| Workflow repo guard | `GITHUB_REPOSITORY: cfpages-admtravelbos/Franchisor.id` | ✅ matches |
+| Workflow repo guard | `GITHUB_REPOSITORY: cfpages-syamsulalam-net/Franchisor.id` | ✅ matches |
 | Queue consumer | `scripts/d1-static-publish-poller.mjs` | ✅ code fixed in `eb94f7d` — reads `site_rebuild_requests`, `site_publish_state.daily_publish_count`, writes `error_message`, orders FIFO by `created_at, id`; local tests pass. ⬜ the real GitHub workflow run, deploy hook and production Pages wiring remain unverified. The original `site_publish_requests` defect stays in §3 for chronology, not as a current code blocker |
 | `PAGES_DEPLOY_HOOK_FRANCHISOR_ID` | GitHub secret | ⬜ not verified; the local poller no longer blocks it, but no real hook invocation has been observed |
 | Direct-deploy fallback | `pnpm run build:astro` + `wrangler pages deploy dist` | ⬜ not verified; its workflow step now runs Node 22 so the `schema:check` gate is real there |
@@ -86,15 +86,17 @@ Single-dispatcher rule: the rollout plan requires naming the active dispatcher a
 
 ## 6. Blockers and next actions
 
-**Which Cloudflare account, and why — decided 2026-09-26.** The Pages project **must** be created in the **`franchise-network`** account (`0ba63b7f0096bc267a93fe5c80b1f571`), the same one that holds `franchise_db`, `franchise-assets` and the `franchisee-id` project. Cloudflare bindings are account-scoped: a project can only bind D1/R2 resources in its own account. The build's D1 *REST* query can cross accounts with a token, but a *runtime* `env.franchise_db` / `env.FRANCHISE_ASSETS` cannot — and the Functions depend on both (`_clerk-auth.js`, `profile-data.js`, `dashboard-data.js`, `form-submit.js`, and the new `/peluang-usaha/[slug]` redirect). A project in any other account would deploy a public directory and then fail every authenticated call.
+**Repository moved to match the hosting marker — 2026-09-26.** Syamsul uses the GitHub organization name as his own marker for which Cloudflare account hosts a project, because he hosts many: `cfpages-syamsulalam-net` means the `me@syamsulalam.net` account (the `franchise-network` account, `0ba63b7f…`), and `cfpages-admtravelbos` means the `admtravelbos@gmail.com` account. Franchisor.id must be hosted in `franchise-network` (see below), so the repository was transferred from `cfpages-admtravelbos` to `cfpages-syamsulalam-net` so the marker tells the truth. The old URL redirects. Updated in the same commit: `package.json`, `.github/workflows/d1-static-publish.yaml` (`GITHUB_REPOSITORY`), `scripts/d1-static-publish-poller.mjs` (the `REPOS` allowlist key), and the poller test fixture.
 
-This is forced, not preferred: Franchisor.id and Franchisee.id share one database, so they must share one Cloudflare account and therefore one set of nameservers. Their separation can be organisational only, unless Franchisor.id is given its own D1 — which would break the shared-platform contract.
+**Which Cloudflare account, and why.** The Pages project **must** be created in the **`franchise-network`** account (`0ba63b7f0096bc267a93fe5c80b1f571`), the same one that holds `franchise_db`, `franchise-assets` and the `franchisee-id` project. Cloudflare bindings are account-scoped: a project can only bind D1/R2 resources in its own account. The build's D1 *REST* query can cross accounts with a token, but a *runtime* `env.franchise_db` / `env.FRANCHISE_ASSETS` cannot — and the Functions depend on both (`_clerk-auth.js`, `profile-data.js`, `dashboard-data.js`, `form-submit.js`, and the `/peluang-usaha/[slug]` redirect). A project in any other account would deploy a public directory and then fail every authenticated call.
 
-Note the two axes are independent: the **GitHub organisation** (`cfpages-admtravelbos`) does not determine the **Cloudflare account** (`franchise-network`). Every `cfpages-*` organisation belongs to Syamsul; by design each maps to its own Cloudflare account so hosted sites look independently owned. Moving the repository to `cfpages-syamsulalam-net` would **not** change the Cloudflare account the project deploys into.
+This is forced, not preferred: Franchisor.id and Franchisee.id share one database, so they must share one Cloudflare account and therefore one set of nameservers. Their identity separation can be organisational only, unless Franchisor.id is given its own D1 — which would break the shared-platform contract.
+
+The organization name is a **marker, not a mechanism**: it does not itself determine where a project deploys, it just makes placement legible at a glance. That legibility is the reason for the move above, not a technical requirement.
 
 **Gate 2 cannot pass** until all of the following are done by an operator with dashboard access, in this order:
 
-1. **The project does not exist yet** — verified 2026-09-26: the `franchise-network` account holds 30 Pages projects and `GET …/pages/projects/franchisor-id` returns **HTTP 404**. Create it in that account as a **Git-integrated** project on `main` (not Direct Upload; Pages Functions require Git integration), root at the repository root, build command `pnpm run build`, output `dist`. Prerequisite: the **Cloudflare Pages GitHub App** must be granted access to `cfpages-admtravelbos/Franchisor.id` (GitHub → that organisation → Settings → GitHub Apps → Cloudflare Pages → Configure → add the repository). That grant is a GitHub-side setting, not a Cloudflare permission, and it is the only thing standing between us and an API-driven project creation.
+1. **The project does not exist yet** — verified 2026-09-26: the `franchise-network` account holds 30 Pages projects and `GET …/pages/projects/franchisor-id` returns **HTTP 404**. Create it in that account as a **Git-integrated** project on `main` (not Direct Upload; Pages Functions require Git integration), root at the repository root, build command `pnpm run build`, output `dist`. The App prerequisite is **already satisfied**: the `cloudflare-workers-and-pages` GitHub App is installed on `cfpages-syamsulalam-net` with `repository_selection = all`, so it sees this repository with no further grant, and the remaining work is API-drivable with a Pages-admin token.
 2. Add the D1 `franchise_db` and R2 `FRANCHISE_ASSETS` bindings for Production **and** Preview; confirm they appear in a deployment's Functions view.
 3. Add the Pages build variable `NODE_VERSION=22`, `PNPM_VERSION=10.34.1`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`; the encrypted `CLOUDFLARE_API_TOKEN` (a D1-read token, kept separate from any Pages-admin token); and the Clerk variables listed in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
 4. Configure `franchisor.id` as a Clerk satellite of the shared tenant, add the DNS CNAME, wait for verification, add the allowed redirect origins, and create the `/clerk-webhook` endpoint with its three events.

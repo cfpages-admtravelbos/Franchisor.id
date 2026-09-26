@@ -4,7 +4,7 @@ import process from 'node:process';
 import fs from 'node:fs';
 
 const REPOS = {
-  'cfpages-admtravelbos/Franchisor.id': { site:'site_franchisor_id', project:'franchisor-id', account:'0ba63b7f0096bc267a93fe5c80b1f571', database:'812cd8ac-edd0-45d9-981f-c9a15358317b', hook:'PAGES_DEPLOY_HOOK_FRANCHISOR_ID' },
+  'cfpages-syamsulalam-net/Franchisor.id': { site:'site_franchisor_id', project:'franchisor-id', account:'0ba63b7f0096bc267a93fe5c80b1f571', database:'812cd8ac-edd0-45d9-981f-c9a15358317b', hook:'PAGES_DEPLOY_HOOK_FRANCHISOR_ID' },
   'cfpages-syamsulalam-net/Franchisee.id': { site:'site_franchisee_id', project:'franchisee-id', account:'0ba63b7f0096bc267a93fe5c80b1f571', database:'812cd8ac-edd0-45d9-981f-c9a15358317b', hook:'PAGES_DEPLOY_HOOK_FRANCHISEE_ID' }
 };
 export class PollerError extends Error {}

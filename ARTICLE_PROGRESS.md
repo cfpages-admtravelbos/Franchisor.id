@@ -9,11 +9,11 @@ Last generated: **2026-08-22 23:52:00 (Asia/Jakarta)**
 | Field | State |
 |---|---|
 | Order | `47` |
-| Canonical repository | [cfpages-admtravelbos/Franchisor.id](https://github.com/cfpages-admtravelbos/Franchisor.id) |
+| Canonical repository | [cfpages-syamsulalam-net/Franchisor.id](https://github.com/cfpages-syamsulalam-net/Franchisor.id) |
 | Default branch | `main` |
 | Instructions | ✅ `AGENTS.md` + `ARTICLE-GUIDE.md` |
 | Repository-local progress tracker | ✅ This repository tracker |
-| Catalog | [ARTICLE_CATALOG.md](https://github.com/cfpages-admtravelbos/Franchisor.id/blob/main/ARTICLE_CATALOG.md) (`77a2e07a2680`) |
+| Catalog | [ARTICLE_CATALOG.md](https://github.com/cfpages-syamsulalam-net/Franchisor.id/blob/main/ARTICLE_CATALOG.md) (`77a2e07a2680`) |
 | Prepared articles | 114 |
 | Accepted and pushed | 0 |
 | Remaining | 114 |

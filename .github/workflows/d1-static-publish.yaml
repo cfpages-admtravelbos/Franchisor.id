@@ -23,7 +23,7 @@ jobs:
       group: d1-static-publish-site_franchisor_id
       cancel-in-progress: false
     env:
-      GITHUB_REPOSITORY: cfpages-admtravelbos/Franchisor.id
+      GITHUB_REPOSITORY: cfpages-syamsulalam-net/Franchisor.id
       SITE_ID: site_franchisor_id
       PAGES_PROJECT_NAME: franchisor-id
       TARGET_REF: ${{ github.ref_name }}
