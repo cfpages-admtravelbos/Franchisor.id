@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-26 — Independent re-review of `27a783c`
+
+- Expanded `docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md` with a disposable published-row build result and bounded answers for profile-proposal approval, account/public-contact writes, claim decision concurrency, orphan profiles, and staff access to claimant evidence. Updated `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md` to distinguish local `/usaha/{slug}` build proof from deployment and signed-in acceptance.
+- Added `.context/session-20260926-1229.md` for the cross-harness handoff. No application code, D1 rows, provider settings, or production deployment changed.
+
 ## 2026-09-26 — Independent rollout code review feedback
 
 - Added `docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md` with R1–R4 evidence and acceptance checks for the Franchisor `/usaha/{slug}` generated route, CSV/bridge producer paths, publication-row gate status, and the stale provider-record poller note.
