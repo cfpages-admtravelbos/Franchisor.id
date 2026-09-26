@@ -1,6 +1,16 @@
 # Changelog
 
-## 2026-09-26 (latest) — Repository transferred to cfpages-syamsulalam-net
+## 2026-09-26 (latest) — Pages project created; first production deployment succeeded
+
+Infrastructure, not application code. No D1 write, no migration, no secret change in the repository.
+
+- **Project `franchisor-id` created in the `franchise-network` account** (id `866cd8f9-e5bc-4d73-a253-a96a0d161f7e`, subdomain `franchisor-id-9ar.pages.dev`), Git-integrated to `cfpages-syamsulalam-net/Franchisor.id` on `main`. Created and configured through the Cloudflare API, not the dashboard, so every value is exact and reproducible: `build_config` = `pnpm run build` → `dist`, root at the repository root; `NODE_VERSION=22`, `PNPM_VERSION=10.34.1`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID` as plain-text vars; `CLOUDFLARE_API_TOKEN` as an encrypted secret; `franchise_db` and `FRANCHISE_ASSETS` bindings for **both** Production and Preview. The binding shapes were copied verbatim from the working `franchisee-id` project. Note `build_command` and `destination_dir` live on the project's `build_config`, not inside `deployment_configs` — sending them in `deployment_configs` is silently ignored.
+- **First production deployment succeeded:** `8588ba9d-95c7-4950-9422-97eee771f159` on commit `d028dea`, stage `deploy/success`, build log `Built asset check passed for 5001 deployed files`. `ownership:check` and `schema:check` ran inside the Pages build without failing.
+- **Now verified live:** `/auth-config` returns 156 bytes of JSON instead of the legacy directory document; `/dashboard/`, `/profil/` and `/premium/` render the application; `/peluang-usaha/` serves the Astro directory. The documented "never the legacy HTML" signal holds.
+- **Two live findings recorded in `docs/operations/PROVIDER_BOUNDARY_RECORD.md` §7, both still open and neither a regression:** unknown URLs answer **HTTP 200** with the legacy document rather than a real 404 (the known Gate 2 soft-404, now confirmed live); and legacy brand URLs **308-redirect to a trailing slash** (`/usaha/abo-meatshop` → `/usaha/abo-meatshop/`), contradicting the declared canonical family `/usaha/{slug}`, so the served URL and the canonical disagree for all 34 legacy brands.
+- Not done, deliberately: the custom domain (`franchisor.id`) is Syamsul's step, and the Clerk variables are unset — which is why `/auth-config` reports `configured: false`.
+
+## 2026-09-26 — Repository transferred to cfpages-syamsulalam-net
 
 Supersedes the "Not changed" decision in the entry below. No D1, secret, provider, or application-code change.
 

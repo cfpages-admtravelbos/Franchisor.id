@@ -96,9 +96,9 @@ The organization name is a **marker, not a mechanism**: it does not itself deter
 
 **Gate 2 cannot pass** until all of the following are done by an operator with dashboard access, in this order:
 
-1. **The project does not exist yet** — verified 2026-09-26: the `franchise-network` account holds 30 Pages projects and `GET …/pages/projects/franchisor-id` returns **HTTP 404**. Create it in that account as a **Git-integrated** project on `main` (not Direct Upload; Pages Functions require Git integration), root at the repository root, build command `pnpm run build`, output `dist`. The App prerequisite is **already satisfied**: the `cloudflare-workers-and-pages` GitHub App is installed on `cfpages-syamsulalam-net` with `repository_selection = all`, so it sees this repository with no further grant, and the remaining work is API-drivable with a Pages-admin token.
-2. Add the D1 `franchise_db` and R2 `FRANCHISE_ASSETS` bindings for Production **and** Preview; confirm they appear in a deployment's Functions view.
-3. Add the Pages build variable `NODE_VERSION=22`, `PNPM_VERSION=10.34.1`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`; the encrypted `CLOUDFLARE_API_TOKEN` (a D1-read token, kept separate from any Pages-admin token); and the Clerk variables listed in `docs/operations/MANUAL_SETUP_CHECKLIST.md`.
+1. ✅ **DONE 2026-09-26.** Project `franchisor-id` created (id `866cd8f9-e5bc-4d73-a253-a96a0d161f7e`, subdomain `franchisor-id-9ar.pages.dev`), Git-integrated to `cfpages-syamsulalam-net/Franchisor.id` on `main`, `build_config` = `pnpm run build` → `dist`, root at the repository root. Created through the API rather than the dashboard, so the settings are exact.
+2. ✅ **DONE 2026-09-26.** `franchise_db` and `FRANCHISE_ASSETS` bindings set for **both** Production and Preview, copied verbatim from the working `franchisee-id` project.
+3. ✅ **DONE 2026-09-26.** Build variables set for both environments: `NODE_VERSION=22`, `PNPM_VERSION=10.34.1`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID` as plain text, and `CLOUDFLARE_API_TOKEN` as an encrypted `secret_text`. ⬜ The Clerk variables are still unset, which is why `/auth-config` reports `configured: false`; their values are Syamsul's to supply.
 4. Configure `franchisor.id` as a Clerk satellite of the shared tenant, add the DNS CNAME, wait for verification, add the allowed redirect origins, and create the `/clerk-webhook` endpoint with its three events.
 5. Map `franchisor.id` and `www.franchisor.id` as custom domains with HTTPS active, apex canonical, `www` redirected to apex.
 6. Add the GitHub secrets/variables and create the Pages Deploy Hook; store its URL only in the secret.
@@ -108,3 +108,25 @@ The organization name is a **marker, not a mechanism**: it does not itself deter
 Success signals to record after each step: `/auth-config` returns JSON with `configured: true`, `isSatellite: true`, and no secret; `/profil/`, `/dashboard/`, `/premium/`, `/daftar/` render the application rather than the 333,814-byte legacy document; unauthorized API methods return 405 and protected endpoints 401/403; one disposable asset uploads to `franchise-assets` and resolves publicly; one Franchisor-scoped rebuild triggers **only** the Franchisor Pages project.
 
 Until then, this release is `locally validated`, never `deployed`.
+
+## 7. First live deployment and what it proves — 2026-09-26
+
+Deployment `8588ba9d-95c7-4950-9422-97eee771f159`, environment `production`, canonical, commit `d028dea7f599840df28bf2461e8502c92e52a3fd`, branch `main`, `commit_dirty=false`. Stage `deploy/success`. Build log line: `Built asset check passed for 5001 deployed files; all local HTML/CSS asset references resolve with exact casing.` Site: `https://franchisor-id-9ar.pages.dev`.
+
+**Confirmed working (anonymous, no auth):**
+
+| Check | Result |
+| --- | --- |
+| `/auth-config` | ✅ **156 bytes of JSON** — `{"publishableKey":"","configured":false,"isSatellite":false,…}`. Previously the legacy directory document; the Functions are live and the documented "JSON, never the legacy HTML" signal now holds |
+| `/dashboard/` | ✅ 58,400 bytes — the application, not the legacy document |
+| `/profil/` | ✅ 2,923 bytes — the application |
+| `/premium/` | ✅ 8,684 bytes — the application |
+| `/peluang-usaha/` | ✅ 273,474 bytes — the Astro directory page |
+| Build pipeline | ✅ `ownership:check` and `schema:check` ran inside the Pages build without failing, at `NODE_VERSION=22` |
+
+**Two findings that are real and still open — neither is a regression from this change:**
+
+1. **Unknown URLs still answer HTTP 200 with the legacy document, not a real 404.** `/usaha/definitely-not-a-real-brand-xyz` and `/peluang-usaha/definitely-not-a-real-brand-xyz` both return **200** with 331,549 bytes — byte-identical in size to `/`. This is the Gate 2 soft-404 blocker already recorded above, now **confirmed on the live deployment**. The planned anonymous "real 404" check therefore **fails**.
+2. **Legacy brand URLs 308-redirect to a trailing slash, contradicting the declared canonical.** `/usaha/abo-meatshop` → **308** → `/usaha/abo-meatshop/`. The static server adds the slash because the legacy pages are directories containing `index.html`. The documented canonical family is `/usaha/{slug}` with **no** trailing slash, and every contract check asserts that — so for all 34 legacy brands the served URL and the declared canonical disagree. That is the single riskiest item found here; it became visible only now because this is the first time the domain has served from Astro at all.
+
+Both are route-level work deliberately deferred to after Gate 2 — they are recorded, not silently fixed. The trailing-slash mismatch in particular deserves priority: a canonical that 308-redirects is a self-contradictory signal to search engines.
