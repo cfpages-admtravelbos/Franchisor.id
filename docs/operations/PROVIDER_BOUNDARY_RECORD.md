@@ -156,7 +156,7 @@ Both findings are now closed, each behind a build-enforced regression guard: the
 
 **Custom domains.** ✅ **Active as of 2026-09-26.** `franchisor.id` and `www.franchisor.id` are both attached to the Pages project and both report `status=active` with `ssl=active`. `https://franchisor.id/` returns **200**, and the trailing-slash fix is confirmed on the real domain: `/usaha/abo-meatshop` → 200, `/usaha/abo-meatshop/` → 308 back to the canonical. The earlier `pending` state was caused by the apex record in the zone not being the record Pages expected; Syamsul corrected the DNS and both hostnames activated without further API work.
 
-⬜ **Still outstanding: `www` does not redirect to the apex.** `https://www.franchisor.id/` returns **200** and serves the site directly rather than issuing a 301 to `https://franchisor.id/`, so `MANUAL_SETUP_CHECKLIST.md` §4 step 3 ("redirect `www` to the apex domain") is unmet. Enforcing it needs either a zone redirect rule (**Zone → Rules → Edit**) or a Pages-level redirect; this token has neither scope.
+✅ **DONE 2026-09-26 — `www` now redirects to the apex.** A zone-level **Redirect Rule** (Single Redirect) issues a 301 from `http.host eq "www.franchisor.id"` to `concat("https://franchisor.id", http.request.uri.path)` with the query string preserved. Verified live: `https://www.franchisor.id/`, `/usaha/abo-meatshop`, `/peluang-usaha/` and `/usaha/abo-meatshop/?x=1` all answer **301** to the apex equivalent with path and query intact, and following them lands on 200 in exactly **one** hop — no redirect loop. The apex is unaffected: `/` 200, `/usaha/abo-meatshop` 200, `/usaha/abo-meatshop/` 308 to the canonical, unknown URLs 404. `MANUAL_SETUP_CHECKLIST.md` §4 step 3 is now met.
 
 Diagnostics kept for the record (DNS read is 403 for this token, so these came from public resolution via 1.1.1.1). They are what identified the problem before it was fixed:
 
@@ -171,12 +171,7 @@ Diagnostics kept for the record (DNS read is 403 for this token, so these came f
 
 **Prime suspect:** the apex record present in the zone is not the record Pages expects for this project — most likely an `A` record left from before the domain was repointed, rather than a `CNAME` to `franchisor-id-9ar.pages.dev` (Cloudflare flattens an apex CNAME, and that is the shape Pages custom domains normally auto-create). This token cannot confirm or fix it: `GET`/`POST` on `/zones/{id}/dns_records` and `/zones/{id}/rulesets` all return **403**, i.e. the token is Pages/D1/Workers-scoped with no Zone DNS or Zone Rules access.
 
-Outstanding to finish, either with a token carrying **Zone → DNS → Edit** (plus **Zone → Rules → Edit** for the `www` → apex 301) or in the dashboard:
-
-1. Point the apex at the project: a proxied `CNAME franchisor.id → franchisor-id-9ar.pages.dev` (Cloudflare flattens at apex), replacing any stale `A` record.
-2. Add the missing `www` record: proxied `CNAME www → franchisor-id-9ar.pages.dev`.
-3. If the plan's "www redirected to apex" is to hold at the edge, add a zone redirect rule for `www.franchisor.id` → `franchisor.id` (301).
-4. Watch the Pages custom-domain panel until both leave `pending`; that panel names the exact record it wants if it disagrees with the above.
+**How this was finished.** Syamsul corrected the apex DNS himself, which activated both custom domains, then granted the two token scopes required. The redirect was created through the API as a zone ruleset in phase `http_request_dynamic_redirect` (ruleset `33ad9567295941f9ba0c0bd1d9cac715`, rule ref `www_to_apex_franchisor_id`, `enabled: true`) — **not** via Page Rules, which is the legacy mechanism and was left at zero rules. The permission that was actually needed is **Zone → Single Redirect → Edit** (shown as **Dynamic URL Redirects → Write** in newer token UI). An earlier version of this record asked for "Zone → Rules → Edit", which is **not a real Cloudflare permission group** and was simply wrong; the correct categories and the ones that cannot do this at all (Cache, Config, Origin, Transform, Custom Error, HTTP DDoS managed) are mapped in `KNOWLEDGE/KNOWLEDGE-CLOUDFLARE-PAGES.md` §8.
 
 **Runtime variables — and why they cannot simply be copied from `franchisee-id`.** Syamsul's proposal was to make this project's variables "the same" as `franchisee-id`, on the reasoning that Franchisee.id already holds them. Two independent reasons that does not work:
 

@@ -144,11 +144,11 @@ If the shared Clerk plan does not support production satellites, create a separa
 
 ## 4. Connect the production domain
 
-Status 2026-09-26: **steps 1 and 2 are done** — both domains are attached to the Pages project and report `active` with `ssl=active`; `https://franchisor.id/` returns 200. **Step 3 is outstanding.**
+Status 2026-09-26: **all three steps are done.** Both domains are attached and report `active` with `ssl=active`, `https://franchisor.id/` returns 200, and `www` now 301s to the apex.
 
 1. ✅ In the Cloudflare Pages project, add `franchisor.id` and `www.franchisor.id` as custom domains. (Done via the API; the apex record had to be corrected in DNS before Pages would activate them.)
 2. ✅ Confirm both show Active and that HTTPS works.
-3. ⬜ **Outstanding.** Choose one canonical host. The application currently uses `https://franchisor.id`; redirect `www` to the apex domain. `https://www.franchisor.id/` currently returns **200** and serves the site directly instead of redirecting. Needs a zone redirect rule (Zone → Rules → Edit) or a Pages-level redirect.
+3. ✅ Choose one canonical host. The application uses `https://franchisor.id`; `www` is redirected with a zone **Redirect Rule** (Single Redirect, phase `http_request_dynamic_redirect`) — `http.host eq "www.franchisor.id"` → 301 `concat("https://franchisor.id", http.request.uri.path)`, query preserved. Verified live with path and query intact, landing in one hop with no loop. Needs the **Zone → Single Redirect → Edit** token scope (`Dynamic URL Redirects → Write` in newer token UI) — not Cache, Config, Origin, Transform, Page or Custom Error rules, none of which can change the host.
 4. Do not change legacy route redirects until their SEO migration is verified.
 
 ## 5. Configure GitHub Actions
