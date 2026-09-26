@@ -1,6 +1,13 @@
 # Changelog
 
-## 2026-09-26 (latest) — Pages project created; first production deployment succeeded
+## 2026-09-26 (latest) — Legacy brand URLs fixed; custom domains added
+
+- **Fixed the trailing-slash canonical mismatch (`2dd0702`).** Every legacy brand page was exported as `usaha/<slug>/index.html`, so Cloudflare answered the declared canonical `/usaha/{slug}` with a **308** to the slash form — the served URL contradicted the canonical for all 34 brands. `copy-legacy-static.mjs` now emits those pages flat as `usaha/<slug>.html`, the same path the Astro-generated brand pages already use, so the two sources collide and the existing no-overwrite rule still lets generated content win. Flattening was proven safe first: the legacy HTML has **zero** relative asset references. Verified live on deployment `f9fd9747`: `/usaha/abo-meatshop` → 200 (was 308) and `/usaha/abo-meatshop/` → 308 back to the canonical. New gate in `check-built-assets.mjs` fails the build if any brand lacks a flat page or the directory form returns; the published-brand collision fixture was updated to assert the same.
+- **Custom domains added:** `franchisor.id` and `www.franchisor.id` are now attached to the Pages project. Both report `pending`; the apex resolves publicly, but **`www.franchisor.id` has no DNS record** and this token cannot create one (`/zones/{id}/dns_records` and `/zones/{id}/rulesets` both return **403** — no Zone DNS or Zone Rules scope). So the `www` CNAME and the `www`→apex redirect still need either a broader token or dashboard work. Recorded in the provider boundary record §8.
+- **Runtime variables cannot be copied from `franchisee-id`, for two independent reasons, now documented in §8:** Cloudflare returns every `secret_text` value **empty** (verified: `len=0`), so no secret can be read or copied; and the two variable sets genuinely differ — `franchisee-id` has 14, the Franchisor code reads ~35, and franchisee-id has **none** of the Clerk satellite variables this site needs. Several entries must be site-specific rather than shared (`CLERK_WEBHOOK_SIGNING_SECRET` is issued per endpoint; `GOOGLE_CONTACTS_REDIRECT_URI` would point the OAuth callback at the wrong domain; `PREMIUM_EMAIL_FROM`/`_REPLY_TO` are brand-facing). `FRANCHISE_ASSETS_PUBLIC_BASE_URL`/`R2_PUBLIC_BASE_URL` are genuinely shared and safe to reuse. Nothing was half-set: `/auth-config` still reports `configured: false`, which is the accurate state.
+- Still open from the previous entry: unknown URLs answer HTTP 200 with the legacy document instead of a real 404.
+
+## 2026-09-26 — Pages project created; first production deployment succeeded
 
 Infrastructure, not application code. No D1 write, no migration, no secret change in the repository.
 
