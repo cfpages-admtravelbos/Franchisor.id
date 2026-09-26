@@ -33,6 +33,23 @@ Authority order used: deployed D1 schema and triggers → `../Franchisee.id` cur
 | Canonical brand URL family | `_premium.js`, `src/pages/peluang-usaha/[slug].astro` | `franchise_site_publications.canonical_url` | The contract maps `site_franchisor_id` to `https://franchisor.id/usaha/{slug}` in **both** repositories; handler writes, owner/dashboard/lead links, and the read models were moved to that family | Decision 2026-09-25: franchisor.id uses `/usaha/{slug}` (no trailing slash) for legacy **and** new brands. Cross-repo copy done 2026-09-26 (`Franchisee.id` `87a4d73`, guarded by `checkPerSiteCanonicalFamilies()`). The generated detail route relocation, sitemap, and legacy retirement are deferred — see the tracker D.2–D.3 | Franchisor.id + Franchisee.id | `ownership:check` + `premium:lifecycle:check` | ⚠️ |
 | Payment gateway | — | — | Manual unique-code transfer only | 🛑 Outside this release by decision | — | — | 🛑 |
 
+## 1b. Review-driven fixes (2026-09-26, `02f486d` + `0498f62`)
+
+Findings raised by the independent reviews after the Gate 1 port, and their state. The full review is [the rollout re-review](ROLLOUT_CODE_REVIEW_2026-09-26.md).
+
+| Finding | Severity | State | Evidence |
+| --- | --- | --- | --- |
+| `getPendingClaims` joined `users u` twice, so `GET /dashboard-data` returned 500 for every user | Critical | ✅ fixed | `schema:check` prepares all 24 dashboard statements against the 39 real migrations — the exact place an ambiguous column fails |
+| Approval had no evidence to submit: the clients posted `notes: ""` while the server required notes for an owner proposal and a claim | High | ✅ fixed | the clients now prompt for evidence; the client/server reason constant is asserted equal in `ownership:check` |
+| Profile-proposal approval rejected `profile_*` fields, so a `franchisor_profile` proposal could never be approved | High | ✅ fixed in **both** repositories | one allowlist built from `OWNER_PROFILE_FIELDS` + `EDITABLE_LISTING_FIELD_DEFS`; the `profile_*` keys are now also labelled in the client |
+| `update_account` wrote a published brand's public `pic_name`/`email_contact` directly | High | ✅ fixed in **both** repositories | account identity applies immediately; a published brand's contact becomes an owner review proposal |
+| The claim queue shipped claimant NIB/HAKI/contact to staff | Medium | ✅ fixed in **both** repositories | the whole queue is `isAdmin(auth)`-gated, matching the new-brand queue |
+| A failed claim committed an orphan `franchisor_profiles` row | Medium | ✅ fixed in **both** repositories | the profile insert shares the claimability predicate; `schema:check` proves a zero-row insert |
+| Decision updates lack a bare `AND status = 'pending'` predicate | Medium | ✅ deliberately unchanged, trigger behaviour now proven | the review's guidance was not to add it alone; `schema:check` proves the deployed 0035/0039 triggers abort a parallel claim, a second decision, and a claim on an owned listing |
+| A TypeScript `as` cast in the JavaScript module `functions/_dashboard-schemas.js` broke esbuild transforms | — | ✅ fixed in **both** repositories | caught by the Franchisee.id checks that transform that module |
+| The synthetic published-row build is not yet a repeatable check | — | ⬜ open | the reviewer ran one disposable built row by hand; pin it as a fixture before calling R1 closed (tracker D.2b) |
+| No HTTP 301 for old `/peluang-usaha/{slug}` links, only a `noindex` meta refresh | — | ⬜ open decision | decide whether a real redirect is required before launch (tracker D.3) |
+
 ## 2. Live D1 evidence snapshot (read-only, 2026-09-25)
 
 | Observation | Value |

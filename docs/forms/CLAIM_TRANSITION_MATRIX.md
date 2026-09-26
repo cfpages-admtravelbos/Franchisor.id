@@ -9,7 +9,7 @@ Last updated: 2026-07-22 (Asia/Jakarta)
 ## Scope
 This matrix covers franchise listing claims written by `/form-submit` and reviewed in `/dashboard`.
 
-This is the target transition contract. The Franchisor July handler still assigns an owner during claim submission and does not satisfy it. Align the handler and admin decision path with the current shared D1 guards, then run local and controlled production checks from `../operations/MANUAL_SETUP_CHECKLIST.md`.
+This is the target transition contract. As of `27a783c` the Franchisor handler satisfies it: a claim is inserted as a guarded `pending` row and never assigns an owner during submission. The claim-path `franchisor_profiles` insert shares the same claimability predicate, so an unavailable claim inserts nothing at all rather than committing an orphan profile. Run local and controlled production checks from `../operations/MANUAL_SETUP_CHECKLIST.md` before treating any of this as live.
 
 | Scenario | Expected behavior | Current owner |
 | --- | --- | --- |

@@ -46,13 +46,25 @@ Status key: ⬜ pending · 🔄 in progress · ✅ done · ⚠️ blocked · �
 | --- | --- |
 | `pnpm install --frozen-lockfile` | not re-run (lockfile unchanged; no dependency edits) |
 | `pnpm run astro:check` | ✅ 0 errors, 0 warnings, 5 hints (matches the documented baseline) |
-| All `*:check` feature scripts (16) | ✅ pass |
+| All `*:check` feature scripts (17) | ✅ pass |
 | `pnpm run ownership:check` (new) | ✅ pass |
+| `pnpm run schema:check` (new) | ✅ pass — 24 dashboard statements prepare against the 39 real migrations; the 0035/0039 triggers abort a second decision, a parallel claim, and a claim on an owned listing; an unavailable claim inserts no orphan profile. **SKIPs by design** where `node:sqlite` or the sibling migration chain is absent, and says so — a skip is not a pass |
 | `node scripts/test-d1-static-publish-poller.mjs` | ✅ pass |
-| `pnpm run build` | ✅ 12 pages, 5,001 deployed files, `Built asset check passed` |
+| `pnpm run build` | ✅ 12 pages, 5,001 deployed files, `Built asset check passed`; `build:astro` now gates on `ownership:check` **and** `schema:check` |
 | Live read-only D1 queries | ✅ migration objects, queue state, 0 published franchisor rows, 34/34 brand match |
 | Signed-in production scenarios (journey acceptance matrix) | ⬜ not run — blocked on Gate 2 |
 
 ## Two pre-existing broken checks repaired
 
 `state-transitions:check` was already failing at the committed HEAD (verified with `git show HEAD:scripts/d1-static-publish-poller.mjs`). It asserted that the poller contained `pending_count = (` and `queued_count = (`, which never appeared in the file, and that `docs/forms/AUTO_SAVE.md` contained a heading that did not exist. Both assertions now match the real contract, and the renewed check guards the queue-table agreement instead.
+
+## Review-driven fix round — 2026-09-26 (`02f486d`, mirrored in `Franchisee.id` `0498f62`)
+
+The independent review's answers are implemented. [The parity matrix §1b](FRANCHISOR_PARITY_MATRIX.md) carries the per-finding state. In short: profile proposals are now approvable from the UI, an account save no longer overwrites a published brand's public contact (it becomes a review proposal), both review queues are admin-only, and an unavailable claim commits no orphan profile.
+
+Two things worth keeping visible:
+
+- **The decision-race finding was not "fixed" by adding a predicate.** The reviewer's guidance was that a bare `AND status = 'pending'` could turn the update into a silent zero-row success while later batch statements still run. The triggers stay the concurrency authority, and `schema:check` now proves they abort a second decision, a parallel claim, and a claim on an owned listing.
+- **A TypeScript `as` cast was briefly placed in the JavaScript module `functions/_dashboard-schemas.js`.** esbuild cannot transform it. Franchisor's own suite did not notice because nothing in it transformed that module; four Franchisee.id checks did, which is how it was found. It was removed in both repositories.
+
+Still open after this round: the synthetic published-row build is a hand-run by the reviewer rather than a fixture (D.2b), and the deprecated brand path uses a `noindex` meta refresh rather than an HTTP 301 (D.3).

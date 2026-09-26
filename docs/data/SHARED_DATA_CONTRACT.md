@@ -11,6 +11,12 @@
 - One canonical brand can have site-specific content and SEO intent. Every public read remains scoped to that site's explicit `published` projection; no mass copy of Franchisee publication rows is allowed.
 - **Brand-page URL family (2026-09-25):** franchisor.id uses `https://franchisor.id/usaha/{slug}` for legacy and new brands; the other three network sites keep `/peluang-usaha/{slug}/`. See §Canonical URLs and SEO.
 
+Additional write rules added 2026-09-26 (`02f486d` here, `0498f62` in the owner repository):
+
+- **Account identity and public brand contact are separate writes.** Saving an account name/e-mail updates `users` and `franchisee_profiles` immediately, but for a **published** brand the linked `franchisor_profiles.pic_name`/`email_contact` change becomes an owner review proposal; the live page keeps its values until an admin approves. An unpublished profile may still be written directly. Do not reintroduce a direct brand-contact write on the account path.
+- **Both review queues are admin-only.** `getPendingClaims` and `getPendingBrandSubmissions` are gated by `isAdmin(auth)` in `dashboard-data.js`, because both carry applicant NIB, HAKI, and contact fields while claim and brand decisions are admin-only. A staff-facing aggregate must be a separate minimal query.
+- **Submission batches must be all-or-nothing on availability.** The claim path's `franchisor_profiles` insert shares the claimability predicate (`owner_user_id IS NULL AND status = 'unclaimed' AND source_sheet = 'UNCLAIMED'`) with the claim insert, so an unavailable claim commits no orphan profile. Fix forward, never with a post-commit cleanup delete.
+
 Last updated: 2026-07-22
 
 This document is the minimum contract Franchisor.id must obey when reading or writing Franchise Network data. It summarizes the deployed design; the authoritative migration SQL currently lives in `../Franchisee.id/migrations/`.

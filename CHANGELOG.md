@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-26 (latest) — Review decisions implemented (`02f486d`)
+
+Implements the answers recorded in the independent re-review, and the fixes they implied. No D1, secret, migration, or provider change; nothing was written to the shared database.
+
+- `functions/_profile-owner-review.js` exports `OWNER_PROFILE_FIELDS` with `pic_name` and `email_contact` added, and `functions/_dashboard-schemas.js` builds the review-approval allowlist from it plus `EDITABLE_LISTING_FIELD_DEFS` — a `franchisor_profile` proposal could previously never be approved, because the schema enumerated listing fields only while the handler accepted `profile_*` names. `js/dashboard-review.js` labels those profile fields instead of falling back to the first listing field.
+- `functions/_profile-account.js` no longer writes a published brand's `pic_name`/`email_contact` directly; account identity applies immediately and a published brand's contact becomes an owner review proposal. `js/profile-page.js` reports that outcome to the user.
+- `functions/dashboard-data.js` gates the whole claim queue to admins, matching the new-brand queue, because it carries claimant NIB, HAKI, and contact fields.
+- `functions/_form-submit-franchisor.js` makes the claim-path `franchisor_profiles` insert share the claimability predicate, so an unavailable claim commits no orphan profile.
+- Added `scripts/check-dashboard-sql.ts` and the `schema:check` script, which `build:astro` now runs: it loads the 39 real shared migrations into `node:sqlite`, prepares every dashboard read-model statement against them (the duplicate-join regression), and proves the 0035/0039 triggers abort a second decision, a parallel claim, and a claim on an owned listing. It SKIPs by design when `node:sqlite` or the sibling migration chain is absent.
+- Documentation updated to match: `docs/forms/CLAIM_TRANSITION_MATRIX.md` (the July-handler warning is no longer true), `docs/data/SHARED_DATA_CONTRACT.md` (account-versus-brand-contact, admin-only queues, all-or-nothing submission batches), `docs/product/FRANCHISOR_PARITY_MATRIX.md` (§1b per-finding state), and `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md` (fix round and verification table).
+
+Decision-races finding deliberately **not** "fixed" by adding `AND status = 'pending'`, on the reviewer's reasoning that a bare predicate can turn the update into a silent zero-row success; the triggers stay the authority and are now proven by the new check. Same fixes mirrored in `Franchisee.id` `0498f62`. A TypeScript `as` cast was briefly introduced in the JavaScript module `functions/_dashboard-schemas.js` and removed in both repositories after the Franchisee.id checks caught it.
+
 ## 2026-09-26 — Independent re-review of `27a783c`
 
 - Expanded `docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md` with a disposable published-row build result and bounded answers for profile-proposal approval, account/public-contact writes, claim decision concurrency, orphan profiles, and staff access to claimant evidence. Updated `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md` to distinguish local `/usaha/{slug}` build proof from deployment and signed-in acceptance.
