@@ -1,5 +1,7 @@
 # Franchisor.id provider and deployment boundary record (Gate 0)
 
+Next verification sequence: [Astro/Cloudflare brand publishing plan](ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md). It preserves `/peluang-usaha/` as the directory and `/usaha/{slug}` as the brand detail family while checking D1 builds, theme/assets, and deployment identity. The dated production observations below remain historical until a fresh Pages deployment is verified.
+
 **2026-09-26 correction:** The poller defect described later in §5 was fixed locally in `eb94f7d`: `scripts/d1-static-publish-poller.mjs` now reads `site_rebuild_requests`, and its local tests passed. Actual GitHub workflow execution, Pages bindings, deploy hook, and production publication remain **not verified**. See [rollout code review R4](../product/ROLLOUT_CODE_REVIEW_2026-09-26.md); keep the historical finding for chronology, not as a current code blocker.
 
 Recorded 2026-09-25 (Asia/Jakarta). This is the Gate 0.2 artifact from [the rollout plan](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md): identify the exact Pages project, production branch, domain mapping, D1/R2 bindings, Clerk tenant/satellite settings, GitHub publisher, email dispatcher, and deployment SHA **without copying secrets**. Status key: ✅ pass · ❌ fail · ⬜ not verified (needs a dashboard or signed-in session).

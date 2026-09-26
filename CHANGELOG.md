@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-26 — Directory/detail contract and Astro/Pages handoff (documentation only)
+
+- Added `docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md`: reviewed route matrix, current build and theme inputs, provider setup sequence, repeatable published/unpublished and legacy-slug proof, CSS/asset checks, preview/production acceptance, rollback, and per-site rebuild loop.
+- Updated `CODEBASE.md`, `docs/README.md`, `docs/architecture/FRANCHISE_NETWORK_CONTEXT.md`, `docs/architecture/FRANCHISOR_BUILD_PLAN.md`, `docs/data/SHARED_DATA_CONTRACT.md`, `docs/product/FRANCHISOR_PARITY_MATRIX.md`, and `docs/product/NETWORK_MEMBERSHIP_PROGRESS.md` to distinguish Franchisor directory `/peluang-usaha/` from brand detail `/usaha/{slug}`, correct superseded review claims, and link the handoff.
+- Updated `docs/operations/MANUAL_SETUP_CHECKLIST.md` and `docs/operations/PROVIDER_BOUNDARY_RECORD.md` to point deployment work to that handoff. Added `.context/session-20260926-1524.md` for the review record. No application code, provider setting, D1 row, or deployment changed.
+
+
 ## 2026-09-26 (latest) — Review decisions implemented (`02f486d`)
 
 Implements the answers recorded in the independent re-review, and the fixes they implied. No D1, secret, migration, or provider change; nothing was written to the shared database.

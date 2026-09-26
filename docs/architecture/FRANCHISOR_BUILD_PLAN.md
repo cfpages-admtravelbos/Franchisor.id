@@ -1,5 +1,7 @@
 # Franchisor.id build plan
 
+Current 2026-09-26 handoff: the historical route choice below is settled. Keep `/peluang-usaha/` for Franchisor's directory and `/usaha/{slug}` for brand details. Use the [Astro/Cloudflare brand publishing plan](../operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) for the remaining build, theme, and live Pages acceptance steps.
+
 > This is the historical July port plan. For the current membership outcome, release gates, and owner journeys, use [the 2026-09-25 rollout plan](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](../product/FRANCHISOR_USER_JOURNEYS.md). A locally ported route is not proof of production availability.
 
 ## Current release gate — 2026-09-25
@@ -36,7 +38,7 @@ Status: documentation baseline complete; route-level migration inventory still r
 - Keep `AGENTS.md`, `CODEBASE.md`, the network context, and data contract current.
 - Record all legacy routes, titles, canonicals, sitemap entries, forms, and brand slugs.
 - Match the 34 `/usaha/` pages to canonical D1 franchises without inserting records.
-- Decide the long-term brand URL: retain `/usaha/{slug}` or adopt `/peluang-usaha/{slug}` with permanent redirects.
+- Keep the decided Franchisor detail URL `/usaha/{slug}` and its `/peluang-usaha/` directory; inventory deprecated detail links for an explicit redirect decision. Follow the [Astro/Cloudflare handoff](../operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) for implementation acceptance.
 - Identify which WordPress assets are still referenced and which can be retired later.
 
 Acceptance:
@@ -179,7 +181,7 @@ When Codex is next opened in this repository for launch work:
 
 ## Decisions still requiring evidence
 
-- Whether legacy `/usaha/{slug}` pages should eventually redirect to the implemented `/peluang-usaha/{slug}/` application canonical route.
+- Whether deprecated Franchisor `/peluang-usaha/{slug}` brand-detail links need an HTTP 301 to `/usaha/{slug}` beyond the current `noindex` meta refresh; preserve `/peluang-usaha/` directory and discovery subroutes.
 - Whether the Franchisor public directory should show all published brands or only operator-verified/Premium brands.
 - Which dashboard capabilities belong directly in Franchisor.id versus a future shared network console.
 - When shared schema, schemas, and reusable server code should move out of Franchisee.id into a dedicated package/repository.

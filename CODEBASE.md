@@ -1,14 +1,14 @@
 # Franchisor.id codebase
 
-**Review update, 2026-09-26:** [Rollout code review R1–R4](docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md) found that the `/usaha/{slug}` publication contract has not yet reached the generated Astro detail route, rendered metadata/links, CSV import, or optional bridge. `pnpm run build` passed with zero published Franchisor rows, so it does not validate the published-brand case. Keep the 34 legacy `/usaha/*` pages until generated replacements and redirects are verified. The tracker now treats legacy brand-ID matching and publication-row reconciliation separately.
+**Current URL and build review, 2026-09-26:** Franchisor.id uses `/peluang-usaha/` for the directory and category/city/capital discovery, and `/usaha/{slug}` for each brand detail and its no-trailing-slash canonical. Franchisee.id uses `/peluang-usaha/` for its directory and `/peluang-usaha/{slug}` for its brand detail. [Rollout review R1–R4](docs/product/ROLLOUT_CODE_REVIEW_2026-09-26.md) found an earlier mismatch; `27a783c` aligned the generated detail route, metadata/links, CSV import, and optional bridge. A disposable published-row build proved one new `/usaha/{slug}` route locally. A repeatable fixture, existing-slug precedence, real redirects, and deployed Pages responses remain open. Keep the 34 legacy `/usaha/*` pages until generated replacements are verified. The [Astro and Cloudflare handoff](docs/operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) names the remaining steps.
 
 ## Current network boundary — 2026-09-25
 
-The repository contains a July adaptation of Franchisee's Astro/Pages app, while the live Franchisor domain still served legacy HTML at `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/` in an anonymous check. The app's presence in Git is not live acceptance. Its older claim handler can assign ownership during submit; current Franchisee code instead uses pending claim, private new-brand review, and owner-edit review guarded by shared D1 migrations `0035`–`0039`. Start with [the membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md); compare current code before enabling Franchisor writes or advertising paid network exposure.
+The repository contains a July adaptation of Franchisee's Astro/Pages app, while the live Franchisor domain still served legacy HTML at `/auth-config`, `/profil/`, `/dashboard/`, and `/premium/` in an anonymous 2026-09-25 check. The app's presence in Git is not live acceptance. The July claim handler used to assign ownership during submit; Gate 1 replaced it with the current pending claim, private new-brand review, and owner-edit review contract guarded by shared D1 migrations `0035`–`0039`. Start with [the membership rollout plan](docs/product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [user journeys](docs/product/FRANCHISOR_USER_JOURNEYS.md); verify current deployed behavior before advertising paid network exposure.
 
 **2026-09-26 update:** Gates 0 and 1 of that plan are complete in code. The July handlers have been replaced by the current pending-claim, private `pending_review` new-brand, and owner-edit review-proposal contracts, guarded by `pnpm run ownership:check` in the build chain. Gate 2 (live deployment) is not started — the domain is a soft-404 catch-all that answers every unknown URL with HTTP 200 and the legacy directory page. Read [the progress tracker](docs/product/NETWORK_MEMBERSHIP_PROGRESS.md), [the parity matrix](docs/product/FRANCHISOR_PARITY_MATRIX.md), [the provider boundary record](docs/operations/PROVIDER_BOUNDARY_RECORD.md), and [the legacy brand match](docs/product/LEGACY_BRAND_MATCH.md). Brand pages use `https://franchisor.id/usaha/{slug}`.
 
-Last updated: 2026-07-23
+Last reviewed: 2026-09-26. The implementation inventory below includes 2026-07-23 baseline facts; use the rollout tracker for current gate status.
 
 ## Current state
 
@@ -135,7 +135,7 @@ The build requires Cloudflare credentials to fetch the remote D1 snapshot. Produ
 
 ## Known migration risks
 
-- Existing `/usaha/*` brand pages may collide with a proposed shared `/peluang-usaha/{slug}/` convention.
+- Existing legacy `/usaha/*` pages may collide with generated `/usaha/{slug}` output for the same slug; prove Astro output wins in `dist` and on Pages before retiring a legacy page.
 - Old sitemap and canonical entries must not advertise both old and new URLs as primary.
 - Functional `/login/`, `/daftar/`, `/profil/`, `/dashboard/`, and related application routes exist in code, but production auth/write behavior remains unverified until Cloudflare and Clerk are configured.
 - Re-importing the 34 legacy brand pages as new brands could duplicate canonical D1 records.

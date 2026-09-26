@@ -1,6 +1,6 @@
 # Franchisor.id documentation
 
-Current implementing-harness feedback: [rollout code review, 2026-09-26](product/ROLLOUT_CODE_REVIEW_2026-09-26.md) lists the `/usaha/{slug}` route, alternate publication producers, gate-status, and provider-record corrections with acceptance checks. Read it with the [progress tracker](product/NETWORK_MEMBERSHIP_PROGRESS.md) before resuming Gate 2 or a published-brand pilot.
+Current implementing-harness handoff: Franchisor's directory is `/peluang-usaha/` and brand details are `/usaha/{slug}`; Franchisee uses `/peluang-usaha/` for both its directory and detail family. Read the [Astro/Cloudflare brand publishing plan](operations/ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md), [rollout code review](product/ROLLOUT_CODE_REVIEW_2026-09-26.md), and [progress tracker](product/NETWORK_MEMBERSHIP_PROGRESS.md) before Gate 2 or a published-brand pilot. The earlier review findings have code fixes, but their production acceptance gates remain open.
 
 ## Start here for current network work
 

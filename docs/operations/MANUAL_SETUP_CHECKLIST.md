@@ -1,5 +1,7 @@
 # Franchisor.id deployment and integration checklist
 
+Use the [Astro/Cloudflare brand publishing plan](ASTRO_CLOUDFLARE_BRAND_PUBLISH_PLAN.md) with this provider checklist. The directory must resolve at `/peluang-usaha/` and individual brand pages at `/usaha/{slug}`; verify both the Franchisor theme and local CSS/assets on the deployed SHA before changing the production domain.
+
 > This checklist records the July launch procedure. On 2026-09-25 an anonymous request to the production `/auth-config` returned legacy HTML, and protected routes returned legacy pages. Current provider settings and deployments must be re-audited; do not assume every step below is still undone or that a 200 response proves the adapted app is live. Follow [the membership rollout gates](../product/NETWORK_MEMBERSHIP_ROLLOUT_PLAN.md) and [the controlled journeys](../product/FRANCHISOR_USER_JOURNEYS.md) before charging or onboarding a brand.
 
 Last updated: 2026-07-22
