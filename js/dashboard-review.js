@@ -8,6 +8,27 @@
   // scripts/check-ownership-contract.ts.
   var OWNER_REVIEW_REASON = "Perubahan pemilik setelah listing diterbitkan";
 
+  // Labels for the `profile_<field>` keys carried by an owner profile proposal.
+  // Without these, getFieldDef would fall back to the first listing field and label
+  // a contact change as "Nama brand". Mirrors OWNER_PROFILE_FIELDS in
+  // functions/_profile-owner-review.js.
+  var OWNER_PROFILE_FIELD_LABELS = {
+    company_name: "Nama perusahaan",
+    country_code: "Kode negara",
+    whatsapp: "WhatsApp",
+    website_url: "Website",
+    instagram_url: "Instagram",
+    facebook_url: "Facebook",
+    tiktok_url: "TikTok",
+    youtube_url: "YouTube",
+    linkedin_url: "LinkedIn",
+    nib_number: "NIB",
+    haki_status: "Status HAKI",
+    haki_number: "Nomor HAKI",
+    pic_name: "Nama PIC",
+    email_contact: "Email kontak"
+  };
+
   function createOperations(options) {
     options = options || {};
 
@@ -441,6 +462,10 @@
     }
 
     function getFieldDef(fieldName) {
+      var profileLabel = OWNER_PROFILE_FIELD_LABELS[String(fieldName).replace(/^profile_/, "")];
+      if (String(fieldName).indexOf("profile_") === 0) {
+        return { name: fieldName, label: profileLabel || fieldName, type: "text" };
+      }
       return getEditableFields().filter(function (field) { return field.name === fieldName; })[0] || getEditableFields()[0];
     }
 

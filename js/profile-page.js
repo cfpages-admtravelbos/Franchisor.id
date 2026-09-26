@@ -524,7 +524,11 @@
         pendingReview ? "" : "success",
       );
       state.accountEditingField = "";
-      if (type === "account") state.accountMessage = { type: "success", text: "Akun tersimpan." };
+      if (type === "account") {
+        state.accountMessage = payload.brand_contact_review === "pending"
+          ? { type: "success", text: "Akun tersimpan. Perubahan kontak brand diajukan untuk diperiksa admin; halaman publik belum berubah." }
+          : { type: "success", text: "Akun tersimpan." };
+      }
       await loadProfile();
     } catch (error) {
       setMessage(message, error.message || "Data gagal disimpan.", "error");

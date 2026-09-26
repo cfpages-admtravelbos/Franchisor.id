@@ -41,7 +41,10 @@ export async function queueOwnerReview(db, actor, franchiseId, changes, previous
   return { pending: true, suggestion_id: id };
 }
 
-const PROFILE_FIELDS = new Set([
+// Public brand identity/contact fields an owner may change only through admin review.
+// Exported as an array so the dashboard action schema can build one exact allowlist
+// from the same source instead of keeping a second hand-written list in step.
+export const OWNER_PROFILE_FIELDS = [
   "company_name",
   "country_code",
   "whatsapp",
@@ -54,7 +57,11 @@ const PROFILE_FIELDS = new Set([
   "nib_number",
   "haki_status",
   "haki_number",
-]);
+  "pic_name",
+  "email_contact",
+];
+
+const PROFILE_FIELDS = new Set(OWNER_PROFILE_FIELDS);
 
 export async function reviewedProfileStatements(db, suggestion, selected, reviewerId) {
   const changes = Object.entries(selected).map(([field, value]) => {
